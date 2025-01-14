@@ -12,6 +12,9 @@ public class PlayerMove : MonoBehaviour
     private Rigidbody2D rigid;
     private SpriteRenderer spriteRenderer; //색상변경
     public landtiles targetTile; //landtiles 객체 참조를 위한 public 변수로 추후 변경예정
+    //장비 리스트는 이후 리스트 형태 or 타 코드로 옮겨 질 수 있음 
+    private bool equipment_01 = false;
+    private bool equipment_02 = false;
 
     private void Awake()
     {
@@ -19,6 +22,10 @@ public class PlayerMove : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer 컴포넌트 가져오기
     }
 
+    private void Update()
+    {
+        Quickslote();
+    }
     private void FixedUpdate()
     {
         Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
@@ -48,5 +55,20 @@ public class PlayerMove : MonoBehaviour
         // 랜덤한 색상을 생성하여 적용
         Color randomColor = new Color(Random.value, Random.value, Random.value);
         spriteRenderer.color = randomColor;
+    }
+    private void Quickslote()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+             {
+            equipment_01 = true;
+            equipment_02 = false;
+            Debug.Log(equipment_01);
+            }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+            equipment_01 = false;
+            equipment_02 = true;
+            Debug.Log(equipment_02);
+            }    
     }
 }
