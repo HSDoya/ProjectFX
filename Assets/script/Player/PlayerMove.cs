@@ -16,6 +16,8 @@ public class PlayerMove : MonoBehaviour
     //장비 리스트는 이후 리스트 형태 or 타 코드로 옮겨 질 수 있음 
     private bool equipment_01 = false;
     private bool equipment_02 = false;
+    private string currentEquipment = ""; // 현재 장착된 장비 ("Hoe", "Seeds", "Water")
+
 
     private void Awake()
     {
@@ -25,7 +27,7 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
-        Quickslote();
+        Quickslote(); // 숫자 키 입력 감지
     }
     private void FixedUpdate()
     {
@@ -40,7 +42,6 @@ public class PlayerMove : MonoBehaviour
     public void OnFire()
     {
         //changeColor();
-       
         Debug.Log("마우스 클릭!");
         /*
         if (targetTile != null)
@@ -84,24 +85,35 @@ public class PlayerMove : MonoBehaviour
         Color randomColor = new Color(Random.value, Random.value, Random.value);
         spriteRenderer.color = randomColor;
     }
-    private void Click_farm(GameObject farmTile) // 테스팅 단계에 임시 변수명 이후 변수명 변경해야함
+    private void Click_farm(GameObject farmTile) // 테스팅 이후 변수명 변경(최근 수정 박기보)
     {
-        if (!equipment_01)
+        landtiles landTileComponent = farmTile.GetComponent<landtiles>();
+        if (landTileComponent == null)
         {
-            Debug.Log("괭이를 착용하세요");
+            Debug.LogWarning("해당 객체에 landtiles 컴포넌트가 없습니다.");
             return;
         }
 
-        // 농사 타일과 상호작용
-        landtiles landTileComponent = farmTile.GetComponent<landtiles>();
-        if (landTileComponent != null)
+        switch (currentEquipment)
         {
-            landTileComponent.AdvanceStage();
-            Debug.Log("농사 타일과 상호작용 완료");
-        }
-        else
-        {
-            Debug.LogWarning("해당 객체에 landtiles 컴포넌트가 없습니다.");
+            case "Hoe": // 괭이
+                landTileComponent.ChangeTileColor(Color.gray, 3f); // 갈색(회색)으로 변경, 3초 후 복구
+                Debug.Log("괭이를 사용하여 상호작용했습니다.");
+                break;
+
+            case "Seeds": // 씨앗
+                landTileComponent.ChangeTileColor(Color.yellow, 3f); // 노란색으로 변경
+                Debug.Log("씨앗을 사용하여 상호작용했습니다.");
+                break;
+
+            case "Water": // 물뿌리개
+                landTileComponent.ChangeTileColor(Color.blue, 3f); // 파란색으로 변경
+                Debug.Log("물을 사용하여 상호작용했습니다.");
+                break;
+
+            default:
+                Debug.Log("장비가 장착되지 않았습니다.");
+                break;
         }
     }
     private void Click_fishing(GameObject fishingTile)
@@ -124,7 +136,7 @@ public class PlayerMove : MonoBehaviour
             Debug.LogWarning("해당 객체에 Tile_Fishing 컴포넌트가 없습니다.");
         }
     }
-    private void Quickslote()
+    private void Quickslote() //장착 아이템 수정
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
              {
@@ -137,6 +149,23 @@ public class PlayerMove : MonoBehaviour
             equipment_01 = false;
             equipment_02 = true;
             Debug.Log(equipment_02);
-            }    
+            }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            currentEquipment = "Hoe";
+            Debug.Log("괭이 장착됨");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            currentEquipment = "Seeds";
+            Debug.Log("씨앗 장착됨");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            currentEquipment = "Water";
+            Debug.Log("물뿌리개 장착됨");
+        }
     }
 }
+

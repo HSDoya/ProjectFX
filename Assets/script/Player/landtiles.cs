@@ -1,37 +1,28 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class landtiles : MonoBehaviour
 {
-    private float farming = 1f;
-    private float sowingseeds = 0.3f;
-    private float Sprinklewater = 0.5f;
     private Renderer tileRenderer;
-    private int currentStage = 0; // 0: farming, 1: sowingseeds, 2: Sprinklewater
+    private Color originalColor; // 초기 색상
 
     void Start()
     {
         tileRenderer = GetComponent<Renderer>();
+        originalColor = new Color(0.5f, 0.3f, 0.2f); // 갈색을 초기 색상으로 설정
+        tileRenderer.material.color = originalColor; // 초기 색상 적용
     }
-    public void AdvanceStage()
+
+    public void ChangeTileColor(Color newColor, float duration)
     {
-        UpdateTileColor();
-        currentStage = (currentStage + 1) % 3; // 0 -> 1 -> 2 -> 0 순환
+        StopAllCoroutines(); // 기존 코루틴 중지
+        StartCoroutine(ChangeColorRoutine(newColor, duration));
     }
-    private void UpdateTileColor()
+
+    private IEnumerator ChangeColorRoutine(Color newColor, float duration)
     {
-        switch (currentStage)
-        {
-            case 0:
-                tileRenderer.material.color = new Color(1f, farming, farming); // 빨간색
-                break;
-            case 1:
-                tileRenderer.material.color = new Color(sowingseeds, sowingseeds, 1f); // 파란색
-                break;
-            case 2:
-                tileRenderer.material.color = new Color(Sprinklewater, 1f, Sprinklewater); // 녹색
-                break;
-        }
+        tileRenderer.material.color = newColor; // 새 색상 적용
+        yield return new WaitForSeconds(duration); // 지정된 시간 대기
+        tileRenderer.material.color = originalColor; // 원래 색상으로 복구
     }
 }

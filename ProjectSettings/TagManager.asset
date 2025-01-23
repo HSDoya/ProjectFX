@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Farm
   - Fishing
+  - hoe
+  - Seeds
+  - Water
   layers:
   - Default
   - TransparentFX
