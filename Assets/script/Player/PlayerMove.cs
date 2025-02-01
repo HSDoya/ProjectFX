@@ -41,19 +41,10 @@ public class PlayerMove : MonoBehaviour
     }
     public void OnFire()
     {
-        //changeColor();
+       
         Debug.Log("마우스 클릭!");
-        /*
-        if (targetTile != null)
-        {
-            targetTile.AdvanceStage(); // landtiles의 AdvanceStage 메서드 호출
-            Debug.Log("타일의 색상이 변경되었습니다.");
-        }
-        else
-        {
-            Debug.LogWarning("targetTile이 설정되지 않았습니다.");
-        }
-        */
+     
+        
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
@@ -118,11 +109,7 @@ public class PlayerMove : MonoBehaviour
     }
     private void Click_fishing(GameObject fishingTile)
     {
-        if (!equipment_02)
-        {
-            Debug.Log("낚시대를 착용하세요");
-            return;
-        }
+     
 
         // 낚시 타일과 상호작용
         Tile_Fishing fishingComponent = fishingTile.GetComponent<Tile_Fishing>();
