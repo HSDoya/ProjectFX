@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Charmove_L01_0: -6948898627479182805
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -18,11 +18,14 @@ public class PlayerMove : MonoBehaviour
     private bool equipment_02 = false;
     private string currentEquipment = ""; // 현재 장착된 장비 ("Hoe", "Seeds", "Water")
 
+    // 애니메이션 코드
+    Animator anim;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer 컴포넌트 가져오기
+        anim = GetComponent<Animator>();
     }
 
     private void Update()
@@ -34,7 +37,17 @@ public class PlayerMove : MonoBehaviour
         Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
         rigid.MovePosition(rigid.position + nextVec);
     }
+    private void LateUpdate()
+    {
+        // 2024.03.27 플레이어 애니메이션 추가 코드 수정 
+        // Player 애니메이션중 이동 애니메이션만 추가 이후 죽었을때 애니메이션도 추가 예정
+        anim.SetFloat("Speed", inputVec.magnitude);
 
+        if (inputVec.x != 0)
+        {
+            spriteRenderer.flipX = inputVec.x < 0;
+        }
+    }
     private void OnMove(InputValue value)
     {
         inputVec = value.Get<Vector2>();
