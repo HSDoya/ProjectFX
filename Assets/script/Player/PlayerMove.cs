@@ -56,8 +56,6 @@ public class PlayerMove : MonoBehaviour
     {
        
         Debug.Log("마우스 클릭!");
-     
-        
         Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
@@ -89,41 +87,29 @@ public class PlayerMove : MonoBehaviour
         Color randomColor = new Color(Random.value, Random.value, Random.value);
         spriteRenderer.color = randomColor;
     }
-    private void Click_farm(GameObject farmTile) // 테스팅 이후 변수명 변경(최근 수정 박기보)
+    private void Click_farm(GameObject farmTile)//(2025-02-05 최근 수정 박기보)
     {
         landtiles landTileComponent = farmTile.GetComponent<landtiles>();
-        if (landTileComponent == null)
-        {
-            Debug.LogWarning("해당 객체에 landtiles 컴포넌트가 없습니다.");
-            return;
-        }
+        if (landTileComponent == null) return;
 
         switch (currentEquipment)
         {
-            case "Hoe": // 괭이
-                landTileComponent.ChangeTileColor(Color.gray, 3f); // 갈색(회색)으로 변경, 3초 후 복구
-                Debug.Log("괭이를 사용하여 상호작용했습니다.");
+            case "Hoe":
+                landTileComponent.ChangeTileColor(Color.gray, 3f);
+                Debug.Log("괭이를 사용하여 땅을 고름.");
                 break;
-
-            case "Seeds": // 씨앗
-                landTileComponent.ChangeTileColor(Color.yellow, 3f); // 노란색으로 변경
-                Debug.Log("씨앗을 사용하여 상호작용했습니다.");
+            case "Seeds":
+                landTileComponent.PlantSeed();
+                Debug.Log("씨앗을 심었습니다!");
                 break;
-
-            case "Water": // 물뿌리개
-                landTileComponent.ChangeTileColor(Color.blue, 3f); // 파란색으로 변경
-                Debug.Log("물을 사용하여 상호작용했습니다.");
-                break;
-
-            default:
-                Debug.Log("장비가 장착되지 않았습니다.");
+            case "Water":
+                landTileComponent.WaterTile();
+                Debug.Log("물을 뿌렸습니다! 성장 시작!");
                 break;
         }
     }
     private void Click_fishing(GameObject fishingTile)
     {
-     
-
         // 낚시 타일과 상호작용
         Tile_Fishing fishingComponent = fishingTile.GetComponent<Tile_Fishing>();
         if (fishingComponent != null)
@@ -136,7 +122,7 @@ public class PlayerMove : MonoBehaviour
             Debug.LogWarning("해당 객체에 Tile_Fishing 컴포넌트가 없습니다.");
         }
     }
-    private void Quickslote() //장착 아이템 수정
+    private void Quickslote() //(2025-02-05 박기보)장착 아이템 수정
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
              {
@@ -150,7 +136,6 @@ public class PlayerMove : MonoBehaviour
             equipment_02 = true;
             Debug.Log(equipment_02);
             }
-
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             currentEquipment = "Hoe";
