@@ -17,6 +17,7 @@ public class PlayerMove : MonoBehaviour
     private bool equipment_01 = false;
     private bool equipment_02 = false;
     private string currentEquipment = ""; // 현재 장착된 장비 ("Hoe", "Seeds", "Water")
+    public bool event_time = false; // 이벤트 발생시 움직임을 막을 코드 이후 수정 필요 
 
     // 애니메이션 코드
     Animator anim;
@@ -50,7 +51,8 @@ public class PlayerMove : MonoBehaviour
     }
     private void OnMove(InputValue value)
     {
-        inputVec = value.Get<Vector2>();
+        if(!event_time)
+            inputVec = value.Get<Vector2>();
     }
     public void OnFire()
     {
