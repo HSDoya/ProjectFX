@@ -60,7 +60,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 2048
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -222,7 +222,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      FishingMove_0: 4072473221087734424
+      FishingMove_1: 8438024940187317715
+      FishingMove_2: -3855526228537754290
+      FishingMove_3: 1526028330113258233
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
