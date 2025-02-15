@@ -51,8 +51,11 @@ public class PlayerMove : MonoBehaviour
     }
     private void OnMove(InputValue value)
     {
-        if(!event_time)
+        if (!event_time)
+        {
             inputVec = value.Get<Vector2>();
+            anim.SetBool("Fishing", false);
+        }
     }
     public void OnFire()
     {
@@ -83,12 +86,6 @@ public class PlayerMove : MonoBehaviour
             Debug.Log("클릭된 객체가 없습니다.");
         }
     }
-    private void changeColor()
-    {
-        // 랜덤한 색상을 생성하여 적용
-        Color randomColor = new Color(Random.value, Random.value, Random.value);
-        spriteRenderer.color = randomColor;
-    }
     private void Click_farm(GameObject farmTile)//(2025-02-05 최근 수정 박기보)
     {
         landtiles landTileComponent = farmTile.GetComponent<landtiles>();
@@ -117,7 +114,9 @@ public class PlayerMove : MonoBehaviour
         if (fishingComponent != null)
         {
             fishingComponent.AdvanceStage();
+            anim.SetBool("Fishing", true);
             Debug.Log("낚시 타일과 상호작용 완료");
+           
         }
         else
         {
