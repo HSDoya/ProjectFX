@@ -7,3 +7,10 @@ ShaderImporter:
   userData: Version 2.0
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 301357
+  packageName: Free Inventory System for 2D Games
+  packageVersion: 1.0.0
+  assetPath: Assets/TextMesh Pro/Shaders/TMPro.cginc
+  uploadId: 705297

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c4a076ac2ee828e4b8d2e43ea92490ee
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 301357
+  packageName: Free Inventory System for 2D Games
+  packageVersion: 1.0.0
+  assetPath: Assets/Inventory System - Kinnly/ScriptableObjects/Flower_Yellow.asset
+  uploadId: 705297

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 65c35f1f3883dcb4bb9a84ffbe44d7ee
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 301357
+  packageName: Free Inventory System for 2D Games
+  packageVersion: 1.0.0
+  assetPath: Assets/Inventory System - Kinnly/Assets/Tileset/TileSet_103.asset
+  uploadId: 705297
