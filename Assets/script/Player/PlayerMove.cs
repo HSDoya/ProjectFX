@@ -1,157 +1,124 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.Tilemaps;
 
 public class PlayerMove : MonoBehaviour
 {
-    
     public Vector2 inputVec;
-    public float speed;
-
+    public float speed = 5f;
     private Rigidbody2D rigid;
-    private SpriteRenderer spriteRenderer; //»ö»óº¯°æ
-    public landtiles targetTile; //landtiles °´Ã¼ ÂüÁ¶¸¦ À§ÇÑ public º¯¼ö·Î ÃßÈÄ º¯°æ¿¹Á¤
-    public Tile_Fishing tile_fishing; // Å×½ºÆÃ ÄÚµå ÀÌÈÄ º¯°æ¿¹Á¤ 
-    //Àåºñ ¸®½ºÆ®´Â ÀÌÈÄ ¸®½ºÆ® ÇüÅÂ or Å¸ ÄÚµå·Î ¿Å°Ü Áú ¼ö ÀÖÀ½ 
-    private bool equipment_01 = false;
-    private bool equipment_02 = false;
-    private string currentEquipment = ""; // ÇöÀç ÀåÂøµÈ Àåºñ ("Hoe", "Seeds", "Water")
-    public bool event_time = false; // ÀÌº¥Æ® ¹ß»ı½Ã ¿òÁ÷ÀÓÀ» ¸·À» ÄÚµå ÀÌÈÄ ¼öÁ¤ ÇÊ¿ä 
-
-    // ¾Ö´Ï¸ŞÀÌ¼Ç ÄÚµå
+    private SpriteRenderer spriteRenderer;
+    public Tilemap farmTilemap;
+    public Tilemap waterTilemap;
+    public landtiles landTileManager;
+    private string currentEquipment = "";
+    public bool event_time = false;
     Animator anim;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer ÄÄÆ÷³ÍÆ® °¡Á®¿À±â
+        spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
     }
 
-    private void Update()
-    {
-        Quickslote(); // ¼ıÀÚ Å° ÀÔ·Â °¨Áö
-    }
     private void FixedUpdate()
     {
-        Vector2 nextVec = inputVec.normalized * speed * Time.fixedDeltaTime;
-        rigid.MovePosition(rigid.position + nextVec);
+        if (!event_time)
+        {
+            rigid.linearVelocity = inputVec * speed;
+        }
+        else
+        {
+            rigid.linearVelocity = Vector2.zero;
+        }
     }
+
     private void LateUpdate()
     {
-        // 2024.03.27 ÇÃ·¹ÀÌ¾î ¾Ö´Ï¸ŞÀÌ¼Ç Ãß°¡ ÄÚµå ¼öÁ¤ 
-        // Player ¾Ö´Ï¸ŞÀÌ¼ÇÁß ÀÌµ¿ ¾Ö´Ï¸ŞÀÌ¼Ç¸¸ Ãß°¡ ÀÌÈÄ Á×¾úÀ»¶§ ¾Ö´Ï¸ŞÀÌ¼Çµµ Ãß°¡ ¿¹Á¤
         anim.SetFloat("Speed", inputVec.magnitude);
-
         if (inputVec.x != 0)
         {
             spriteRenderer.flipX = inputVec.x < 0;
         }
     }
+
     private void OnMove(InputValue value)
     {
-        if (!event_time)
-        {
-            inputVec = value.Get<Vector2>();
-            anim.SetBool("Fishing", false);
-        }
+        inputVec = value.Get<Vector2>();
+        anim.SetBool("Fishing", false);
     }
+
     public void OnFire()
     {
-       
-        Debug.Log("¸¶¿ì½º Å¬¸¯!");
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3Int tilePosition = farmTilemap.WorldToCell(mousePosition);
+        TileBase clickedFarmTile = farmTilemap.GetTile(tilePosition);
+        TileBase clickedWaterTile = waterTilemap.GetTile(tilePosition);
 
-        if (hit.collider != null)
+        if (clickedFarmTile != null)
         {
-            GameObject clickedObject = hit.collider.gameObject;
-
-            if (clickedObject.CompareTag("Farm"))
-            {
-                Click_farm(clickedObject);
-            }
-            else if (clickedObject.CompareTag("Fishing"))
-            {
-                Click_fishing(clickedObject);
-            }
-            else
-            {
-                Debug.Log("»óÈ£ÀÛ¿ëÇÒ ¼ö ¾ø´Â °´Ã¼ÀÔ´Ï´Ù.");
-            }
+            Debug.Log("ë†ì‚¬ íƒ€ì¼ í´ë¦­ë¨: " + tilePosition);
+            HandleFarmAction(tilePosition);
+        }
+        else if (clickedWaterTile != null)
+        {
+            Debug.Log("ë°”ë‹¤ íƒ€ì¼ í´ë¦­ë¨: " + tilePosition);
+            HandleFishingAction();
         }
         else
         {
-            Debug.Log("Å¬¸¯µÈ °´Ã¼°¡ ¾ø½À´Ï´Ù.");
+            Debug.Log("íƒ€ì¼ì´ ê°ì§€ë˜ì§€ ì•ŠìŒ!");
         }
     }
-    private void Click_farm(GameObject farmTile)//(2025-02-05 ÃÖ±Ù ¼öÁ¤ ¹Ú±âº¸)
-    {
-        landtiles landTileComponent = farmTile.GetComponent<landtiles>();
-        if (landTileComponent == null) return;
 
-        switch (currentEquipment)
+    private void HandleFarmAction(Vector3Int tilePosition)
+    {
+        if (currentEquipment == "Hoe")
         {
-            case "Hoe":
-                landTileComponent.ChangeTileColor(Color.gray, 3f);
-                Debug.Log("±ªÀÌ¸¦ »ç¿ëÇÏ¿© ¶¥À» °í¸§.");
-                break;
-            case "Seeds":
-                landTileComponent.PlantSeed();
-                Debug.Log("¾¾¾ÑÀ» ½É¾ú½À´Ï´Ù!");
-                break;
-            case "Water":
-                landTileComponent.WaterTile();
-                Debug.Log("¹°À» »Ñ·È½À´Ï´Ù! ¼ºÀå ½ÃÀÛ!");
-                break;
+            landTileManager.PlowSoil(tilePosition);
+        }
+        else if (currentEquipment == "Seeds")
+        {
+            landTileManager.PlantSeed(tilePosition);
+        }
+        else if (currentEquipment == "Water")
+        {
+            landTileManager.WaterTile(tilePosition);
+        }
+        else if (currentEquipment == "Harvest")
+        {
+            landTileManager.HarvestCrop(tilePosition);
         }
     }
-    private void Click_fishing(GameObject fishingTile)
+
+    private void HandleFishingAction()
     {
-        // ³¬½Ã Å¸ÀÏ°ú »óÈ£ÀÛ¿ë
-        Tile_Fishing fishingComponent = fishingTile.GetComponent<Tile_Fishing>();
-        if (fishingComponent != null)
-        {
-            fishingComponent.AdvanceStage();
-            anim.SetBool("Fishing", true);
-            Debug.Log("³¬½Ã Å¸ÀÏ°ú »óÈ£ÀÛ¿ë ¿Ï·á");
-           
-        }
-        else
-        {
-            Debug.LogWarning("ÇØ´ç °´Ã¼¿¡ Tile_Fishing ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù.");
-        }
+        Debug.Log("ë‚šì‹œ ì´ë²¤íŠ¸ ì‹¤í–‰!");
+        anim.SetBool("Fishing", true);
     }
-    private void Quickslote() //(2025-02-05 ¹Ú±âº¸)ÀåÂø ¾ÆÀÌÅÛ ¼öÁ¤
+
+    private void Quickslot()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-             {
-            equipment_01 = true;
-            equipment_02 = false;
-            Debug.Log(equipment_01);
-            }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-            equipment_01 = false;
-            equipment_02 = true;
-            Debug.Log(equipment_02);
-            }
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             currentEquipment = "Hoe";
-            Debug.Log("±ªÀÌ ÀåÂøµÊ");
+            Debug.Log("ê´­ì´ ì¥ì°©ë¨");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             currentEquipment = "Seeds";
-            Debug.Log("¾¾¾Ñ ÀåÂøµÊ");
+            Debug.Log("ì”¨ì•— ì¥ì°©ë¨");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             currentEquipment = "Water";
-            Debug.Log("¹°»Ñ¸®°³ ÀåÂøµÊ");
+            Debug.Log("ë¬¼ë¿Œë¦¬ê°œ ì¥ì°©ë¨");
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            currentEquipment = "Harvest";
+            Debug.Log("ìˆ˜í™• ë„êµ¬ ì¥ì°©ë¨");
         }
     }
 }
-

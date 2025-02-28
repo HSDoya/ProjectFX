@@ -4,9 +4,9 @@ using UnityEngine.UI;
 
 public class Tile_Fishing : MonoBehaviour
 {
-    [SerializeField] private GameObject testUI; // 테스트용 UI
-    [SerializeField] private PlayerMove playermove_manger; // PlayerMove 스크립트의 event_time 필요
-    [SerializeField] private ItemData fishItem; // 특정 물고기 아이템
+    [SerializeField] private GameObject testUI;
+    [SerializeField] private PlayerMove playermove_manger;
+    [SerializeField] private ItemData fishItem;
 
     void Start()
     {
@@ -18,7 +18,7 @@ public class Tile_Fishing : MonoBehaviour
         testUI.SetActive(true);
     }
 
-    public void fishing()
+    public void Fishing()
     {
         if (!playermove_manger.event_time) return;
 
@@ -28,12 +28,9 @@ public class Tile_Fishing : MonoBehaviour
 
     private IEnumerator FishingProcess()
     {
-        float waitTime = 2f; // 고정된 대기 시간
-        yield return new WaitForSeconds(waitTime);
-
+        yield return new WaitForSeconds(2f);
         Debug.Log($"낚시 결과: {fishItem.displayName}!");
 
-        // 이제 ItemData를 직접 추가할 수 있음
         bool added = Inventory.instance.Add(fishItem);
         if (added)
         {
@@ -45,17 +42,5 @@ public class Tile_Fishing : MonoBehaviour
         }
 
         playermove_manger.event_time = false;
-    }
-
-    public void yesButton()
-    {
-        testUI.SetActive(false);
-        playermove_manger.event_time = true;
-        fishing();
-    }
-
-    public void noButton()
-    {
-        testUI.SetActive(false);
     }
 }

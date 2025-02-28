@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Item
 {
-    public ItemData data;  // ItemData ÂüÁ¶
+    public ItemData data;
 
     public Item(ItemData newItemData)
     {

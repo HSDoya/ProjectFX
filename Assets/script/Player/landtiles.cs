@@ -1,113 +1,59 @@
-using UnityEngine;
+ï»¿using UnityEngine;
+using UnityEngine.Tilemaps;
 using System.Collections;
 
 public class landtiles : MonoBehaviour
 {
-    private Renderer tileRenderer;
-    private int currentStage = 0; // 0: °¥»ö(¶¥) ¡æ 1: ¾¾¾Ñ ¡æ 2: »õ½Ï ¡æ 3: ¼ºÀå ¡æ 4: ¼öÈ® °¡´É
-    private bool isWatered = false; // ¼ºÀå ÁßÀÎÁö Ã¼Å©
-    private Color originalColor; // ÃÊ±â »ö»ó
+    public Tilemap farmTilemap;
+    public TileBase farmableTile;
+    public TileBase seedTile;
+    public TileBase sproutTile;
+    public TileBase grownTile;
+    public TileBase harvestableTile;
 
-    void Start()
+    public void PlowSoil(Vector3Int tilePosition)
     {
-        tileRenderer = GetComponent<Renderer>();
-        originalColor = new Color(0.5f, 0.3f, 0.2f); // °¥»ö(Èë)
-        tileRenderer.material.color = originalColor; // ÃÊ±â »ö»ó Àû¿ë
-    }
-
-    public void PlantSeed()
-    {
-        if (currentStage == 0) //¾¾¾Ñ ½É±â °¡´ÉÇÒ ‹š¸¸ ½ÇÇà
+        if (farmTilemap.GetTile(tilePosition) == null)
         {
-            currentStage = 1; //¾¾¾Ñ ´Ü°è
-            tileRenderer.material.color = Color.yellow; // ³ë¶õ»ö(¾¾¾Ñ)
-            isWatered |= false; // ¹°À» ¾ÆÁ÷ ¾È ÁÜ
-            Debug.Log("¾¾¾ÑÀÌ ½É¾îÁ³½À´Ï´Ù.");
+            farmTilemap.SetTile(tilePosition, farmableTile);
+            Debug.Log("ë•…ì„ ê°ˆì•˜ìŠµë‹ˆë‹¤.");
         }
     }
 
-    public void WaterTile()
+    public void PlantSeed(Vector3Int tilePosition)
     {
-        if(currentStage == 1) // ¾¾¾ÑÀÌ ½É¾îÁø »óÅÂ¶ó¸é ¹°À» ÁÙ ¼ö ÀÖÀ½
+        if (farmTilemap.GetTile(tilePosition) == farmableTile)
         {
-            isWatered = true;
-            tileRenderer.material.color = Color.blue; // ÆÄ¶õ»ö (¹° ÁÜ)
-            Debug.Log("¹°À» Áá½À´Ï´Ù! ÀÛ¹°ÀÌ ¼ºÀåÇÕ´Ï´Ù.");
-            StartCoroutine(GrowSeed());
+            farmTilemap.SetTile(tilePosition, seedTile);
+            Debug.Log("ì”¨ì•—ì„ ì‹¬ì—ˆìŠµë‹ˆë‹¤.");
         }
     }
 
-    private IEnumerator GrowSeed()
+    public void WaterTile(Vector3Int tilePosition)
     {
-        while (currentStage < 4) // ÃÖ´ë ¼ºÀå ´Ü°è(¼öÈ® °¡´É)±îÁö ¹İº¹
+        if (farmTilemap.GetTile(tilePosition) == seedTile)
         {
-            if (!isWatered) yield break; // ¹°À» ÁÖÁö ¾Ê¾Ò´Ù¸é Áß´Ü
+            farmTilemap.SetTile(tilePosition, sproutTile);
+            Debug.Log("ë¬¼ì„ ì£¼ì—ˆìŠµë‹ˆë‹¤!");
+            StartCoroutine(GrowCrop(tilePosition));
+        }
+    }
 
-            float growthTime = GetGrowthTime();
-            yield return new WaitForSeconds(growthTime); // ³¯¾¾¿¡ µû¸¥ ¼ºÀå ¼Óµµ ¹İ¿µ
-            currentStage++;
-            UpdateTileColor();
-            Debug.Log($"¼ºÀå ´Ü°è Áõ°¡: {currentStage}");
-        }
-    }
-    private float GetGrowthTime()
+    private IEnumerator GrowCrop(Vector3Int tilePosition)
     {
-        switch (WeatherManager.Instance.currentWeather)
-        {
-            case WeatherManager.WeatherType.Sunny:
-                return 8f; // ¸¼À½ ¡æ ±âº» ¼ºÀå ¼Óµµ (8ÃÊ)
-            case WeatherManager.WeatherType.Rainy:
-                return 4f; // ºñ ¡æ ¼ºÀå ¼Óµµ 2¹è ºü¸§ (4ÃÊ)
-            case WeatherManager.WeatherType.Cloudy:
-                return 12f; // Èå¸² ¡æ ¼ºÀå ¼Óµµ ´À¸² (12ÃÊ)
-            default:
-                return 8f;
-        };
+        yield return new WaitForSeconds(5f);
+        farmTilemap.SetTile(tilePosition, grownTile);
+        yield return new WaitForSeconds(5f);
+        farmTilemap.SetTile(tilePosition, harvestableTile);
+        Debug.Log("ì‘ë¬¼ì´ ìëìŠµë‹ˆë‹¤!");
     }
-    private void UpdateTileColor()
+
+    public void HarvestCrop(Vector3Int tilePosition)
     {
-        switch (currentStage)
+        if (farmTilemap.GetTile(tilePosition) == harvestableTile)
         {
-            case 1:
-                tileRenderer.material.color = Color.yellow; // ¾¾¾Ñ
-                break;
-            case 2:
-                tileRenderer.material.color = Color.green; // »õ½Ï
-                break;
-            case 3:
-                tileRenderer.material.color = new Color(0.1f, 0.6f, 0.1f); // ¼ºÀåÇÑ ÀÛ¹°
-                break;
-            case 4:
-                tileRenderer.material.color = new Color(0.8f, 0.5f, 0.1f); // ¼öÈ® °¡´É (°¥»ö-³ë¶õ»ö)
-                break;
+            farmTilemap.SetTile(tilePosition, farmableTile);
+            Debug.Log("ì‘ë¬¼ì„ ìˆ˜í™•í–ˆìŠµë‹ˆë‹¤!");
         }
     }
-    public void HarvestCrop()
-    {
-        if (currentStage == 4) // ¼öÈ® °¡´É »óÅÂ
-        {
-            currentStage = 0; // ´Ù½Ã °¥»ö ¶¥À¸·Î ÃÊ±âÈ­
-            tileRenderer.material.color = originalColor;
-            isWatered = false;
-            Debug.Log("ÀÛ¹°ÀÌ ¼öÈ®µÇ¾ú½À´Ï´Ù!");
-        }
-    }
-    //Á¦°ÅÇØµµ µÇ´Â ÄÚµå?
-        public void ChangeTileColor(Color newColor, float duration)
-        {
-            StopAllCoroutines(); // ±âÁ¸ ÄÚ·çÆ¾ ÁßÁö
-            StartCoroutine(ChangeColorRoutine(newColor, duration));
-        }
-        private IEnumerator ChangeColorRoutine(Color newColor, float duration)
-        {
-            tileRenderer.material.color = newColor; // »õ »ö»ó Àû¿ë
-            yield return new WaitForSeconds(duration); // ÁöÁ¤µÈ ½Ã°£ ´ë±â
-            tileRenderer.material.color = originalColor; // ¿ø·¡ »ö»óÀ¸·Î º¹±¸
-        }
 }
-
-
-
-
-
-

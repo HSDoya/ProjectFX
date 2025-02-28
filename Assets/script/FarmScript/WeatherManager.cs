@@ -3,26 +3,34 @@ using System.Collections;
 
 public class WeatherManager : MonoBehaviour
 {
-    public static WeatherManager Instance; //½Ì±ÛÅæ ÆÐÅÏ
+    public static WeatherManager Instance;
 
     public enum WeatherType { Sunny, Rainy, Cloudy }
     public WeatherType currentWeather;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
-    private void start()
+
+    private void Start()
     {
         StartCoroutine(ChangeWeather());
     }
+
     private IEnumerator ChangeWeather()
     {
         while (true)
         {
-            yield return new WaitForSeconds(10f); //10ÃÊ¸¶´Ù ³¯¾¾ º¯°æ
-            int randomWeather = Random.Range(0, 3);
-            currentWeather = (WeatherType)randomWeather;
+            yield return new WaitForSeconds(10f);
+            currentWeather = (WeatherType)Random.Range(0, 3);
             Debug.Log($"ÇöÀç ³¯¾¾: {currentWeather}");
         }
     }
