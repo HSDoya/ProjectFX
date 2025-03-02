@@ -43,4 +43,15 @@ public class Tile_Fishing : MonoBehaviour
 
         playermove_manger.event_time = false;
     }
+    public void yesButton()
+    {
+        testUI.SetActive(false);
+        playermove_manger.event_time = true;
+        Fishing();
+    }
+
+    public void noButton()
+    {
+        testUI.SetActive(false);
+    }
 }
