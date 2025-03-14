@@ -14,7 +14,7 @@ public class PlayerMove : MonoBehaviour
     private string currentEquipment = "";
     public bool event_time = false;
     Animator anim;
-
+    private GameObject collidedObject = null;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -61,14 +61,22 @@ public class PlayerMove : MonoBehaviour
             Debug.Log("농사 타일 클릭됨: " + tilePosition);
             HandleFarmAction(tilePosition);
         }
-        else if (clickedWaterTile != null)
+  /*      else if (clickedWaterTile != null)
         {
             Debug.Log("바다 타일 클릭됨: " + tilePosition);
             HandleFishingAction();
         }
+*/
         else
         {
             Debug.Log("타일이 감지되지 않음!");
+        }
+    }
+    public void OnInteraction()
+    {
+        if (collidedObject != null && collidedObject.CompareTag("sea"))
+        {
+            HandleFishingAction();
         }
     }
 
@@ -121,4 +129,14 @@ public class PlayerMove : MonoBehaviour
             Debug.Log("수확 도구 장착됨");
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("충돌한 객체: " + collision.gameObject.name);
+        if (collision.gameObject.CompareTag("sea")) // 태그가 "Sea"인지 확인
+        {
+            collidedObject = collision.gameObject;
+        }
+    }
+
 }
