@@ -16,6 +16,7 @@ public class landtiles : MonoBehaviour
         if (farmTilemap.GetTile(tilePosition) == null)
         {
             farmTilemap.SetTile(tilePosition, farmableTile);
+            farmTilemap.RefreshAllTiles();
             Debug.Log("땅을 갈았습니다.");
         }
     }
@@ -25,6 +26,7 @@ public class landtiles : MonoBehaviour
         if (farmTilemap.GetTile(tilePosition) == farmableTile)
         {
             farmTilemap.SetTile(tilePosition, seedTile);
+            farmTilemap.RefreshAllTiles();
             Debug.Log("씨앗을 심었습니다.");
         }
     }
@@ -34,6 +36,7 @@ public class landtiles : MonoBehaviour
         if (farmTilemap.GetTile(tilePosition) == seedTile)
         {
             farmTilemap.SetTile(tilePosition, sproutTile);
+            farmTilemap.RefreshAllTiles();
             Debug.Log("물을 주었습니다!");
             StartCoroutine(GrowCrop(tilePosition));
         }
@@ -43,9 +46,13 @@ public class landtiles : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
         farmTilemap.SetTile(tilePosition, grownTile);
+        farmTilemap.RefreshAllTiles();
+        Debug.Log("작물이 자랐습니다!");
+
         yield return new WaitForSeconds(5f);
         farmTilemap.SetTile(tilePosition, harvestableTile);
-        Debug.Log("작물이 자랐습니다!");
+        farmTilemap.RefreshAllTiles();
+        Debug.Log("작물이 완전히 자랐습니다!");
     }
 
     public void HarvestCrop(Vector3Int tilePosition)
@@ -53,6 +60,7 @@ public class landtiles : MonoBehaviour
         if (farmTilemap.GetTile(tilePosition) == harvestableTile)
         {
             farmTilemap.SetTile(tilePosition, farmableTile);
+            farmTilemap.RefreshAllTiles();
             Debug.Log("작물을 수확했습니다!");
         }
     }
