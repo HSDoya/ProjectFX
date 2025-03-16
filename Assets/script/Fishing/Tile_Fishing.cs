@@ -29,6 +29,7 @@ public class Tile_Fishing : MonoBehaviour
     private IEnumerator FishingProcess()
     {
         yield return new WaitForSeconds(2f);
+        /*
         Debug.Log($"낚시 결과: {fishItem.displayName}!");
 
         bool added = Inventory.instance.Add(fishItem);
@@ -40,7 +41,7 @@ public class Tile_Fishing : MonoBehaviour
         {
             Debug.Log("인벤토리에 공간이 부족합니다.");
         }
-
+        */
         playermove_manger.event_time = false;
     }
     public void yesButton()
