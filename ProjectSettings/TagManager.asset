@@ -6,12 +6,18 @@ TagManager:
   tags:
   - ItemDrop
   - hoe
+<<<<<<< Updated upstream
   - sea
   - Slot
   - Undefined
   - Seeds
   - Water
   - farmTile
+=======
+  - Water
+  - Seeds
+  - sea
+>>>>>>> Stashed changes
   layers:
   - Default
   - TransparentFX
