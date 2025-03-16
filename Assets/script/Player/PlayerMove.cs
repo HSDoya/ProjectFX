@@ -16,14 +16,14 @@ public class PlayerMove : MonoBehaviour
     public bool event_time = false;
     Animator anim;
     private GameObject collidedObject = null;
-<<<<<<< Updated upstream
+
     private Vector3Int lastCollidedTile = Vector3Int.zero;
 
-=======
+
 
     [SerializeField]
     private Tile_Fishing fishingTile;
->>>>>>> Stashed changes
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -79,8 +79,7 @@ public class PlayerMove : MonoBehaviour
             landTileManager.HarvestCrop(tilePosition);
         }
     }
-<<<<<<< Updated upstream
-=======
+
 
     private void HandleFishingAction()
     {
@@ -98,7 +97,7 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
->>>>>>> Stashed changes
+
     private void Quickslot()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -131,25 +130,7 @@ public class PlayerMove : MonoBehaviour
             HandleFishingAction();
         }
     }
-    private void HandleFishingAction()
-    {
-        Debug.Log("🎣 낚시 이벤트 실행!");
-        anim.SetBool("Fishing", true);
-    }
 
-    public void ShowFishingUI()
-    {
-        Debug.Log("낚시 이벤트 UI 실행");
-        event_time = true;
-        StartCoroutine(FishingProcess());
-    }
-
-    private IEnumerator FishingProcess()
-    {
-        yield return new WaitForSeconds(2f);
-        Debug.Log("낚시 완료!");
-        event_time = false;
-    }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log("충돌한 객체: " + collision.gameObject.name);
@@ -162,8 +143,7 @@ public class PlayerMove : MonoBehaviour
             collidedObject = collision.gameObject;
         }
     }
-<<<<<<< Updated upstream
-=======
+
     private void OnCollisionExit2D(Collision2D collision)
     {
         // "Sea" 태그를 가진 객체와의 충돌이 끝나면 초기화
@@ -174,5 +154,4 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
->>>>>>> Stashed changes
 }
