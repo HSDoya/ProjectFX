@@ -16,8 +16,14 @@ public class PlayerMove : MonoBehaviour
     public bool event_time = false;
     Animator anim;
     private GameObject collidedObject = null;
+<<<<<<< Updated upstream
     private Vector3Int lastCollidedTile = Vector3Int.zero;
 
+=======
+
+    [SerializeField]
+    private Tile_Fishing fishingTile;
+>>>>>>> Stashed changes
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -73,6 +79,26 @@ public class PlayerMove : MonoBehaviour
             landTileManager.HarvestCrop(tilePosition);
         }
     }
+<<<<<<< Updated upstream
+=======
+
+    private void HandleFishingAction()
+    {
+        Debug.Log("낚시 이벤트 실행!");
+        anim.SetBool("Fishing", true);
+        Tile_Fishing fishingComponent = fishingTile.GetComponent<Tile_Fishing>();
+        if (fishingComponent != null)
+        {
+            fishingComponent.AdvanceStage();
+            Debug.Log("���� Ÿ�ϰ� ��ȣ�ۿ� �Ϸ�");
+        }
+        else
+        {
+            Debug.LogWarning("�ش� ��ü�� Tile_Fishing ������Ʈ�� �����ϴ�.");
+        }
+    }
+
+>>>>>>> Stashed changes
     private void Quickslot()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -136,4 +162,17 @@ public class PlayerMove : MonoBehaviour
             collidedObject = collision.gameObject;
         }
     }
+<<<<<<< Updated upstream
+=======
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        // "Sea" 태그를 가진 객체와의 충돌이 끝나면 초기화
+        if (collision.gameObject == collidedObject)
+        {
+            collidedObject = null;
+            Debug.Log("바다에서 벗어남!");
+        }
+    }
+
+>>>>>>> Stashed changes
 }

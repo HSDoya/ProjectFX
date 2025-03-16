@@ -3839,7 +3839,7 @@ GameObject:
   - component: {fileID: 1214443931}
   m_Layer: 0
   m_Name: sea
-  m_TagString: Untagged
+  m_TagString: sea
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
