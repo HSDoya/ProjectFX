@@ -3,26 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags:
-  - ItemDrop
-  - hoe
-<<<<<<< Updated upstream
-  - sea
-  - Slot
-  - Undefined
-  - Seeds
-  - Water
-  - farmTile
-=======
-  - Water
-  - Seeds
-  - sea
->>>>>>> Stashed changes
+  tags: []
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - 
   - Water
   - UI
   - 
