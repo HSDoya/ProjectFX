@@ -19,7 +19,9 @@ public class PlayerMove : MonoBehaviour
 
     private Vector3Int lastCollidedTile = Vector3Int.zero;
 
-
+    // 인벤토리 키 추가 25.0329
+    [SerializeField] private Inventory inventory;
+  
 
     [SerializeField]
     private Tile_Fishing fishingTile;
@@ -89,15 +91,26 @@ public class PlayerMove : MonoBehaviour
         if (fishingComponent != null)
         {
             fishingComponent.AdvanceStage();
-            Debug.Log("���� Ÿ�ϰ� ��ȣ�ۿ� �Ϸ�");
+           
+        }
+      
+    }
+
+    private void OnInventory()
+    {
+        Debug.Log("인벤토리키 입력 테스트");
+        if (inventory.inventory_bool == false)
+        {
+           
+            inventory.inventory_bool = true;
+            Debug.Log(inventory.inventory_bool);
         }
         else
         {
-            Debug.LogWarning("�ش� ��ü�� Tile_Fishing ������Ʈ�� �����ϴ�.");
+            inventory.inventory_bool = false;
+            Debug.Log(inventory.inventory_bool);
         }
     }
-
-
     private void Quickslot()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -154,4 +167,5 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
+    
 }

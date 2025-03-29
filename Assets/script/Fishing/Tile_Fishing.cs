@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
@@ -22,26 +22,32 @@ public class Tile_Fishing : MonoBehaviour
     {
         if (!playermove_manger.event_time) return;
 
-        Debug.Log("³¬½ÃÁß...");
+        Debug.Log("ë‚šì‹œì¤‘...");
         StartCoroutine(FishingProcess());
     }
 
     private IEnumerator FishingProcess()
     {
         yield return new WaitForSeconds(2f);
-        /*
-        Debug.Log($"³¬½Ã °á°ú: {fishItem.displayName}!");
+
+        Debug.Log($"ë‚šì‹œ ê²°ê³¼: {fishItem.displayName}");
 
         bool added = Inventory.instance.Add(fishItem);
         if (added)
         {
-            Debug.Log($"{fishItem.displayName} ¾ÆÀÌÅÛÀÌ ÀÎº¥Åä¸®¿¡ Ãß°¡µÇ¾ú½À´Ï´Ù.");
+            Debug.Log($"{fishItem.displayName} ì•„ì´í…œì´ ì¸ë²¤í† ë¦¬ì— ì¶”ê°€ë˜ì—ˆìŠµë‹ˆë‹¤.");
+            Debug.Log("<í˜„ì¬ ì¸ë²¤í† ë¦¬ ìƒíƒœ>");
+            foreach (Item item in Inventory.instance.items)
+            {
+                Debug.Log("- " + item.data.displayName);
+            }
         }
         else
         {
-            Debug.Log("ÀÎº¥Åä¸®¿¡ °ø°£ÀÌ ºÎÁ·ÇÕ´Ï´Ù.");
+            Debug.Log("ì¸ë²¤í† ë¦¬ì— ê³µê°„ì´ ë¶€ì¡±í•©ë‹ˆë‹¤.");
         }
-        */
+
+        //  ë‚šì‹œ ì¢…ë£Œ ì²˜ë¦¬ë§Œ ê¹”ë”í•˜ê²Œ
         playermove_manger.event_time = false;
     }
     public void yesButton()
