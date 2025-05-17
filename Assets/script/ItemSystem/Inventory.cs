@@ -32,6 +32,21 @@ public class Inventory : MonoBehaviour
     }
     public bool Add(ItemData newItemData)
     {
+        // 스택 가능한 아이템이면 기존 항목 탐색
+        if (newItemData.canStack)
+        {
+            foreach (Item item in items)
+            {
+                if (item.data == newItemData)
+                {
+                    item.AddQuantity(1);
+                    onItemChangedCallback?.Invoke();
+                    return true;
+                }
+            }
+        }
+
+        // 새로운 아이템 추가
         if (items.Count >= space)
         {
             Debug.Log("Not enough room.");

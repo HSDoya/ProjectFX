@@ -26,18 +26,18 @@ public class InventoryUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        // 모든 슬롯 초기화
+        // 슬롯 초기화
         foreach (ItemUI slot in slots)
         {
-            slot.ClearSlot();  // 아이콘 제거
+            slot.ClearSlot();
         }
 
-        // 현재 인벤토리 아이템만큼 슬롯에 표시
+        // 인벤토리 아이템 표시
         for (int i = 0; i < Inventory.instance.items.Count; i++)
         {
             if (i < slots.Count)
             {
-                slots[i].SetItem(Inventory.instance.items[i].data);
+                slots[i].SetItem(Inventory.instance.items[i]);
             }
         }
     }

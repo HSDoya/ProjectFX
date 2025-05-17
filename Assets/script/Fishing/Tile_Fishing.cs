@@ -33,6 +33,7 @@ public class Tile_Fishing : MonoBehaviour
         Debug.Log($"낚시 결과: {fishItem.displayName}");
 
         bool added = Inventory.instance.Add(fishItem);
+
         if (added)
         {
             Debug.Log($"{fishItem.displayName} 아이템이 인벤토리에 추가되었습니다.");
@@ -53,7 +54,8 @@ public class Tile_Fishing : MonoBehaviour
     public void yesButton()
     {
         testUI.SetActive(false);
-        playermove_manger.event_time = true;
+        // playermove_manger.event_time = true;
+        Debug.Log(playermove_manger.event_time);
         Fishing();
     }
 
