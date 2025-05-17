@@ -1,7 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections;
-using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Animator), typeof(SpriteRenderer))]
 public class AnimalAI : MonoBehaviour
@@ -11,6 +10,7 @@ public class AnimalAI : MonoBehaviour
     public float moveSpeed = 2f;
     public float idleTimeMin = 1f;
     public float idleTimeMax = 3f;
+
     private Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer spriteRenderer;
@@ -33,19 +33,25 @@ public class AnimalAI : MonoBehaviour
     {
         while (true)
         {
+            // 이동 시작
             ChooseNewDirection();
+            isIdle = false;
             yield return new WaitForSeconds(Random.Range(2f, 4f));
+
+            // 멈춤
             moveDirection = Vector2.zero;
-            anim.SetFloat("Run", 0);
             isIdle = true;
             yield return new WaitForSeconds(Random.Range(idleTimeMin, idleTimeMax));
-            isIdle = false;
         }
     }
 
     void FixedUpdate()
     {
-        if (isIdle) return;
+        if (isIdle)
+        {
+            anim.SetBool("IsMoving", false);
+            return;
+        }
 
         Vector2 newPos = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
         Vector3Int tilePos = groundTilemap.WorldToCell(newPos);
@@ -53,16 +59,18 @@ public class AnimalAI : MonoBehaviour
         if (IsWalkable(tilePos))
         {
             rb.MovePosition(newPos);
-            anim.SetFloat("Run", moveDirection.magnitude);
-            if (moveDirection.x != 0)
-            {
+
+            // ⭐ 방향 전환 부분 (수정 완료)
+            if (Mathf.Abs(moveDirection.x) > 0.01f)
                 spriteRenderer.flipX = moveDirection.x < 0;
-            }
+
+            anim.SetBool("IsMoving", moveDirection.magnitude > 0.01f);
         }
         else
         {
-            anim.SetFloat("Run", 0);
             moveDirection = Vector2.zero;
+            isIdle = true;
+            anim.SetBool("IsMoving", false);
         }
     }
 
