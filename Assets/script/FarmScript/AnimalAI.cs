@@ -62,7 +62,7 @@ public class AnimalAI : MonoBehaviour
 
             // ⭐ 방향 전환 부분 (수정 완료)
             if (Mathf.Abs(moveDirection.x) > 0.01f)
-                spriteRenderer.flipX = moveDirection.x < 0;
+                spriteRenderer.flipX = moveDirection.x > 0;
 
             anim.SetBool("IsMoving", moveDirection.magnitude > 0.01f);
         }
