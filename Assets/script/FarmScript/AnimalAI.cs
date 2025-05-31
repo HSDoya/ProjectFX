@@ -2,7 +2,10 @@
 using UnityEngine.Tilemaps;
 using System.Collections;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(Animator), typeof(SpriteRenderer))]
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class AnimalAI : MonoBehaviour
 {
     public Tilemap groundTilemap;
@@ -22,6 +25,10 @@ public class AnimalAI : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // 트리거 콜라이더 설정
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+        box.isTrigger = true;
     }
 
     void Start()
@@ -60,9 +67,7 @@ public class AnimalAI : MonoBehaviour
         {
             rb.MovePosition(newPos);
 
-            // ⭐ 방향 전환 부분 (수정 완료)
-            if (Mathf.Abs(moveDirection.x) > 0.01f)
-                spriteRenderer.flipX = moveDirection.x > 0;
+            spriteRenderer.flipX = moveDirection.x > 0;
 
             anim.SetBool("IsMoving", moveDirection.magnitude > 0.01f);
         }
@@ -88,6 +93,14 @@ public class AnimalAI : MonoBehaviour
             case 1: moveDirection = Vector2.down; break;
             case 2: moveDirection = Vector2.left; break;
             case 3: moveDirection = Vector2.right; break;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("접촉했습니다.");
         }
     }
 }
