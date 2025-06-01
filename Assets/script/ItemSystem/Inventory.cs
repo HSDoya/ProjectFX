@@ -32,6 +32,20 @@ public class Inventory : MonoBehaviour
     }
     public bool Add(ItemData newItemData)
     {
+        // 고유 ID로 비교
+        if (newItemData.canStack)
+        {
+            foreach (Item item in items)
+            {
+                if (item.data.itemID == newItemData.itemID)
+                {
+                    item.AddQuantity(1);
+                    onItemChangedCallback?.Invoke();
+                    return true;
+                }
+            }
+        }
+
         if (items.Count >= space)
         {
             Debug.Log("Not enough room.");

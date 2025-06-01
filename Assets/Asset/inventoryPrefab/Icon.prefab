@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4627824775753980393}
   - component: {fileID: 3725341133349566715}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: item_count
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 37.000027, y: -41.285736}
-  m_SizeDelta: {x: 50, y: 17.4289}
+  m_AnchoredPosition: {x: 26.000027, y: -38.785553}
+  m_SizeDelta: {x: 48, y: 22.4289}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4627824775753980393
 CanvasRenderer:
@@ -92,13 +92,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 25
+  m_fontSizeBase: 25
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 1024
   m_textAlignment: 65535
@@ -302,3 +302,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   icon: {fileID: 7320878613017372798}
+  countText: {fileID: 3725341133349566715}

@@ -33,6 +33,7 @@ public class Tile_Fishing : MonoBehaviour
         Debug.Log($"낚시 결과: {fishItem.displayName}");
 
         bool added = Inventory.instance.Add(fishItem);
+
         if (added)
         {
             Debug.Log($"{fishItem.displayName} 아이템이 인벤토리에 추가되었습니다.");
@@ -47,13 +48,17 @@ public class Tile_Fishing : MonoBehaviour
             Debug.Log("인벤토리에 공간이 부족합니다.");
         }
 
-        //  낚시 종료 처리만 깔끔하게
+        // 낚시 종료 처리
         playermove_manger.event_time = false;
+
+        // 애니메이션 종료
+        playermove_manger.GetComponent<Animator>().SetBool("Fishing", false);
     }
     public void yesButton()
     {
         testUI.SetActive(false);
         playermove_manger.event_time = true;
+        Debug.Log(playermove_manger.event_time);
         Fishing();
     }
 
