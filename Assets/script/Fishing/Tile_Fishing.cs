@@ -48,8 +48,11 @@ public class Tile_Fishing : MonoBehaviour
             Debug.Log("인벤토리에 공간이 부족합니다.");
         }
 
-        //  낚시 종료 처리만 깔끔하게
+        // 낚시 종료 처리
         playermove_manger.event_time = false;
+
+        // 애니메이션 종료
+        playermove_manger.GetComponent<Animator>().SetBool("Fishing", false);
     }
     public void yesButton()
     {

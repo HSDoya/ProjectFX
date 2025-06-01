@@ -178,5 +178,9 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    
+    // PlayerMove.cs
+    public void StopFishingAnimation()
+    {
+        anim.SetBool("Fishing", false);
+    }
 }
