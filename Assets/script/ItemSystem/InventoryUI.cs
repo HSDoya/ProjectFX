@@ -1,43 +1,59 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class InventoryUI : MonoBehaviour
 {
-    public Transform itemGrid;               // slot ¿ÀºêÁ§Æ®
-    public GameObject itemSlotPrefab;        // ¾È ¾¸! (Àç»ç¿ë ¹æ½Ä)
+    public Transform itemGrid;               // slot ì˜¤ë¸Œì íŠ¸
+    public GameObject itemSlotPrefab;        // ì•ˆ ì”€! (ì¬ì‚¬ìš© ë°©ì‹)
 
     private List<ItemUI> slots = new List<ItemUI>();
 
     void Start()
     {
-        // ±âÁ¸ ½½·Ôµé ¹Ş¾Æ¼­ ÀúÀå (Start¿¡¼­ ÇÑ ¹ø¸¸)
+        Debug.Log("InventoryUI Start() ì‹¤í–‰ë¨");
+
+        // ìŠ¬ë¡¯ì€ AutoSlotGeneratorì—ì„œ InitSlots()ë¡œ ì´ˆê¸°í™”í•œë‹¤ê³  ê°€ì •í•˜ê³ , ì—¬ê¸°ì„œëŠ” ìƒëµ ê°€ëŠ¥
+        if (slots.Count == 0)
+        {
+            InitSlots();  // ë§Œì•½ ë¹ ì ¸ ìˆìœ¼ë©´ ë°©ì–´ì ìœ¼ë¡œ ì´ˆê¸°í™”
+        }
+
+        // ì½œë°± ì¤‘ë³µ ë°©ì§€ í›„ ë“±ë¡
+        Inventory.instance.onItemChangedCallback -= UpdateUI;
+        Inventory.instance.onItemChangedCallback += UpdateUI;
+
+        // ìµœì´ˆ UI ê°•ì œ ê°±ì‹ 
+        UpdateUI();
+    }
+
+    public void UpdateUI()
+    {
+        // ìŠ¬ë¡¯ ì´ˆê¸°í™”
+        foreach (ItemUI slot in slots)
+        {
+            slot.ClearSlot();
+        }
+
+        // ì¸ë²¤í† ë¦¬ ì•„ì´í…œ í‘œì‹œ
+        for (int i = 0; i < Inventory.instance.items.Count; i++)
+        {
+            if (i < slots.Count)
+            {
+                slots[i].SetItem(Inventory.instance.items[i]);
+            }
+        }
+    }
+    public void InitSlots()
+    {
+        slots.Clear();
+
         foreach (Transform child in itemGrid)
         {
             ItemUI slot = child.GetComponent<ItemUI>();
             if (slot != null)
             {
                 slots.Add(slot);
-            }
-        }
-
-        Inventory.instance.onItemChangedCallback += UpdateUI;
-    }
-
-    public void UpdateUI()
-    {
-        // ½½·Ô ÃÊ±âÈ­
-        foreach (ItemUI slot in slots)
-        {
-            slot.ClearSlot();
-        }
-
-        // ÀÎº¥Åä¸® ¾ÆÀÌÅÛ Ç¥½Ã
-        for (int i = 0; i < Inventory.instance.items.Count; i++)
-        {
-            if (i < slots.Count)
-            {
-                slots[i].SetItem(Inventory.instance.items[i]);
             }
         }
     }

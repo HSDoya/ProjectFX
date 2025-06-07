@@ -16,7 +16,7 @@ public class ItemUI : MonoBehaviour
 
         if (countText != null)
         {
-            countText.text = item.quantity > 1 ? item.quantity.ToString() : ""; // 수량이 1 초과일 때만 표시
+            countText.text = item.quantity.ToString(); // 항상 표시
         }
 
         Debug.Log($"[ItemUI] 아이콘 적용됨: {item.data.displayName}, 수량: {item.quantity}");

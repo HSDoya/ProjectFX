@@ -28,31 +28,30 @@ public class Tile_Fishing : MonoBehaviour
 
     private IEnumerator FishingProcess()
     {
+        //  1. 낚시 애니메이션 동안 기다리기
         yield return new WaitForSeconds(2f);
 
-        Debug.Log($"낚시 결과: {fishItem.displayName}");
+        // 2. 낚시 종료 (event flag + animation 종료)
+        playermove_manger.event_time = false;
+        playermove_manger.StopFishingAnimation();
 
+        //  3. 아이템 지급
         bool added = Inventory.instance.Add(fishItem);
 
         if (added)
         {
             Debug.Log($"{fishItem.displayName} 아이템이 인벤토리에 추가되었습니다.");
-            Debug.Log("<현재 인벤토리 상태>");
-            foreach (Item item in Inventory.instance.items)
-            {
-                Debug.Log("- " + item.data.displayName);
-            }
         }
         else
         {
             Debug.Log("인벤토리에 공간이 부족합니다.");
         }
 
-        // 낚시 종료 처리
-        playermove_manger.event_time = false;
-
-        // 애니메이션 종료
-        playermove_manger.GetComponent<Animator>().SetBool("Fishing", false);
+        // 4. 인벤토리 상태 출력 (UI 갱신 콜백이 자동으로 연결돼 있다고 가정)
+        foreach (Item item in Inventory.instance.items)
+        {
+            Debug.Log("- " + item.data.displayName);
+        }
     }
     public void yesButton()
     {

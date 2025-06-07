@@ -7,14 +7,13 @@ public class AutoSlotGenerator : MonoBehaviour
     public GameObject itemSlotPrefab;         // 아이템 슬롯 프리팹 (Icon.prefab)
     public int slotCount = 20;                // 만들 슬롯 개수
 
-    void Start()
+    void Awake()
     {
         GenerateSlots();
     }
 
     public void GenerateSlots()
     {
-        // 기존에 있던 자식 슬롯들 제거 (중복 방지)
         foreach (Transform child in slotParent)
         {
             Destroy(child.gameObject);
@@ -22,15 +21,21 @@ public class AutoSlotGenerator : MonoBehaviour
 
         for (int i = 0; i < slotCount; i++)
         {
-            GameObject slot = Instantiate(itemSlotPrefab, slotParent); // ← 선언 필수!
+            GameObject slot = Instantiate(itemSlotPrefab, slotParent);
             slot.name = $"Icon ({i})";
 
             ItemUI itemUI = slot.GetComponent<ItemUI>();
             if (itemUI != null)
-                itemUI.ClearSlot();  // 아이콘 비우기
+                itemUI.ClearSlot();
         }
 
-        Debug.Log($" 슬롯 {slotCount}개 자동 생성 완료!");
+        Debug.Log($"슬롯 {slotCount}개 자동 생성 완료!");
+
+        // 인벤토리 UI에 슬롯 목록 갱신
+        FindObjectOfType<InventoryUI>()?.InitSlots();
+
+        // 강제 UI 갱신
+        Inventory.instance?.onItemChangedCallback?.Invoke();
     }
 
 }
