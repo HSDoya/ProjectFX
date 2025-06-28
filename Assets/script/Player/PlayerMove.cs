@@ -13,19 +13,13 @@ public class PlayerMove : MonoBehaviour
     public Tilemap waterTilemap;
     public landtiles landTileManager;
     private string currentEquipment = "";
-   
+
     public bool event_time;
     Animator anim;
     private GameObject collidedObject = null;
 
-    private Vector3Int lastCollidedTile = Vector3Int.zero;
-
-    // 인벤토리 키 추가 25.0329
     [SerializeField] private Inventory inventory;
-  
-
-    [SerializeField]
-    private Tile_Fishing fishingTile;
+    [SerializeField] private Tile_Fishing fishingTile;
 
     private void Awake()
     {
@@ -34,12 +28,20 @@ public class PlayerMove : MonoBehaviour
         anim = GetComponent<Animator>();
         event_time = false;
     }
-    private void Update()
+
+    // Update()에서 클릭 감지(2025.06.28 수정)
+    private void Update() 
     {
-        Quickslot(); // 슬롯(호미,괭이 등)
+        Quickslot();
+
+        // 마우스 클릭 시 농사 행동 처리
+        if (Mouse.current.leftButton.wasPressedThisFrame && !event_time)
+        {
+            OnMouseClick();
+        }
     }
-    //플레이어 상하좌우 움직임 코드
-    private void LateUpdate()//움직임 관련(Input시스템)
+
+    private void LateUpdate()
     {
         anim.SetFloat("Speed", inputVec.magnitude);
         if (inputVec.x != 0)
@@ -47,7 +49,8 @@ public class PlayerMove : MonoBehaviour
             spriteRenderer.flipX = inputVec.x < 0;
         }
     }
-    private void OnMove(InputValue value)//움직임 관련(Input시스템)
+
+    private void OnMove(InputValue value)
     {
         inputVec = value.Get<Vector2>();
         if (!event_time)
@@ -55,21 +58,31 @@ public class PlayerMove : MonoBehaviour
             anim.SetBool("Fishing", false);
         }
     }
-    private void FixedUpdate()//움직임 관련(Input시스템)
+
+    private void FixedUpdate()
     {
         if (!event_time)
-        {
-           
             rigid.linearVelocity = inputVec * speed;
-        }
         else
-        {
             rigid.linearVelocity = Vector2.zero;
+    }
+
+    // 클릭한 위치의 타일에서 농사 수행(2025.06.28 수정)
+    private void OnMouseClick()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
+        tilePos.z = 0;
+
+        // 클릭한 타일이 플레이어 근처인지 확인 (선택 사항)
+        if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
+        {
+            HandleFarmAction(tilePos);
         }
     }
+
     private void HandleFarmAction(Vector3Int tilePosition)
     {
-        
         if (currentEquipment == "Hoe")
         {
             landTileManager.PlowSoil(tilePosition);
@@ -87,66 +100,49 @@ public class PlayerMove : MonoBehaviour
             landTileManager.HarvestCrop(tilePosition);
         }
     }
-
-
     private void HandleFishingAction()
     {
         Debug.Log("낚시 이벤트 실행!");
-        
         anim.SetBool("Fishing", true);
         Tile_Fishing fishingComponent = fishingTile.GetComponent<Tile_Fishing>();
         if (fishingComponent != null)
         {
             fishingComponent.AdvanceStage();
-           
         }
-      
     }
-
     private void OnInventory()
     {
-        Debug.Log("인벤토리키 입력 테스트");
-        if (inventory.inventory_bool == false)
-        {
-           
-            inventory.inventory_bool = true;
-            Debug.Log(inventory.inventory_bool);
-        }
-        else
-        {
-            inventory.inventory_bool = false;
-            Debug.Log(inventory.inventory_bool);
-        }
+        inventory.inventory_bool = !inventory.inventory_bool;
+        Debug.Log("인벤토리: " + inventory.inventory_bool);
     }
+
     private void Quickslot()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             currentEquipment = "Hoe";
-            Debug.Log("괭이 장착됨 ✅");
             event_time = false;
+            Debug.Log("괭이 장착됨 ✅");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             currentEquipment = "Seeds";
-            Debug.Log("씨앗 장착됨 ✅");
             event_time = false;
+            Debug.Log("씨앗 장착됨 ✅");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             currentEquipment = "Water";
-            Debug.Log("물뿌리개 장착됨 ✅");
             event_time = false;
+            Debug.Log("물뿌리개 장착됨 ✅");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             currentEquipment = "Harvest";
-            Debug.Log("수확 도구 장착됨 ✅");
             event_time = false;
+            Debug.Log("수확 도구 장착됨 ✅");
         }
-    
     }
-    // 낚시 관련 코드
     public void OnInteraction()
     {
         if (collidedObject != null && collidedObject.CompareTag("sea"))
@@ -154,31 +150,21 @@ public class PlayerMove : MonoBehaviour
             HandleFishingAction();
         }
     }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("충돌한 객체: " + collision.gameObject.name);
-        if (collision.gameObject.CompareTag("sea"))
-        {
-            collidedObject = collision.gameObject;
-        }
-        if (collision.gameObject.CompareTag("farmTile"))
+        if (collision.gameObject.CompareTag("sea") || collision.gameObject.CompareTag("farmTile"))
         {
             collidedObject = collision.gameObject;
         }
     }
-
     private void OnCollisionExit2D(Collision2D collision)
     {
-        // "Sea" 태그를 가진 객체와의 충돌이 끝나면 초기화
         if (collision.gameObject == collidedObject)
         {
             collidedObject = null;
-            Debug.Log("바다에서 벗어남!");
+            Debug.Log("충돌 객체 해제됨");
         }
     }
-
-    // PlayerMove.cs
     public void StopFishingAnimation()
     {
         anim.SetBool("Fishing", false);

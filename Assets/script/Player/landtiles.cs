@@ -13,13 +13,12 @@ public class landtiles : MonoBehaviour
 
     public void PlowSoil(Vector3Int tilePosition)
     {
-        if (farmTilemap.GetTile(tilePosition) == null)
-        {
-            farmTilemap.SetTile(tilePosition, farmableTile);
-            farmTilemap.RefreshAllTiles();
-            Debug.Log("땅을 갈았습니다.");
-        }
+        farmTilemap.SetTile(tilePosition, farmableTile);
+        farmTilemap.RefreshAllTiles();
+        Debug.Log("땅을 갈았습니다.");
     }
+
+
 
     public void PlantSeed(Vector3Int tilePosition)
     {
