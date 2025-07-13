@@ -81,7 +81,13 @@ public class AnimalAI : MonoBehaviour
 
     bool IsWalkable(Vector3Int tilePos)
     {
-        return groundTilemap.HasTile(tilePos) && !waterTilemap.HasTile(tilePos);
+        Vector3 worldPos = groundTilemap.CellToWorld(tilePos) + new Vector3(0.5f, 0.5f, 0);
+
+        bool hasGround = groundTilemap.HasTile(tilePos);
+        bool isWater = waterTilemap.HasTile(tilePos);
+        bool hasObstacle = Physics2D.OverlapCircle(worldPos, 0.2f, LayerMask.GetMask("Obstacle"));
+
+        return hasGround && !isWater && !hasObstacle;
     }
 
     void ChooseNewDirection()

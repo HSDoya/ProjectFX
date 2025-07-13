@@ -80,7 +80,6 @@ public class PlayerMove : MonoBehaviour
             HandleFarmAction(tilePos);
         }
     }
-
     private void HandleFarmAction(Vector3Int tilePosition)
     {
         if (currentEquipment == "Hoe")
