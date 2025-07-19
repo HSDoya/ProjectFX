@@ -10,6 +10,8 @@ public class ItemUI : MonoBehaviour
     {
         if (icon == null || item == null || item.data == null)
             return;
+        if (item.data.icon == null)
+            Debug.LogError($"[{item.data.itemID}] 아이콘이 null입니다.");
 
         icon.sprite = item.data.icon;
         icon.enabled = true;

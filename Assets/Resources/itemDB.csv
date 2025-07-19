@@ -1,0 +1,4 @@
+﻿itemID,Name,Description,canStack,MaxStack,type,isConsumable
+fish,고등어 ,음식,TRUE,99,food,TRUE
+fish,참치,음식,TRUE,99,food,TRUE
+wood,나무판자,재료 ,TRUE,99,Material,TRUE

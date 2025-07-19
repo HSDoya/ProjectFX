@@ -344,6 +344,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 314984203}
   m_CullTransparentMesh: 1
+--- !u!1 &503744149
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 503744151}
+  - component: {fileID: 503744152}
+  m_Layer: 0
+  m_Name: test_itemData
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &503744151
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 503744149}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 221.19261, y: 498.88477, z: -5.8473177}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &503744152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 503744149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0608decb35ae503409d93ebdf717b03d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  csvFileName: itemDB
 --- !u!1 &929631782
 GameObject:
   m_ObjectHideFlags: 0
@@ -9394,7 +9439,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   testUI: {fileID: 1830908747}
   playermove_manger: {fileID: 1977491379690745359}
-  fishItem: {fileID: 11400000, guid: e4c69ad82410d804db9972780344c894, type: 2}
 --- !u!19719996 &1214443931
 TilemapCollider2D:
   m_ObjectHideFlags: 0
@@ -11259,3 +11303,4 @@ SceneRoots:
   - {fileID: 1343961925}
   - {fileID: 1300271829}
   - {fileID: 250083346}
+  - {fileID: 503744151}
