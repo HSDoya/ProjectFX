@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
-using System.Collections;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -21,6 +20,9 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private Inventory inventory;
     [SerializeField] private Tile_Fishing fishingTile;
 
+    //
+    public float gatherRange = 1.5f;
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -30,7 +32,7 @@ public class PlayerMove : MonoBehaviour
     }
 
     // Update()에서 클릭 감지(2025.06.28 수정)
-    private void Update() 
+    private void Update()
     {
         Quickslot();
 
@@ -164,8 +166,25 @@ public class PlayerMove : MonoBehaviour
             Debug.Log("충돌 객체 해제됨");
         }
     }
+
+
+    private void TryGather()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, gatherRange);
+        foreach (Collider2D hit in hits)
+        {
+            if (hit.CompareTag("Gatherable"))
+            {
+                Debug.Log($"채집됨: {hit.name}");
+                Destroy(hit.gameObject);
+                break;
+            }
+        }
+    }
+
     public void StopFishingAnimation()
     {
         anim.SetBool("Fishing", false);
     }
 }
+

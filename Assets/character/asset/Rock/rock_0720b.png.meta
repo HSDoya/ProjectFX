@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1dc4af21ad0e86049a37df58072f8bcb
+guid: e39b7c467be8450478cfdcfb32c50d4d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5194030038094964331
-    second: Tree_b0720_0
+      213: -243859271083220947
+    second: rock_0720b_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Tree_b0720_0
+      name: rock_0720b_0
       rect:
         serializedVersion: 2
-        x: 271
-        y: 271
-        width: 482
-        height: 514
+        x: 303
+        y: 463
+        width: 338
+        height: 322
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b66eb5decc6e41840800000000000000
-      internalID: 5194030038094964331
+      spriteID: d2026e3f843ad9cf0800000000000000
+      internalID: -243859271083220947
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Tree_b0720_0: 5194030038094964331
+      rock_0720b_0: -243859271083220947
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
