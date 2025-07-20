@@ -19,23 +19,6 @@ public class Inventory : MonoBehaviour
         }
         instance = this;
     }
-    private void Start()
-    {
-        var wood = ItemDataCsvLoader.instance?.GetItemDataByID("wood");
-
-        if (ItemDataCsvLoader.instance == null)
-        {
-            Debug.LogError("ItemDataCsvLoader가 초기화되지 않았습니다!");
-        }
-        if (wood == null)
-        {
-            Debug.LogError("[Inventory.cs] wood 아이템이 null입니다. CSV 확인 필요!");
-            return;
-        }
-
-        for (int i = 0; i < 99; i++)
-            Add(wood);
-    }
 
     public delegate void OnItemChanged();
     public OnItemChanged onItemChangedCallback;

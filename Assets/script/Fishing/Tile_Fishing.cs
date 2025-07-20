@@ -6,7 +6,7 @@ public class Tile_Fishing : MonoBehaviour
 {
     [SerializeField] private GameObject testUI;
     [SerializeField] private PlayerMove playermove_manger;
-    
+    [SerializeField] private ItemData fishItem;
 
     void Start()
     {
@@ -28,19 +28,14 @@ public class Tile_Fishing : MonoBehaviour
 
     private IEnumerator FishingProcess()
     {
+        //  1. 낚시 애니메이션 동안 기다리기
         yield return new WaitForSeconds(2f);
+
+        // 2. 낚시 종료 (event flag + animation 종료)
         playermove_manger.event_time = false;
         playermove_manger.StopFishingAnimation();
 
-        // CSV에서 아이템 로드
-        var fishItem = ItemDataCsvLoader.instance?.GetItemDataByID("fish");
-
-        if (fishItem == null)
-        {
-            Debug.LogError("[Fishing] fish 아이템을 찾을 수 없습니다. CSV를 확인하세요.");
-            yield break;
-        }
-
+        //  3. 아이템 지급
         bool added = Inventory.instance.Add(fishItem);
 
         if (added)
@@ -52,6 +47,7 @@ public class Tile_Fishing : MonoBehaviour
             Debug.Log("인벤토리에 공간이 부족합니다.");
         }
 
+        // 4. 인벤토리 상태 출력 (UI 갱신 콜백이 자동으로 연결돼 있다고 가정)
         foreach (Item item in Inventory.instance.items)
         {
             Debug.Log("- " + item.data.displayName);
