@@ -194,7 +194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slotParent: {fileID: 1726268077}
-  itemSlotPrefab: {fileID: 8653445037023005128, guid: f26b462899eba374da53c97791d095d9, type: 3}
+  itemSlotPrefab: {fileID: 5808110219454188836, guid: 027a7182c13cebc42a3ab3fe21511ca0, type: 3}
   slotCount: 20
 --- !u!4 &250083346
 Transform:
@@ -4126,8 +4126,10 @@ MonoBehaviour:
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
   spawnPrefabs:
-  - {fileID: 5808110219454188836, guid: 027a7182c13cebc42a3ab3fe21511ca0, type: 3}
-  spawnCount: 10
+  - {fileID: 5808118218866733295, guid: 3cbf46e1d06436748a82e031102fcfd6, type: 3}
+  - {fileID: 9156248399462692421, guid: 8d82482bfc3782d4197b1021f3f83a23, type: 3}
+  spawnCount: 4
+  spawnedObjects: []
 --- !u!1 &1082247534
 GameObject:
   m_ObjectHideFlags: 0
@@ -10618,6 +10620,7 @@ MonoBehaviour:
   event_time: 0
   inventory: {fileID: 1686479086}
   fishingTile: {fileID: 1214443930}
+  objectSpawner: {fileID: 1051139134}
 --- !u!1 &2024451591086108891
 GameObject:
   m_ObjectHideFlags: 0

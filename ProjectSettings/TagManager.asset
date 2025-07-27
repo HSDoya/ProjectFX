@@ -9,6 +9,8 @@ TagManager:
   - Water
   - Seeds
   - farmTile
+  - ItemDrop
+  - Interactable
   layers:
   - Default
   - TransparentFX
