@@ -2,6 +2,7 @@
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 using System.Collections;
+using Kinnly;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private Inventory inventory;
     [SerializeField] private Tile_Fishing fishingTile;
+    [SerializeField] private ObjectSpawner objectSpawner; // 드래그 연결 필요(2025-07-27)
 
     private void Awake()
     {
@@ -33,11 +35,14 @@ public class PlayerMove : MonoBehaviour
     private void Update() 
     {
         Quickslot();
-
         // 마우스 클릭 시 농사 행동 처리
         if (Mouse.current.leftButton.wasPressedThisFrame && !event_time)
         {
             OnMouseClick();
+        }
+        if (Keyboard.current.fKey.wasPressedThisFrame)
+        {
+            TryDestroyNearestSpawnedObject();
         }
     }
 
@@ -147,6 +152,31 @@ public class PlayerMove : MonoBehaviour
         if (collidedObject != null && collidedObject.CompareTag("sea"))
         {
             HandleFishingAction();
+        }
+    }
+    private void TryDestroyNearestSpawnedObject()
+    {
+        if (objectSpawner == null || objectSpawner.spawnedObjects.Count == 0) return;
+
+        GameObject closest = null;
+        float minDist = 1.5f; // 거리 제한
+
+        foreach (GameObject obj in objectSpawner.spawnedObjects)
+        {
+            if (obj == null) continue;
+            float dist = Vector3.Distance(transform.position, obj.transform.position);
+            if (dist < minDist)
+            {
+                closest = obj;
+                minDist = dist;
+            }
+        }
+
+        if (closest != null)
+        {
+            objectSpawner.spawnedObjects.Remove(closest);
+            Destroy(closest);
+            Debug.Log("ObjectSpawner에서 생성된 오브젝트를 제거했습니다.");
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
