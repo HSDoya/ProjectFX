@@ -11,6 +11,7 @@ public class Tile_Fishing : MonoBehaviour
     void Start()
     {
         testUI.SetActive(false);
+        Debug.Log("디버그 체크");
     }
 
     public void AdvanceStage()
