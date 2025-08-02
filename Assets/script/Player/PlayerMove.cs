@@ -71,21 +71,54 @@ public class PlayerMove : MonoBehaviour
         else
             rigid.linearVelocity = Vector2.zero;
     }
+    /*
+private void OnMouseClick()
+{
+    Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+    Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
+    tilePos.z = 0;
 
-    // 클릭한 위치의 타일에서 농사 수행(2025.06.28 수정)
+    if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
+    {
+        HandleFarmAction(tilePos);
+    }
+}
+*/
+    // 🔥 수정된 마우스 클릭 함수
     private void OnMouseClick()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mouseWorldPos.z = 0;
+
+        // 동물 제거 시도
+        if (currentEquipment == "Knife")
+        {
+            RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f);
+            if (hit.collider != null)
+            {
+                AnimalAI animal = hit.collider.GetComponent<AnimalAI>();
+                if (animal != null)
+                {
+                    float dist = Vector2.Distance(transform.position, animal.transform.position);
+                    if (dist <= 1.5f)
+                    {
+                        Destroy(animal.gameObject);
+                        Debug.Log("가축이 도살되었습니다.");
+                        return;
+                    }
+                }
+            }
+        }
+        // 기존 농사 처리
         Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
         tilePos.z = 0;
 
-        // 클릭한 타일이 플레이어 근처인지 확인 (선택 사항)
         if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
         {
             HandleFarmAction(tilePos);
         }
     }
-    private void HandleFarmAction(Vector3Int tilePosition)
+        private void HandleFarmAction(Vector3Int tilePosition)
     {
         if (currentEquipment == "Hoe")
         {
@@ -145,8 +178,14 @@ public class PlayerMove : MonoBehaviour
             currentEquipment = "Harvest";
             event_time = false;
             Debug.Log("수확 도구 장착됨 ✅");
+        }// 추가: 칼 장착
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            currentEquipment = "Knife";
+            event_time = false;
+            Debug.Log("칼 장착됨 🗡️");
         }
-    }
+}
     public void OnInteraction()
     {
         if (collidedObject != null && collidedObject.CompareTag("sea"))

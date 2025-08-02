@@ -102,7 +102,7 @@ public class AnimalAI : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other) // 추후 상호작용 확장 가능 (예: 쓰다듬기, 먹이주기 등)
     {
         if (other.CompareTag("Player"))
         {
