@@ -9651,7 +9651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_UiScaleMode: 0
-  m_ReferencePixelsPerUnit: 100
+  m_ReferencePixelsPerUnit: 98.72
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
   m_ScreenMatchMode: 0
@@ -10102,7 +10102,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 13.198181, y: -5.5}
-  m_SizeDelta: {x: 906.0002, y: 363}
+  m_SizeDelta: {x: 505.4464, y: 252.7232}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1875906301
 MonoBehaviour:
@@ -10867,8 +10867,8 @@ MonoBehaviour:
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
   moveSpeed: 2
-  idleTimeMin: 1
-  idleTimeMax: 3
+  idleTimeMin: 5
+  idleTimeMax: 7
 --- !u!1 &4421147239190456030
 GameObject:
   m_ObjectHideFlags: 0
@@ -11211,7 +11211,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
