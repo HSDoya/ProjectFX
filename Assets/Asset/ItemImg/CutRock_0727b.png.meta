@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cfc26c8ce4fe5db4c896c972ad7cf56c
+guid: b3cd1904067c0db4b890434f9e1b1158
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 150915148103488318
-    second: Wood_0727b_0
+      213: 8331997286248861657
+    second: CutRock_0727b_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,12 +113,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wood_0727b_0
+      name: CutRock_0727b_0
       rect:
         serializedVersion: 2
-        x: 415
+        x: 303
         y: 383
-        width: 258
+        width: 450
         height: 258
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e331fe11788281200800000000000000
-      internalID: 150915148103488318
+      spriteID: 9dfc164136331a370800000000000000
+      internalID: 8331997286248861657
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wood_0727b_0: 150915148103488318
+      CutRock_0727b_0: 8331997286248861657
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

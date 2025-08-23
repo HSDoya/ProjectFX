@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cfc26c8ce4fe5db4c896c972ad7cf56c
+guid: 71507cd539fd0034899f89fa31688c29
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 150915148103488318
-    second: Wood_0727b_0
+      213: -8098845009229183484
+    second: Meat0727_b_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wood_0727b_0
+      name: Meat0727_b_0
       rect:
         serializedVersion: 2
-        x: 415
-        y: 383
-        width: 258
-        height: 258
+        x: 319
+        y: 431
+        width: 434
+        height: 226
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e331fe11788281200800000000000000
-      internalID: 150915148103488318
+      spriteID: 40603f5af5f1b9f80800000000000000
+      internalID: -8098845009229183484
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wood_0727b_0: 150915148103488318
+      Meat0727_b_0: -8098845009229183484
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

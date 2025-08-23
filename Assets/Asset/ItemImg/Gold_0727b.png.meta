@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: cfc26c8ce4fe5db4c896c972ad7cf56c
+guid: 535a7f14605a61e4daa91f786097dd63
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 150915148103488318
-    second: Wood_0727b_0
+      213: -7615454446951230034
+    second: Gold_0727b_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,12 +113,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wood_0727b_0
+      name: Gold_0727b_0
       rect:
         serializedVersion: 2
-        x: 415
+        x: 303
         y: 383
-        width: 258
+        width: 450
         height: 258
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e331fe11788281200800000000000000
-      internalID: 150915148103488318
+      spriteID: ea59d466788705690800000000000000
+      internalID: -7615454446951230034
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wood_0727b_0: 150915148103488318
+      Gold_0727b_0: -7615454446951230034
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
