@@ -102,7 +102,8 @@ private void OnMouseClick()
                     float dist = Vector2.Distance(transform.position, animal.transform.position);
                     if (dist <= 1.5f)
                     {
-                        Destroy(animal.gameObject);
+                        //Destroy(animal.gameObject);
+                        animal.KillAndDrop(animal.transform.position);
                         Debug.Log("가축이 도살되었습니다.");
                         return;
                     }

@@ -41,11 +41,23 @@ public class AnimalAI : MonoBehaviour
     public List<AudioClip> ambientClips;          // 동물 울음소리 추가
     public Vector2 ambientIntervalRange = new Vector2(6f, 12f);
 
-    [Header("Drops (Optional)")]
-    [Tooltip("파괴 시 월드에 떨어뜨릴 프리팹들(랜덤)")]
-    public List<GameObject> dropPrefabs;
-    [Tooltip("드롭 개수 범위(min, max 포함)")]
-    public Vector2Int dropCountRange = new Vector2Int(0, 2);
+    // 1) 종별 드롭 설정 구조
+    [System.Serializable]
+    public class DropConfig
+    {
+        public Species species;                  // Chicken, Cow, ...(확장)
+        public List<GameObject> prefabs;         // 이 종이 떨굴 프리팹들(랜덤)
+        public Vector2Int countRange = new Vector2Int(1, 1); // 개수 범위
+    }
+    [Header("Drops By Species")]
+    public List<DropConfig> dropTable = new List<DropConfig>();
+
+    //이후 확장성을 위해 Item 드롭에 대해 다른 방식으로 접근하는 코드 추가
+    //[Header("Drops (Optional)")]
+    //[Tooltip("파괴 시 월드에 떨어뜨릴 프리팹들(랜덤)")]
+    //public List<GameObject> dropPrefabs;
+    //[Tooltip("드롭 개수 범위(min, max 포함)")]
+    //public Vector2Int dropCountRange = new Vector2Int(0, 2);
 
     // Runtime
     private Rigidbody2D rb;
@@ -80,20 +92,73 @@ public class AnimalAI : MonoBehaviour
             ambientCo = StartCoroutine(AmbientRoutine());
     }
 
-    void OnDestroy()
+    // 동물 죽음 및 아이템 드롭 코드 추가 (테스트)hs
+    public void KillAndDrop(Vector3? dropAt = null)
     {
-        // PlayerMove에서 Destroy될 때 자동 드롭함
-        if (dropPrefabs != null && dropPrefabs.Count > 0 && dropCountRange.y > 0)
+        // 드롭 → 오브젝트 삭제 순서
+        Vector3 pos = dropAt ?? transform.position;
+        SpawnDrops(pos);
+
+        // 실제 제거
+        Destroy(gameObject);
+    }
+
+    //아이템 드롭에서 추가 hs
+    private DropConfig GetDropConfigForSpecies()
+    {
+        // 현재 this.species에 맞는 설정 찾기
+        foreach (var cfg in dropTable)
+            if (cfg.species == species) return cfg;
+        return null;
+    }
+
+    // 아이템 드롭에서 추가 hs
+    private void SpawnDrops(Vector3 pos)
+    {
+        var cfg = GetDropConfigForSpecies();
+        if (cfg == null || cfg.prefabs == null || cfg.prefabs.Count == 0 || cfg.countRange.y <= 0)
+            return;
+
+        // 개수 보정
+        int min = Mathf.Max(0, cfg.countRange.x);
+        int max = Mathf.Max(min, cfg.countRange.y);
+
+        int count = Random.Range(min, max + 1);
+        for (int i = 0; i < count; i++)
         {
-            int count = Random.Range(dropCountRange.x, dropCountRange.y + 1);
-            for (int i = 0; i < count; i++)
-            {
-                var pick = dropPrefabs[Random.Range(0, dropPrefabs.Count)];
-                if (pick != null)
-                    Instantiate(pick, transform.position, Quaternion.identity);
-            }
+            var pick = cfg.prefabs[Random.Range(0, cfg.prefabs.Count)];
+            if (pick != null) Instantiate(pick, pos, Quaternion.identity);
         }
     }
+    // 코드 수정으로 인해 변경
+    //private void SpawnDrops(Vector3 pos)
+    //{
+    //    if (dropPrefabs == null || dropPrefabs.Count == 0 || dropCountRange.y <= 0)
+    //        return;
+
+    //    int count = Random.Range(dropCountRange.x, dropCountRange.y + 1);
+    //    for (int i = 0; i < count; i++)
+    //    {
+    //        var pick = dropPrefabs[Random.Range(0, dropPrefabs.Count)];
+    //        if (pick != null)
+    //            Instantiate(pick, pos, Quaternion.identity);
+    //    }
+    //}
+    // 아이템 드랍 및 죽음 코드 추가함에 따라 주석처리 
+    //void OnDestroy()
+    //{
+    //    // PlayerMove에서 Destroy될 때 자동 드롭함
+    //    if (dropPrefabs != null && dropPrefabs.Count > 0 && dropCountRange.y > 0)
+    //    {
+    //        int count = Random.Range(dropCountRange.x, dropCountRange.y + 1);
+    //        for (int i = 0; i < count; i++)
+    //        {
+    //            var pick = dropPrefabs[Random.Range(0, dropPrefabs.Count)];
+    //            if (pick != null)
+    //                Instantiate(pick, transform.position, Quaternion.identity);
+    //        }
+    //    }
+    //}
 
     private void ApplySpeciesPreset()
     {
@@ -216,4 +281,5 @@ public class AnimalAI : MonoBehaviour
             Debug.Log("접촉했습니다.");
         }
     }
+
 }
