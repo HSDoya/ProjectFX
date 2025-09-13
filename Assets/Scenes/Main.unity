@@ -270,18 +270,22 @@ MonoBehaviour:
   species: 0
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
-  moveSpeed: 2
+  moveSpeed: 3
   idleTimeMin: 1
   idleTimeMax: 3
-  turnBias: 0.3
-  avoidBias: 0.5
+  turnBias: 0.58
+  avoidBias: 0.63
   bodyRadius: 0.2
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   audioSource: {fileID: 0}
   ambientClips: []
   ambientIntervalRange: {x: 6, y: 12}
+  enablePecking: 1
+  chickenPeckIntervalRange: {x: 2, y: 5}
+  peckOnlyWhenIdle: 1
+  peckDuration: 1.02
   dropTable:
   - species: 0
     prefabs:
@@ -297,7 +301,7 @@ Animator:
   m_GameObject: {fileID: 243217321}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e6b6f5198c11e374195f6f5ac1c9fedc, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -11054,6 +11058,10 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   ambientClips: []
   ambientIntervalRange: {x: 6, y: 12}
+  enablePecking: 1
+  chickenPeckIntervalRange: {x: 2, y: 5}
+  peckOnlyWhenIdle: 1
+  peckDuration: 0.6
   dropTable:
   - species: 1
     prefabs:
@@ -11490,6 +11498,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 684178961192891762}
+  - component: {fileID: 9149746017620009546}
   m_Layer: 0
   m_Name: Animal Group
   m_TagString: Untagged
@@ -11497,6 +11506,35 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &9149746017620009546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9149746017620009545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d3fc326bdfcebb4db69a311b4bf1371, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundTilemap: {fileID: 1051139131}
+  waterTilemap: {fileID: 1214443929}
+  animals:
+  - prefab: {fileID: 4421147239190456030}
+    weight: 0
+    count: 0
+  - prefab: {fileID: 243217321}
+    weight: 0
+    count: 0
+  minDistanceBetweenAnimals: 1
+  overlapMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxAttemptsPerAnimal: 100
+  spawnOnStart: 1
+  allowRespawn: 1
+  respawnInterval: 20
 --- !u!114 &9155569660027139351
 MonoBehaviour:
   m_ObjectHideFlags: 0

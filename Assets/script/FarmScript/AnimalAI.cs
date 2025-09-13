@@ -11,36 +11,29 @@ using System.Collections.Generic;
 public class AnimalAI : MonoBehaviour
 {
     public enum Species { Chicken, Cow }
-
     [Header("Basic")]
     [SerializeField] private Species species = Species.Chicken;
-
     [Header("Tilemaps")]
     public Tilemap groundTilemap;
     public Tilemap waterTilemap;
-
     [Header("Movement")]
-    [Tooltip("기본 이동 속도")]
     public float moveSpeed = 2f;
-    [Tooltip("정지(아이들) 최소/최대 시간")]
     public float idleTimeMin = 1f;
     public float idleTimeMax = 3f;
-    [Tooltip("방향을 자주 바꾸는 경향(0=거의 안바꿈, 1=매우 자주)")]
     [Range(0f, 1f)] public float turnBias = 0.3f;
-    [Tooltip("장애물/물 타일 회피 강도(값이 클수록 회피 성향↑)")]
     [Range(0f, 1f)] public float avoidBias = 0.5f;
-
     [Header("Collision/Physics")]
-    [Tooltip("몸통 판정 반경(장애물 탐지 반경 기준)")]
     public float bodyRadius = 0.2f;
-    [Tooltip("장애물 레이어 지정(없으면 비워두세요 → 무시)")]
     public LayerMask obstacleMask;
-
-    [Header("Ambient (Optional)")]
     public AudioSource audioSource;               // (선택) 붙이면 주기적으로 울음소리 추가
     public List<AudioClip> ambientClips;          // 동물 울음소리 추가
     public Vector2 ambientIntervalRange = new Vector2(6f, 12f);
-
+    //닭 모이 제작
+    [Header("Chicken Peck (Optional)")]
+    public bool enablePecking = true;
+    public Vector2 chickenPeckIntervalRange = new Vector2(1f, 2f);
+    public bool peckOnlyWhenIdle = true;
+    public float peckDuration = 0.6f;
     // 1) 종별 드롭 설정 구조
     [System.Serializable]
     public class DropConfig
@@ -65,8 +58,12 @@ public class AnimalAI : MonoBehaviour
     private SpriteRenderer sr;
     private Vector2 moveDirection;
     private bool isIdle = false;
+    private bool isPecking = false;
     private Coroutine ambientCo;
+    private Coroutine peckCo; // 닭 모이쪼기 루틴 핸들
 
+    // 코드 수정으로 인해 변경
+    // private Coroutine ambientCo;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -90,7 +87,20 @@ public class AnimalAI : MonoBehaviour
 
         if (audioSource != null && ambientClips != null && ambientClips.Count > 0)
             ambientCo = StartCoroutine(AmbientRoutine());
+
+        // 닭 전용 모이쪼기 루틴 시작
+        if (species == Species.Chicken && enablePecking)
+            peckCo = StartCoroutine(ChickenPeckRoutine());
     }
+    // 코드 수정으로 인해 변경
+    /*void Start()
+    {
+     StartCoroutine(MoveRoutine());
+
+     if (audioSource != null && ambientClips != null && ambientClips.Count > 0)
+        ambientCo = StartCoroutine(AmbientRoutine());
+    }
+    */
 
     // 동물 죽음 및 아이템 드롭 코드 추가 (테스트)hs
     public void KillAndDrop(Vector3? dropAt = null)
@@ -201,19 +211,18 @@ public class AnimalAI : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (isIdle)
+        if (isIdle || isPecking)
         {
             anim.SetBool("IsMoving", false);
             return;
         }
-        // 회피(물/장애물) 성향이 높을수록 방향 보정 시도하면 됨
+
         if (avoidBias > 0.01f && Random.value < avoidBias * 0.15f)
         {
             if (!IsWalkable(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime))
                 ChooseNewDirection(force: true);
         }
         Vector2 newPos = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
-
         if (IsWalkable(newPos))
         {
             rb.MovePosition(newPos);
@@ -227,7 +236,34 @@ public class AnimalAI : MonoBehaviour
             anim.SetBool("IsMoving", false);
         }
     }
-
+    // 기존 FixedUpdate 주석 처리
+    // void FixedUpdate()
+    // {
+    //     if (isIdle)
+    //     {
+    //         anim.SetBool("IsMoving", false);
+    //         return;
+    //     }
+    //     if (avoidBias > 0.01f && Random.value < avoidBias * 0.15f)
+    //     {
+    //         if (!IsWalkable(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime))
+    //             ChooseNewDirection(force: true);
+    //     }
+    //     Vector2 newPos = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
+    //     if (IsWalkable(newPos))
+    //     {
+    //         rb.MovePosition(newPos);
+    //         sr.flipX = moveDirection.x > 0;
+    //         anim.SetBool("IsMoving", moveDirection.sqrMagnitude > 0.0001f);
+    //     }
+    //     else
+    //     {
+    //         moveDirection = Vector2.zero;
+    //         isIdle = true;
+    //         anim.SetBool("IsMoving", false);
+    //     }
+    // }
+    // Peck 중에는 확실히 멈추고, 끝나면 다시 걷도록(수정)
     bool IsWalkable(Vector2 worldPos2D)
     {
         // 타일 중앙 좌표화
@@ -271,6 +307,36 @@ public class AnimalAI : MonoBehaviour
                 if (clip != null)
                     audioSource.PlayOneShot(clip);
             }
+        }
+    }
+    private IEnumerator ChickenPeckRoutine()
+    {
+        while (true)
+        {
+            float wait = Random.Range(chickenPeckIntervalRange.x, chickenPeckIntervalRange.y);
+            yield return new WaitForSeconds(wait);
+            // 조건: 닭 & (원하면 Idle일 때만)
+            if (peckOnlyWhenIdle && !isIdle) continue;
+            if (isPecking) continue; // 재진입 방지
+            // 현재 이동 중이면 스킵(원샷로 바꾸려면 이 라인 삭제)
+            if (moveDirection.sqrMagnitude > 0.0001f) continue;
+            isPecking = true;
+            // 이동/걷기 끄고 트리거 발동
+            Vector2 prevDir = moveDirection;
+            moveDirection = Vector2.zero;
+            anim.SetBool("IsMoving", false);
+            anim.ResetTrigger("Peck");
+            anim.SetTrigger("Peck");
+
+            // Peck 길이만큼 대기 (애니메이션 이벤트로 대체 가능)
+            yield return new WaitForSeconds(peckDuration);
+
+            //반드시 다시 움직이게 만든다
+            isPecking = false;
+            isIdle = false;                  // Idle 해제
+            if (prevDir.sqrMagnitude < 0.0001f)
+                ChooseNewDirection(force: true); // 정지 상태였으면 방향 새로 선정
+            anim.SetBool("IsMoving", true);
         }
     }
     private void OnTriggerEnter2D(Collider2D other)  // 추후 상호작용 확장
