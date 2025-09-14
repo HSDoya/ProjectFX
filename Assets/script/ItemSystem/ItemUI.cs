@@ -5,6 +5,16 @@ public class ItemUI : MonoBehaviour
 {
     public Image icon;
     public TextMeshProUGUI countText;  // 수량 표시용 텍스트 (UI에서 연결 필요)
+                                       // ItemUI.cs (선택 보강)
+    private void Awake()
+    {
+        if (icon == null)
+            icon = GetComponentInChildren<Image>(true);
+        if (countText == null)
+            countText = GetComponentInChildren<TextMeshProUGUI>(true);
+
+        if (icon != null) icon.preserveAspect = true; // 넘침 방지에 도움
+    }
 
     public void SetItem(Item item)
     {

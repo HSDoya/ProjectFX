@@ -4,58 +4,35 @@ using System.Collections.Generic;
 
 public class InventoryUI : MonoBehaviour
 {
-    public Transform itemGrid;               // slot 오브젝트
-    public GameObject itemSlotPrefab;        // 안 씀! (재사용 방식)
+    [SerializeField] public Transform itemGrid;
 
-    private List<ItemUI> slots = new List<ItemUI>();
+    private readonly List<ItemUI> slots = new();
 
-    void Start()
+    void Awake()
     {
-        Debug.Log("InventoryUI Start() 실행됨");
+        slots.Clear();
+        slots.AddRange(itemGrid.GetComponentsInChildren<ItemUI>(true)); // 손배치 슬롯 수집
+    }
 
-        // 슬롯은 AutoSlotGenerator에서 InitSlots()로 초기화한다고 가정하고, 여기서는 생략 가능
-        if (slots.Count == 0)
-        {
-            InitSlots();  // 만약 빠져 있으면 방어적으로 초기화
-        }
-
-        // 콜백 중복 방지 후 등록
+    void OnEnable()
+    {
         Inventory.instance.onItemChangedCallback -= UpdateUI;
-        Inventory.instance.onItemChangedCallback += UpdateUI;
+        Inventory.instance.onItemChangedCallback += UpdateUI; // 콜백 등록
+        UpdateUI(); // 처음 켤 때 즉시 반영
+    }
 
-        // 최초 UI 강제 갱신
-        UpdateUI();
+    void OnDisable()
+    {
+        Inventory.instance.onItemChangedCallback -= UpdateUI; // 콜백 해제
     }
 
     public void UpdateUI()
     {
-        // 슬롯 초기화
-        foreach (ItemUI slot in slots)
-        {
-            slot.ClearSlot();
-        }
+        foreach (var s in slots) s.ClearSlot();
 
-        // 인벤토리 아이템 표시
-        for (int i = 0; i < Inventory.instance.items.Count; i++)
-        {
-            if (i < slots.Count)
-            {
-                slots[i].SetItem(Inventory.instance.items[i]);
-            }
-        }
-    }
-    public void InitSlots()
-    {
-        slots.Clear();
-
-        foreach (Transform child in itemGrid)
-        {
-            ItemUI slot = child.GetComponent<ItemUI>();
-            if (slot != null)
-            {
-                slots.Add(slot);
-            }
-        }
+        var items = Inventory.instance.items;   // 인벤토리 데이터를
+        for (int i = 0; i < slots.Count && i < items.Count; i++)
+            slots[i].SetItem(items[i]);         // 슬롯에 그대로 바인딩
     }
 
 }
