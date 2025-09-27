@@ -194,26 +194,56 @@ public class AnimalAI : MonoBehaviour
                 break;
         }
     }
+
+    // === 이동 가능 여부 공통 게이트 ===
+    private bool CanMoveNow()
+    {
+        // 기존: isIdle/isPecking만 확인
+        // return !isIdle && !isPecking;
+
+        // 수정: 애니메이터의 "IsMoving" 파라미터까지 함께 검사하여
+        //       "걷기" 상태일 때만 실제 이동 허용
+        // 기존코드 주석처리 ↑
+        return !isIdle && !isPecking && anim.GetBool("IsMoving");
+    }
+
     IEnumerator MoveRoutine()
     {
         while (true)
         {
-            // 이동
+            // 이동 구간 시작
             ChooseNewDirection();
             isIdle = false;
+
+            // 기존코드: 이동 구간에서 애니메이션 on을 명시적으로 켜지 않음
+            // (FixedUpdate에서만 제어)
+            // yield return new WaitForSeconds(Random.Range(2f, 4f));
+
+            // 수정코드: 이동 시작 시 걷기 애니메이션 on
+            anim.SetBool("IsMoving", true); // 추가
             yield return new WaitForSeconds(Random.Range(2f, 4f));
 
-            // 정지
+            // 정지 구간 진입
             moveDirection = Vector2.zero;
             isIdle = true;
+
+            // 기존코드:
+            // yield return new WaitForSeconds(Random.Range(idleTimeMin, idleTimeMax));
+
+            // 수정코드: 정지 즉시 완전히 멈춤(속도 0) + 걷기 off
+            rb.velocity = Vector2.zero;          // 추가
+            anim.SetBool("IsMoving", false);     // 추가
             yield return new WaitForSeconds(Random.Range(idleTimeMin, idleTimeMax));
         }
     }
     void FixedUpdate()
     {
-        if (isIdle || isPecking)
+        // 수정코드: 이동 가능 여부를 통합 게이트로 검사
+        if (!CanMoveNow())
         {
-            anim.SetBool("IsMoving", false);
+            // 확실히 멈춤
+            rb.velocity = Vector2.zero;          // 추가
+            anim.SetBool("IsMoving", false);     // 유지(보강)
             return;
         }
 
@@ -222,20 +252,22 @@ public class AnimalAI : MonoBehaviour
             if (!IsWalkable(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime))
                 ChooseNewDirection(force: true);
         }
+
         Vector2 newPos = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
         if (IsWalkable(newPos))
         {
             rb.MovePosition(newPos);
             sr.flipX = moveDirection.x > 0;
-            anim.SetBool("IsMoving", moveDirection.sqrMagnitude > 0.0001f);
         }
         else
         {
             moveDirection = Vector2.zero;
             isIdle = true;
-            anim.SetBool("IsMoving", false);
+            rb.velocity = Vector2.zero;          // 추가
+            anim.SetBool("IsMoving", false);     // 유지(명시)
         }
     }
+
     // 기존 FixedUpdate 주석 처리
     // void FixedUpdate()
     // {
@@ -315,28 +347,36 @@ public class AnimalAI : MonoBehaviour
         {
             float wait = Random.Range(chickenPeckIntervalRange.x, chickenPeckIntervalRange.y);
             yield return new WaitForSeconds(wait);
+
             // 조건: 닭 & (원하면 Idle일 때만)
             if (peckOnlyWhenIdle && !isIdle) continue;
-            if (isPecking) continue; // 재진입 방지
-            // 현재 이동 중이면 스킵(원샷로 바꾸려면 이 라인 삭제)
+            if (isPecking) continue;
+
+            // 이동 중이면 스킵(원샷로 바꾸려면 이 라인 삭제)
             if (moveDirection.sqrMagnitude > 0.0001f) continue;
+
             isPecking = true;
-            // 이동/걷기 끄고 트리거 발동
+
+            // === 모이쪼기 시작: 즉시 완전정지 ===
             Vector2 prevDir = moveDirection;
             moveDirection = Vector2.zero;
-            anim.SetBool("IsMoving", false);
+            // 수정코드: 속도까지 0으로
+            rb.velocity = Vector2.zero;          // 추가
+            anim.SetBool("IsMoving", false);     // 유지
             anim.ResetTrigger("Peck");
             anim.SetTrigger("Peck");
 
-            // Peck 길이만큼 대기 (애니메이션 이벤트로 대체 가능)
+            // Peck 길이만큼 대기
             yield return new WaitForSeconds(peckDuration);
 
-            //반드시 다시 움직이게 만든다
+            // === 모이쪼기 종료: 다시 이동 재개(걷기 on) ===
             isPecking = false;
-            isIdle = false;                  // Idle 해제
+            isIdle = false;
+
             if (prevDir.sqrMagnitude < 0.0001f)
-                ChooseNewDirection(force: true); // 정지 상태였으면 방향 새로 선정
-            anim.SetBool("IsMoving", true);
+                ChooseNewDirection(force: true);
+            // 수정코드: 이동 재개를 명시
+            anim.SetBool("IsMoving", true);      // 유지
         }
     }
     private void OnTriggerEnter2D(Collider2D other)  // 추후 상호작용 확장

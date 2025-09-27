@@ -678,15 +678,15 @@ MonoBehaviour:
   species: 0
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
-  moveSpeed: 3
+  moveSpeed: 1.5
   idleTimeMin: 1
-  idleTimeMax: 3
+  idleTimeMax: 7
   turnBias: 0.58
   avoidBias: 0.63
   bodyRadius: 0.2
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   audioSource: {fileID: 0}
   ambientClips: []
   ambientIntervalRange: {x: 6, y: 12}
@@ -694,6 +694,7 @@ MonoBehaviour:
   chickenPeckIntervalRange: {x: 2, y: 5}
   peckOnlyWhenIdle: 1
   peckDuration: 1.02
+  walkDurationRange: {x: 3, y: 5}
   dropTable:
   - species: 0
     prefabs:
@@ -823,9 +824,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5cc046687c0e4a428b71c50f977db99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotParent: {fileID: 1726268077}
-  itemSlotPrefab: {fileID: 8653445037023005128, guid: f26b462899eba374da53c97791d095d9, type: 3}
-  slotCount: 20
 --- !u!4 &250083346
 Transform:
   m_ObjectHideFlags: 0
@@ -12604,7 +12602,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemGrid: {fileID: 1726268077}
-  itemSlotPrefab: {fileID: 8653445037023005128, guid: f26b462899eba374da53c97791d095d9, type: 3}
 --- !u!1 &1876236171
 GameObject:
   m_ObjectHideFlags: 0
@@ -13828,7 +13825,7 @@ MonoBehaviour:
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
   moveSpeed: 2
-  idleTimeMin: 5
+  idleTimeMin: 1
   idleTimeMax: 7
   turnBias: 0.3
   avoidBias: 0.5
@@ -13843,6 +13840,7 @@ MonoBehaviour:
   chickenPeckIntervalRange: {x: 2, y: 5}
   peckOnlyWhenIdle: 1
   peckDuration: 0.6
+  walkDurationRange: {x: 3, y: 5}
   dropTable:
   - species: 1
     prefabs:
