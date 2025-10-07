@@ -11,29 +11,59 @@ using System.Collections.Generic;
 public class AnimalAI : MonoBehaviour
 {
     public enum Species { Chicken, Cow }
+
     [Header("Basic")]
     [SerializeField] private Species species = Species.Chicken;
+
     [Header("Tilemaps")]
     public Tilemap groundTilemap;
     public Tilemap waterTilemap;
-    [Header("Movement")]
+
+    [Header("Movement (Common)")]
+    //기본 이동 속도(프리셋으로 종별 튜닝됨)
     public float moveSpeed = 2f;
+
+    //정지 최소/최대 시간
     public float idleTimeMin = 1f;
     public float idleTimeMax = 3f;
+
+    //방향을 자주 바꾸는 경향(0=거의 안바꿈, 1=매우 자주)
     [Range(0f, 1f)] public float turnBias = 0.3f;
+
+    //장애물/물 타일 회피 강도, 값이 클수록 회피 성향
     [Range(0f, 1f)] public float avoidBias = 0.5f;
+
+    [Header("Movement Duration By Species")]
+    //닭: 한 번 이동할 때 지속 시간 범위(초)
+    public Vector2 chickenMoveDuration = new Vector2(3f, 7f);
+
+    //소: 한 번 이동할 때 지속 시간 범위(초)
+    public Vector2 cowMoveDuration = new Vector2(10f, 20f);
+
     [Header("Collision/Physics")]
+    //몸통 판정 반경(장애물 탐지 반경 기준
     public float bodyRadius = 0.2f;
+    //장애물 레이어 지정(없으면 비워주삼→ 무시)
     public LayerMask obstacleMask;
-    public AudioSource audioSource;               // (선택) 붙이면 주기적으로 울음소리 추가
-    public List<AudioClip> ambientClips;          // 동물 울음소리 추가
+
+    [Header("Ambient (Optional)")]
+    public AudioSource audioSource;
+    public List<AudioClip> ambientClips;
     public Vector2 ambientIntervalRange = new Vector2(6f, 12f);
-    //닭 모이 제작
+
     [Header("Chicken Peck (Optional)")]
+    //종이 Chicken일 때만 사용. 랜덤 간격으로 'Peck' 트리거 발동
     public bool enablePecking = true;
-    public Vector2 chickenPeckIntervalRange = new Vector2(1f, 2f);
+
+    //모이쪼기 시도 간격(초)
+    public Vector2 chickenPeckIntervalRange = new Vector2(6f, 12f);
+
+    //Idle일 때만 쪼도록 제한
     public bool peckOnlyWhenIdle = true;
-    public float peckDuration = 0.6f;
+
+    //Peck 유지시간 범위(초) - 매번 랜덤
+    public Vector2 peckDurationRange = new Vector2(3f, 4f);
+
     // 1) 종별 드롭 설정 구조
     [System.Serializable]
     public class DropConfig
@@ -64,11 +94,20 @@ public class AnimalAI : MonoBehaviour
 
     // 코드 수정으로 인해 변경
     // private Coroutine ambientCo;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
+
+        // 시작 시 절대 움직이지 않도록 강제 초기화
+        moveDirection = Vector2.zero;
+        isIdle = true;
+        isPecking = false;
+        anim.ResetTrigger("Peck");
+        anim.SetBool("IsPecking", false); //Animator에 동일 bool 파라미터 추가 필요
+        anim.SetBool("IsMoving", false);
 
         // 콜라이더는 트리거로(플레이어 Knife 클릭 판정과 충돌 방지)
         var box = GetComponent<BoxCollider2D>();
@@ -77,7 +116,6 @@ public class AnimalAI : MonoBehaviour
         // 2D 세팅 추천값(필수는 아님)
         rb.gravityScale = 0f;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-
         ApplySpeciesPreset(); // 종별 기본값 적용(이미 인스펙터에서 수동 조정했다면 그대로 두면됨)
     }
 
@@ -92,6 +130,12 @@ public class AnimalAI : MonoBehaviour
         if (species == Species.Chicken && enablePecking)
             peckCo = StartCoroutine(ChickenPeckRoutine());
     }
+    private void OnDisable()
+    {
+        if (peckCo != null) StopCoroutine(peckCo);
+        if (ambientCo != null) StopCoroutine(ambientCo);
+    }
+
     // 코드 수정으로 인해 변경
     /*void Start()
     {
@@ -172,11 +216,10 @@ public class AnimalAI : MonoBehaviour
 
     private void ApplySpeciesPreset()
     {
-        // 이미 인스펙터에서 수동으로 바꾼 값은 그대로 쓰고 싶다면 아래 주석 처리 가능
         switch (species)
         {
             case Species.Chicken:
-                moveSpeed = Mathf.Approximately(moveSpeed, 2f) ? 2.2f : moveSpeed; // 기본값일 때만 살짝 조정함
+                moveSpeed = Mathf.Approximately(moveSpeed, 2f) ? 2.2f : moveSpeed;
                 idleTimeMin = Mathf.Approximately(idleTimeMin, 1f) ? 0.6f : idleTimeMin;
                 idleTimeMax = Mathf.Approximately(idleTimeMax, 3f) ? 1.2f : idleTimeMax;
                 turnBias = (Mathf.Approximately(turnBias, 0.3f)) ? 0.7f : turnBias;
@@ -211,62 +254,69 @@ public class AnimalAI : MonoBehaviour
     {
         while (true)
         {
-            // 이동 구간 시작
-            ChooseNewDirection();
+            // --- 이동 단계 ---
+            float moveTime = (species == Species.Cow)
+                ? Random.Range(cowMoveDuration.x, cowMoveDuration.y)         // 소: 10~20초
+                : Random.Range(chickenMoveDuration.x, chickenMoveDuration.y); // 닭: 5~10초
+
+            ChooseNewDirection(force: true);
             isIdle = false;
+            float t = 0f;
+            while (t < moveTime)
+            {
+                if (!isPecking)
+                {
+                    t += Time.deltaTime;
 
-            // 기존코드: 이동 구간에서 애니메이션 on을 명시적으로 켜지 않음
-            // (FixedUpdate에서만 제어)
-            // yield return new WaitForSeconds(Random.Range(2f, 4f));
-
-            // 수정코드: 이동 시작 시 걷기 애니메이션 on
-            anim.SetBool("IsMoving", true); // 추가
-            yield return new WaitForSeconds(Random.Range(2f, 4f));
-
-            // 정지 구간 진입
+                    // 이동 도중에도 회피/진로 보정
+                    if (avoidBias > 0.01f && Random.value < avoidBias * 0.05f)
+                    {
+                        if (!IsWalkable(rb.position + moveDirection * moveSpeed * Time.deltaTime))
+                            ChooseNewDirection(force: true);
+                    }
+                }
+                yield return null;
+            }
+            // --- 정지 단계 ---
             moveDirection = Vector2.zero;
             isIdle = true;
 
-            // 기존코드:
-            // yield return new WaitForSeconds(Random.Range(idleTimeMin, idleTimeMax));
-
-            // 수정코드: 정지 즉시 완전히 멈춤(속도 0) + 걷기 off
-            rb.velocity = Vector2.zero;          // 추가
-            anim.SetBool("IsMoving", false);     // 추가
-            yield return new WaitForSeconds(Random.Range(idleTimeMin, idleTimeMax));
+            float idleWait = Random.Range(idleTimeMin, idleTimeMax);
+            float idleT = 0f;
+            while (idleT < idleWait)
+            {
+                idleT += Time.deltaTime;
+                yield return null;
+            }
         }
     }
+
     void FixedUpdate()
     {
-        // 수정코드: 이동 가능 여부를 통합 게이트로 검사
-        if (!CanMoveNow())
+        // Peck 중이거나 Idle이면 이동하지 않음
+        if (isIdle || isPecking)
         {
-            // 확실히 멈춤
-            rb.velocity = Vector2.zero;          // 추가
-            anim.SetBool("IsMoving", false);     // 유지(보강)
+            rb.linearVelocity = Vector2.zero; // 혹시 모를 관성 제거
+            anim.SetBool("IsMoving", false);
             return;
         }
 
-        if (avoidBias > 0.01f && Random.value < avoidBias * 0.15f)
-        {
-            if (!IsWalkable(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime))
-                ChooseNewDirection(force: true);
-        }
-
+        // 이동 갱신
         Vector2 newPos = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
         if (IsWalkable(newPos))
         {
             rb.MovePosition(newPos);
             sr.flipX = moveDirection.x > 0;
+            anim.SetBool("IsMoving", moveDirection.sqrMagnitude > 0.0001f);
         }
         else
         {
             moveDirection = Vector2.zero;
             isIdle = true;
-            rb.velocity = Vector2.zero;          // 추가
-            anim.SetBool("IsMoving", false);     // 유지(명시)
+            anim.SetBool("IsMoving", false);
         }
     }
+
 
     // 기존 FixedUpdate 주석 처리
     // void FixedUpdate()
@@ -341,6 +391,7 @@ public class AnimalAI : MonoBehaviour
             }
         }
     }
+    // 닭 모이쪼기: 시작~끝 동안 완전 정지 + Animator 하드락(IsPecking)
     private IEnumerator ChickenPeckRoutine()
     {
         while (true)
@@ -348,44 +399,49 @@ public class AnimalAI : MonoBehaviour
             float wait = Random.Range(chickenPeckIntervalRange.x, chickenPeckIntervalRange.y);
             yield return new WaitForSeconds(wait);
 
-            // 조건: 닭 & (원하면 Idle일 때만)
             if (peckOnlyWhenIdle && !isIdle) continue;
             if (isPecking) continue;
 
-            // 이동 중이면 스킵(원샷로 바꾸려면 이 라인 삭제)
+            // 이동 중이면 쪼기 생략(강제 쪼기 원하면 아래 줄 주석)
             if (moveDirection.sqrMagnitude > 0.0001f) continue;
 
             isPecking = true;
+            anim.SetBool("IsPecking", true);  // ✅ Animator 전이에서 Walk 금지 조건으로 사용
 
-            // === 모이쪼기 시작: 즉시 완전정지 ===
-            Vector2 prevDir = moveDirection;
+            // 완전 정지 + Walk 끄고 → Peck 트리거
             moveDirection = Vector2.zero;
-            // 수정코드: 속도까지 0으로
-            rb.velocity = Vector2.zero;          // 추가
-            anim.SetBool("IsMoving", false);     // 유지
+            rb.linearVelocity = Vector2.zero;
+            anim.SetBool("IsMoving", false);
             anim.ResetTrigger("Peck");
             anim.SetTrigger("Peck");
 
-            // Peck 길이만큼 대기
-            yield return new WaitForSeconds(peckDuration);
+            // 3~4초 랜덤 유지
+            float peckDur = Random.Range(peckDurationRange.x, peckDurationRange.y);
+            yield return new WaitForSeconds(peckDur);
 
-            // === 모이쪼기 종료: 다시 이동 재개(걷기 on) ===
+            // 종료: 락 해제 후 자연 이동 재개(고정된 true 세팅은 피함)
             isPecking = false;
+            anim.SetBool("IsPecking", false);
             isIdle = false;
-
-            if (prevDir.sqrMagnitude < 0.0001f)
-                ChooseNewDirection(force: true);
-            // 수정코드: 이동 재개를 명시
-            anim.SetBool("IsMoving", true);      // 유지
+            ChooseNewDirection(force: true);
+            // IsMoving은 FixedUpdate/이동 로직이 자연스럽게 설정
         }
     }
-    private void OnTriggerEnter2D(Collider2D other)  // 추후 상호작용 확장
+
+    // (선택) 애니메이션 이벤트 사용 시: Peck 마지막 프레임에서 호출
+    public void OnPeckEnd()
+    {
+        isPecking = false;
+        anim.SetBool("IsPecking", false);
+        isIdle = false;
+        ChooseNewDirection(force: true);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            // 터치 로그 정도만 유지(원 코드 호환)
             Debug.Log("접촉했습니다.");
         }
     }
-
 }

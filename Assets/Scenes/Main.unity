@@ -678,11 +678,13 @@ MonoBehaviour:
   species: 0
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
-  moveSpeed: 1.5
+  moveSpeed: 0.5
   idleTimeMin: 1
   idleTimeMax: 7
   turnBias: 0.58
   avoidBias: 0.63
+  chickenMoveDuration: {x: 5, y: 10}
+  cowMoveDuration: {x: 10, y: 20}
   bodyRadius: 0.2
   obstacleMask:
     serializedVersion: 2
@@ -693,8 +695,7 @@ MonoBehaviour:
   enablePecking: 1
   chickenPeckIntervalRange: {x: 2, y: 5}
   peckOnlyWhenIdle: 1
-  peckDuration: 1.02
-  walkDurationRange: {x: 3, y: 5}
+  peckDurationRange: {x: 3, y: 4}
   dropTable:
   - species: 0
     prefabs:
@@ -13824,11 +13825,13 @@ MonoBehaviour:
   species: 1
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
-  moveSpeed: 2
+  moveSpeed: 0.3
   idleTimeMin: 1
   idleTimeMax: 7
   turnBias: 0.3
   avoidBias: 0.5
+  chickenMoveDuration: {x: 5, y: 10}
+  cowMoveDuration: {x: 10, y: 20}
   bodyRadius: 0.2
   obstacleMask:
     serializedVersion: 2
@@ -13839,8 +13842,7 @@ MonoBehaviour:
   enablePecking: 1
   chickenPeckIntervalRange: {x: 2, y: 5}
   peckOnlyWhenIdle: 1
-  peckDuration: 0.6
-  walkDurationRange: {x: 3, y: 5}
+  peckDurationRange: {x: 3, y: 4}
   dropTable:
   - species: 1
     prefabs:
