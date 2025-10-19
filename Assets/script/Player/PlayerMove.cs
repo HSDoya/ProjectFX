@@ -23,6 +23,13 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private Tile_Fishing fishingTile;
     [SerializeField] private ObjectSpawner objectSpawner; // 드래그 연결 필요(2025-07-27)
 
+    // [추가] G키로 띄울 "세로 막대 미니게임" 프리팹 & 실행중 인스턴스 
+    [Header("MiniGame (Vertical Bar)")]
+    [SerializeField] private GameObject fishingMiniGamePrefab; // 프리팹: VerticalFishingMiniGameView 포함
+    private GameObject currentFishingGame;                     // 현재 실행 중 미니게임
+    // 테스트 이후 삭세 
+
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -44,6 +51,13 @@ public class PlayerMove : MonoBehaviour
         {
             TryDestroyNearestSpawnedObject();
         }
+
+        //  G 키로 미니게임 시작 (테스트용)
+        if (Keyboard.current.gKey.wasPressedThisFrame)
+        {
+            StartFishingMiniGame();
+        }
+
     }
 
     private void LateUpdate()
@@ -238,4 +252,65 @@ private void OnMouseClick()
     {
         anim.SetBool("Fishing", false);
     }
+
+
+    // 낚시 게임 
+    private void StartFishingMiniGame()
+    {
+        if (currentFishingGame != null) return; // 이미 실행 중이면 무시
+
+        if (fishingMiniGamePrefab == null)
+        {
+            Debug.LogError("[Fishing] fishingMiniGamePrefab이 비어 있습니다. 프리팹을 연결하세요.");
+            return;
+        }
+
+        Debug.Log("🎣 G 키 입력 → 세로 막대 낚시 미니게임 시작");
+
+        // 플레이어 조작 잠깐 정지
+        event_time = true;
+        rigid.linearVelocity = Vector2.zero;
+
+        // Canvas 밑에 인스턴스
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        Transform parent = canvas != null ? canvas.transform : null;
+        currentFishingGame = Instantiate(fishingMiniGamePrefab, parent);
+
+        // 프리팹에서 세로 뷰 컴포넌트 찾기
+        var view = currentFishingGame.GetComponentInChildren<VerticalFishingMiniGameView>(true);
+        if (view == null)
+        {
+            Debug.LogError("[Fishing] 프리팹에 VerticalFishingMiniGameView가 없습니다.");
+            return;
+        }
+
+        // 열기 & 콜백
+        view.Open(
+            onFinished: (success) =>
+            {
+                if (success)
+                {
+                    Debug.Log("낚시 성공! (여기서 보상 지급)");
+                    // TODO: Inventory.instance.Add("fish", 1);
+                }
+                else
+                {
+                    Debug.Log("낚시 실패");
+                }
+            },
+            onClosed: () =>
+            {
+                if (currentFishingGame != null)
+                {
+                    Destroy(currentFishingGame);
+                    currentFishingGame = null;
+                }
+                event_time = false; // 플레이어 조작 복구
+                Debug.Log("낚시 미니게임 종료");
+            }
+        );
+    }
+
+
+
 }
