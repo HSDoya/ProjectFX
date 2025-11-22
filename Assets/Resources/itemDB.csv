@@ -1,6 +1,8 @@
-﻿itemID,Name,Description,canStack,MaxStack,type,isConsumable
-fish,고등어 ,음식,TRUE,99,food,TRUE
-fish,참치,음식,TRUE,99,food,TRUE
-wood,나무판자,재료 ,TRUE,99,Material,TRUE
-Meat,소고기 ,음식,TRUE,99,food,TRUE
-Chicken,치킨,음식,TRUE,99,food,TRUE
+﻿itemID,Name,Description,canStack,MaxStack,type,isConsumable,equipSlot,atk,def
+fish,고등어 ,음식,TRUE,99,food,TRUE,None,None,None
+fish,참치,음식,TRUE,99,food,TRUE,None,None,None
+wood,나무판자,재료 ,TRUE,99,Material,TRUE,None,None,None
+Meat,소고기 ,음식,TRUE,99,food,TRUE,None,None,None
+Chicken,치킨,음식,TRUE,99,food,TRUE,None,None,None
+Sword,철검,무기,TRUE,1,Equipment,TRUE,Weapon,10,None
+Breastplate,흉갑,갑옷,TRUE,1,Equipment,TRUE,Armor,None,10
