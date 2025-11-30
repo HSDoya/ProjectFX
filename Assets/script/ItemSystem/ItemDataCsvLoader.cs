@@ -31,21 +31,61 @@ public class ItemDataCsvLoader : MonoBehaviour
         }
 
         string[] lines = csvFile.text.Split('\n');
+
+        // 0번 줄은 헤더이므로 1부터 시작
         for (int i = 1; i < lines.Length; i++)
         {
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
             string[] cols = lines[i].Split(',');
+            if (cols.Length < 11)
+            {
+                Debug.LogWarning($"[{i}] 번째 줄의 컬럼 수가 11개보다 적습니다. (len={cols.Length})");
+                continue;
+            }
 
+            // 공통 필드
+            string itemID = cols[0].Trim();
+            string itemTypeStr = cols[1].Trim();
+            string name = cols[2].Trim();
+            string desc = cols[3].Trim();
+            string canStackStr = cols[4].Trim();
+            string maxStackStr = cols[5].Trim();
+            string typeStr = cols[6].Trim();
+            string isConsumStr = cols[7].Trim();
+            string equipSlotStr = cols[8].Trim();
+            string atkStr = cols[9].Trim();
+            string defStr = cols[10].Trim();
+
+            // ItemData 생성
             ItemData item = new ItemData
             {
-                itemID = cols[0].Trim(),
-                displayName = cols[1].Trim(),
-                description = cols[2].Trim(),
-                canStack = cols[3].Trim().ToLower() == "true",
-                maxStackAmount = int.Parse(cols[4].Trim()),
-                icon = Resources.Load<Sprite>($"icon/{cols[0].Trim()}")
+                itemID = itemID,
+                displayName = name,
+                description = desc,
+                icon = Resources.Load<Sprite>($"icon/{itemID}")
             };
+
+            // bool / int 파싱
+            item.canStack = canStackStr.ToLower() == "true";
+            if (!int.TryParse(maxStackStr, out item.maxStackAmount))
+                item.maxStackAmount = 1;
+
+            item.type = typeStr;
+            item.isConsumable = isConsumStr.ToLower() == "true";
+
+            if (!int.TryParse(atkStr, out item.atk))
+                item.atk = 0;
+
+            if (!int.TryParse(defStr, out item.def))
+                item.def = 0;
+
+            // enum 파싱 (실패하면 None)
+            if (!System.Enum.TryParse<ItemType>(itemTypeStr, true, out item.itemType))
+                item.itemType = ItemType.None;
+
+            if (!System.Enum.TryParse<EquipmentSlotType>(equipSlotStr, true, out item.equipSlot))
+                item.equipSlot = EquipmentSlotType.None;
 
             itemDataDict[item.itemID] = item;
         }

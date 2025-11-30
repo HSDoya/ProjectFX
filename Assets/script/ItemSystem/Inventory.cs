@@ -85,4 +85,11 @@ public class Inventory : MonoBehaviour
             inventoryUI.SetActive(false);
         }
     }
+    public bool Remove(Item item)
+    {
+        bool removed = items.Remove(item);
+        if (removed)
+            onItemChangedCallback?.Invoke();
+        return removed;
+    }
 }
