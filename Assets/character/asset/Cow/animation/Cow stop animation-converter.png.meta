@@ -1,19 +1,25 @@
 fileFormatVersion: 2
-guid: b14be53ec71abdd42aca72200005c06e
+guid: 47a6c75a1a71e3d4cbbc040cad34c557
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5137139934020820112
-    second: cow waiting animation.com-gif-to-sprite-converter_0
+      213: -1709029633873514076
+    second: Cow stop animation-converter_0
   - first:
-      213: -8344584847228100422
-    second: cow waiting animation.com-gif-to-sprite-converter_1
+      213: -7608624099396503885
+    second: Cow stop animation-converter_1
   - first:
-      213: -30821436687779833
-    second: cow waiting animation.com-gif-to-sprite-converter_2
+      213: 2557112183614095710
+    second: Cow stop animation-converter_2
   - first:
-      213: 3594773220428368966
-    second: cow waiting animation.com-gif-to-sprite-converter_3
+      213: -7982282022980347516
+    second: Cow stop animation-converter_3
+  - first:
+      213: -3653476917595377387
+    second: Cow stop animation-converter_4
+  - first:
+      213: 4718070548958804529
+    second: Cow stop animation-converter_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -122,13 +128,123 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cow waiting animation.com-gif-to-sprite-converter_0
+      name: Cow stop animation-converter_0
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 1359
+        width: 562
+        height: 402
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a17a525a9e4848e0800000000000000
+      internalID: -1709029633873514076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cow stop animation-converter_1
+      rect:
+        serializedVersion: 2
+        x: 1295
+        y: 1359
+        width: 562
+        height: 402
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b6befd91bcb86690800000000000000
+      internalID: -7608624099396503885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cow stop animation-converter_2
+      rect:
+        serializedVersion: 2
+        x: 2319
+        y: 1359
+        width: 562
+        height: 386
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e51442b9bffac7320800000000000000
+      internalID: 2557112183614095710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cow stop animation-converter_3
+      rect:
+        serializedVersion: 2
+        x: 3343
+        y: 1359
+        width: 562
+        height: 402
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4891543cacc393190800000000000000
+      internalID: -7982282022980347516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cow stop animation-converter_4
+      rect:
+        serializedVersion: 2
+        x: 4367
+        y: 1359
+        width: 562
+        height: 402
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51173a3b91e3c4dc0800000000000000
+      internalID: -3653476917595377387
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cow stop animation-converter_5
       rect:
         serializedVersion: 2
         x: 271
         y: 335
         width: 562
-        height: 402
+        height: 386
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,74 +253,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 073273f927635b8b0800000000000000
-      internalID: -5137139934020820112
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cow waiting animation.com-gif-to-sprite-converter_1
-      rect:
-        serializedVersion: 2
-        x: 1295
-        y: 327
-        width: 562
-        height: 400
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ab0acdefa44123c80800000000000000
-      internalID: -8344584847228100422
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cow waiting animation.com-gif-to-sprite-converter_2
-      rect:
-        serializedVersion: 2
-        x: 2319
-        y: 332
-        width: 562
-        height: 402
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 708f1ce0110829ff0800000000000000
-      internalID: -30821436687779833
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cow waiting animation.com-gif-to-sprite-converter_3
-      rect:
-        serializedVersion: 2
-        x: 3343
-        y: 332
-        width: 562
-        height: 402
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 64c48b3b23333e130800000000000000
-      internalID: 3594773220428368966
+      spriteID: 13afbe7ba24f97140800000000000000
+      internalID: 4718070548958804529
       vertices: []
       indices: 
       edges: []
@@ -223,10 +273,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      cow waiting animation.com-gif-to-sprite-converter_0: -5137139934020820112
-      cow waiting animation.com-gif-to-sprite-converter_1: -8344584847228100422
-      cow waiting animation.com-gif-to-sprite-converter_2: -30821436687779833
-      cow waiting animation.com-gif-to-sprite-converter_3: 3594773220428368966
+      Cow stop animation-converter_0: -1709029633873514076
+      Cow stop animation-converter_1: -7608624099396503885
+      Cow stop animation-converter_2: 2557112183614095710
+      Cow stop animation-converter_3: -7982282022980347516
+      Cow stop animation-converter_4: -3653476917595377387
+      Cow stop animation-converter_5: 4718070548958804529
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -213,11 +213,19 @@ private void OnMouseClick()
         if (objectSpawner == null || objectSpawner.spawnedObjects.Count == 0) return;
 
         GameObject closest = null;
-        float minDist = 1.5f; // 거리 제한
+        float minDist = 1.5f;
 
-        foreach (GameObject obj in objectSpawner.spawnedObjects)
+        for (int i = objectSpawner.spawnedObjects.Count - 1; i >= 0; i--)
         {
-            if (obj == null) continue;
+            GameObject obj = objectSpawner.spawnedObjects[i];
+
+            // ★ 핵심: 이미 파괴되었는지(null인지) 먼저 확인
+            if (obj == null)
+            {
+                objectSpawner.spawnedObjects.RemoveAt(i); // 리스트 청소
+                continue;
+            }
+
             float dist = Vector3.Distance(transform.position, obj.transform.position);
             if (dist < minDist)
             {
@@ -226,11 +234,11 @@ private void OnMouseClick()
             }
         }
 
+        // ★ 실행 직전에 한 번 더 체크
         if (closest != null)
         {
             objectSpawner.spawnedObjects.Remove(closest);
             Destroy(closest);
-            Debug.Log("ObjectSpawner에서 생성된 오브젝트를 제거했습니다.");
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)

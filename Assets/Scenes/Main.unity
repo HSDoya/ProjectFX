@@ -994,7 +994,7 @@ GameObject:
   - component: {fileID: 243217326}
   - component: {fileID: 243217325}
   - component: {fileID: 243217324}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Chicken
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8786,17 +8786,21 @@ MonoBehaviour:
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
   spawnCheckRadius: 0.3
-  maxPositionSearchTries: 20
-  spawnRules:
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  maxPositionSearchTries: 3
+  resourceRules:
   - ruleName: tree
     prefabs:
     - {fileID: 5808110219454188836, guid: 027a7182c13cebc42a3ab3fe21511ca0, type: 3}
-    initialCount: 30
-    maxCount: 80
-    spawnIntervalRange: {x: 1, y: 2}
-    nextSpawnTime: 0
-    livingInstances: []
-  spawnedObjects: []
+    spawnCount: 5
+  - ruleName: tree2
+    prefabs:
+    - {fileID: 9156248399462692421, guid: 8d82482bfc3782d4197b1021f3f83a23, type: 3}
+    spawnCount: 5
+  spawnedObjects:
+  - {fileID: 0}
 --- !u!1001 &1080564361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19577,7 +19581,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2064229487}
-  - component: {fileID: 2064229486}
+  - component: {fileID: 2064229488}
   m_Layer: 0
   m_Name: EcosystemSpawner
   m_TagString: Untagged
@@ -19585,33 +19589,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2064229486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2064229485}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d35c94003852fa41aa63b989d225fc9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groundTilemap: {fileID: 1051139131}
-  waterTilemap: {fileID: 1214443929}
-  spawnCheckRadius: 0.3
-  maxPositionSearchTries: 20
-  spawnRules:
-  - ruleName: tree
-    prefabs:
-    - {fileID: 0}
-    initialCount: 30
-    maxCount: 80
-    spawnIntervalRange: {x: 5, y: 10}
-    nextSpawnTime: 0
-    livingInstances: []
-  spawnedObjects:
-  - {fileID: 0}
 --- !u!4 &2064229487
 Transform:
   m_ObjectHideFlags: 0
@@ -19627,6 +19604,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2064229488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064229485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d3fc326bdfcebb4db69a311b4bf1371, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundTilemap: {fileID: 1051139131}
+  waterTilemap: {fileID: 1214443929}
+  animalLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  spawnCheckRadius: 0.3
+  minDistanceFromPlayer: 10
+  playerTransform: {fileID: 1721243586}
+  animalRules:
+  - animalName: COW
+    prefab: {fileID: 4421147239190456030}
+    targetCount: 5
+  - animalName: Chicken
+    prefab: {fileID: 243217321}
+    targetCount: 5
+  minCheckInterval: 1
+  maxCheckInterval: 2
+  spawnImmediatelyOnStart: 0
 --- !u!1001 &2087442076
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20152,7 +20159,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: e2bde586482642d44a270276574c0129, type: 3}
+  m_Sprite: {fileID: -1073767304901041875, guid: eb1745dfddc5f47459fc711458c8e170, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -20325,7 +20332,7 @@ GameObject:
   - component: {fileID: 6275056485628184046}
   - component: {fileID: 1121445954410455681}
   - component: {fileID: 7422467048764444836}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: COW
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20661,7 +20668,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.32, y: 0.32}
+    oldSize: {x: 0.281, y: 0.20139258}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -20764,21 +20771,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundTilemap: {fileID: 1051139131}
   waterTilemap: {fileID: 1214443929}
-  animals:
-  - prefab: {fileID: 4421147239190456030}
-    weight: 0
-    count: 0
-  - prefab: {fileID: 243217321}
-    weight: 0
-    count: 0
-  minDistanceBetweenAnimals: 1
-  overlapMask:
+  animalLayer:
     serializedVersion: 2
     m_Bits: 0
-  maxAttemptsPerAnimal: 100
-  spawnOnStart: 1
-  allowRespawn: 1
-  respawnInterval: 20
+  spawnCheckRadius: 0.5
+  minDistanceFromPlayer: 12
+  playerTransform: {fileID: 0}
+  animalRules: []
+  minCheckInterval: 5
+  maxCheckInterval: 15
+  spawnImmediatelyOnStart: 0
 --- !u!114 &9155569660027139351
 MonoBehaviour:
   m_ObjectHideFlags: 0

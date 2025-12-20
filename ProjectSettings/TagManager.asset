@@ -11,11 +11,12 @@ TagManager:
   - farmTile
   - ItemDrop
   - Interactable
+  - ItemPickup
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - obstacleLayer
   - Water
   - UI
   - 
