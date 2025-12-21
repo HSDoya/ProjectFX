@@ -1,28 +1,23 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class InventorySlotUI : MonoBehaviour, ItemSlot
+public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler
 {
     [Header("Binding")]
-    public int slotIndex;     // Inventory.items에서 이 슬롯이 담당하는 index
-    public ItemUI itemUI;     // 자식(또는 동일 오브젝트)에 있는 ItemUI
+    public int slotIndex;
+    public ItemUI itemUI;
 
     public Item CurrentItem { get; set; }
 
     private void Reset()
     {
-        // 자동 연결(가능하면)
         if (itemUI == null)
             itemUI = GetComponentInChildren<ItemUI>(true);
     }
 
-    /// <summary>
-    /// 인벤 슬롯은 제한 없음: 모든 아이템 수용
-    /// </summary>
     public bool CanReceive(Item item) => true;
 
-    /// <summary>
-    /// CurrentItem 기반으로 내부 아이콘/수량 갱신
-    /// </summary>
     public void Refresh()
     {
         if (itemUI == null) return;
@@ -33,19 +28,51 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot
             itemUI.ClearSlot();
     }
 
-    /// <summary>
-    /// InventoryUI가 items 리스트를 넘겨주면 인덱스에 맞게 CurrentItem을 채우는 헬퍼.
-    /// </summary>
-    public void BindFromInventoryList(System.Collections.Generic.List<Item> items)
+    public void BindFromInventoryList(List<Item> items)
     {
-        if (items == null)
+        CurrentItem = (items != null && slotIndex >= 0 && slotIndex < items.Count) ? items[slotIndex] : null;
+        Refresh();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // 좌클릭만 처리
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (CurrentItem == null || CurrentItem.data == null)
+            return;
+
+        if (EquipmentManager.instance == null)
         {
-            CurrentItem = null;
-            Refresh();
+            Debug.LogError("EquipmentManager.instance가 없습니다(씬에 EquipmentManager를 배치했는지 확인).");
             return;
         }
 
-        CurrentItem = (slotIndex >= 0 && slotIndex < items.Count) ? items[slotIndex] : null;
-        Refresh();
+        // 장비 아이템만 장착 (원하면 Consumable도 퀵슬롯으로 보내는 로직을 나중에 추가)
+        if (CurrentItem.data.itemType != ItemType.Equipment)
+            return;
+
+        if (CurrentItem.data.equipSlot == EquipmentSlotType.None)
+            return;
+
+        // 인벤에서 1개(또는 통째) 꺼내기
+        if (!Inventory.instance.TryTakeOneAt(slotIndex, out var taken))
+            return;
+
+        // 장착 시도: 교체된 장비가 있으면 반환
+        var replaced = EquipmentManager.instance.Equip(taken.data.equipSlot, taken);
+
+        // 교체 장비를 인벤으로 반환
+        if (replaced != null)
+        {
+            bool ok = Inventory.instance.AddItem(replaced);
+            if (!ok)
+            {
+                // 인벤이 가득 찼으면 원복
+                EquipmentManager.instance.Equip(replaced.data.equipSlot, replaced);
+                Inventory.instance.AddItem(taken);
+            }
+        }
     }
 }

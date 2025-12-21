@@ -1,51 +1,63 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EquipmentManager : MonoBehaviour
 {
     public static EquipmentManager instance;
 
-    public Item[] equippedItems; // Weapon, Armor, Hat, Shoes ... 순서대로
+    // slotType별 착용 아이템
+    private readonly Dictionary<EquipmentSlotType, Item> equipped = new();
 
-    public delegate void OnEquipmentChanged();
-    public OnEquipmentChanged onEquipmentChangedCallback;
+    public event Action OnEquipmentChanged;
 
     private void Awake()
     {
-        if (instance == null) instance = this;
-        else Destroy(gameObject);
-
-        // 슬롯 개수만큼 배열 생성 (예: 4개)
-        equippedItems = new Item[4];
-    }
-
-    public void Equip(Item item)
-    {
-        if (item.data.itemType != ItemType.Equipment)
-            return;
-
-        int index = (int)item.data.equipSlot; // Weapon=1, Armor=2 이런 식으로 맞춰두기
-
-        Item oldItem = equippedItems[index];
-        if (oldItem != null)
+        if (instance != null)
         {
-            // 기존 장비는 다시 인벤토리로
-            Inventory.instance.Add(oldItem.data);
+            Debug.LogWarning("More than one EquipmentManager found!");
+            Destroy(gameObject);
+            return;
         }
-
-        equippedItems[index] = item;
-        Inventory.instance.Remove(item); // 인벤토리에서 제거
-
-        onEquipmentChangedCallback?.Invoke();
+        instance = this;
     }
 
-    public void Unequip(int slotIndex)
+    public Item GetEquipped(EquipmentSlotType slotType)
     {
-        Item item = equippedItems[slotIndex];
-        if (item == null) return;
-
-        Inventory.instance.Add(item.data);
-        equippedItems[slotIndex] = null;
-
-        onEquipmentChangedCallback?.Invoke();
+        equipped.TryGetValue(slotType, out var item);
+        return item;
     }
+
+    /// <summary>
+    /// 해당 슬롯에 장착(교체 포함). 기존 장비는 반환.
+    /// </summary>
+    public Item Equip(EquipmentSlotType slotType, Item newItem)
+    {
+        if (newItem == null || newItem.data == null) return null;
+
+        // 슬롯 타입 불일치면 거부
+        if (newItem.data.equipSlot != slotType)
+            return null;
+
+        Item previous = null;
+        if (equipped.TryGetValue(slotType, out var old))
+            previous = old;
+
+        equipped[slotType] = newItem;
+        OnEquipmentChanged?.Invoke();
+        return previous;
+    }
+
+    public Item Unequip(EquipmentSlotType slotType)
+    {
+        if (!equipped.TryGetValue(slotType, out var old))
+            return null;
+
+        equipped.Remove(slotType);
+        OnEquipmentChanged?.Invoke();
+        return old;
+    }
+
+    public bool HasEquipped(EquipmentSlotType slotType)
+        => equipped.ContainsKey(slotType);
 }
