@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: bffad1e52e3d7f04d9c7d6d4b4cbf7de
+guid: 0bbda4c9e734b0b439942cf53a5b122b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8527486122214861665
-    second: Tree2_b_0
+      213: 6248211809147380144
+    second: cow back animation-gif-to-sprite-converter_0
+  - first:
+      213: 1072279826754466122
+    second: cow back animation-gif-to-sprite-converter_1
+  - first:
+      213: -115066526321392919
+    second: cow back animation-gif-to-sprite-converter_2
+  - first:
+      213: -4340380545955116794
+    second: cow back animation-gif-to-sprite-converter_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +60,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 2000
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +122,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Tree2_b_0
+      name: cow back animation-gif-to-sprite-converter_0
       rect:
         serializedVersion: 2
-        x: 271
-        y: 287
-        width: 466
-        height: 514
+        x: 415
+        y: 335
+        width: 274
+        height: 402
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +137,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f945f4a6d8848a980800000000000000
-      internalID: -8527486122214861665
+      spriteID: 0b161a5398b16b650800000000000000
+      internalID: 6248211809147380144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cow back animation-gif-to-sprite-converter_1
+      rect:
+        serializedVersion: 2
+        x: 1439
+        y: 335
+        width: 274
+        height: 386
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a41748d32d081ee00800000000000000
+      internalID: 1072279826754466122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cow back animation-gif-to-sprite-converter_2
+      rect:
+        serializedVersion: 2
+        x: 2463
+        y: 335
+        width: 274
+        height: 402
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e2431d9a93376ef0800000000000000
+      internalID: -115066526321392919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cow back animation-gif-to-sprite-converter_3
+      rect:
+        serializedVersion: 2
+        x: 3487
+        y: 335
+        width: 274
+        height: 386
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6094458c3eed3c3c0800000000000000
+      internalID: -4340380545955116794
       vertices: []
       indices: 
       edges: []
@@ -148,7 +223,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Tree2_b_0: -8527486122214861665
+      cow back animation-gif-to-sprite-converter_0: 6248211809147380144
+      cow back animation-gif-to-sprite-converter_1: 1072279826754466122
+      cow back animation-gif-to-sprite-converter_2: -115066526321392919
+      cow back animation-gif-to-sprite-converter_3: -4340380545955116794
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

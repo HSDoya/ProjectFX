@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 503e883fe8319dd44bfb0c913994f8dd
+guid: bffad1e52e3d7f04d9c7d6d4b4cbf7de
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2099394312477866593
-    second: tree_spring_b_0
+      213: -8527486122214861665
+    second: Tree2_b_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 200
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,12 +113,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tree_spring_b_0
+      name: Tree2_b_0
       rect:
         serializedVersion: 2
         x: 271
-        y: 271
-        width: 482
+        y: 287
+        width: 466
         height: 514
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 16af7be010c822d10800000000000000
-      internalID: 2099394312477866593
+      spriteID: f945f4a6d8848a980800000000000000
+      internalID: -8527486122214861665
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      tree_spring_b_0: 2099394312477866593
+      Tree2_b_0: -8527486122214861665
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

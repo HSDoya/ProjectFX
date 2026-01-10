@@ -8633,11 +8633,11 @@ MonoBehaviour:
   resourceRules:
   - ruleName: tree
     prefabs:
-    - {fileID: 5808110219454188836, guid: 027a7182c13cebc42a3ab3fe21511ca0, type: 3}
+    - {fileID: 633869742299772239, guid: 2f2710baf83968b4995c952596d2cc47, type: 3}
     spawnCount: 5
   - ruleName: tree2
     prefabs:
-    - {fileID: 9156248399462692421, guid: 8d82482bfc3782d4197b1021f3f83a23, type: 3}
+    - {fileID: 8947777375043445381, guid: 360abb19e4bd6b64ebf61f34b16c6c86, type: 3}
     spawnCount: 5
   spawnedObjects:
   - {fileID: 0}
