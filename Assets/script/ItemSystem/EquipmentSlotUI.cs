@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler
+public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     [Header("Slot Rule")]
     public EquipmentSlotType slotType;   // ★ 반드시 필요
@@ -10,6 +10,38 @@ public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler
     public ItemUI itemUI;
 
     public Item CurrentItem { get; set; }
+
+    private bool _wasDragging;
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        _wasDragging = false;
+
+        if (CurrentItem == null || CurrentItem.data == null) return;
+        if (ItemDragController.Instance == null) return;
+
+        Sprite iconSprite = (itemUI != null && itemUI.icon != null) ? itemUI.icon.sprite : null;
+
+        ItemDragController.Instance.BeginDrag(this, CurrentItem, iconSprite);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (ItemDragController.Instance == null) return;
+
+        _wasDragging = true;
+        ItemDragController.Instance.Drag(eventData);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        ItemDragController.Instance?.EndDrag();
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        ItemDragController.Instance?.DropOn(this);
+    }
 
     private void Reset()
     {
@@ -62,6 +94,7 @@ public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (_wasDragging) return;
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 

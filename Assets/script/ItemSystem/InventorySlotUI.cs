@@ -2,18 +2,51 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler
+
+public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IBeginDragHandler,IDragHandler,IEndDragHandler,IDropHandler
 {
+    
     [Header("Binding")]
     public int slotIndex;
     public ItemUI itemUI;
 
     public Item CurrentItem { get; set; }
 
+    private bool _wasDragging;
     private void Reset()
     {
         if (itemUI == null)
             itemUI = GetComponentInChildren<ItemUI>(true);
+    }
+    // 드레그 코드 추가 
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        _wasDragging = false;
+
+        if (CurrentItem == null || CurrentItem.data == null) return;
+        if (ItemDragController.Instance == null) return;
+
+        Sprite iconSprite = (itemUI != null && itemUI.icon != null) ? itemUI.icon.sprite : null;
+
+        ItemDragController.Instance.BeginDrag(this, CurrentItem, iconSprite);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (ItemDragController.Instance == null) return;
+
+        _wasDragging = true;
+        ItemDragController.Instance.Drag(eventData);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        ItemDragController.Instance?.EndDrag();
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        ItemDragController.Instance?.DropOn(this);
     }
 
     public bool CanReceive(Item item) => true;
@@ -36,6 +69,7 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (_wasDragging) return;
         // 좌클릭만 처리
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
