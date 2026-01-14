@@ -31,7 +31,7 @@ public class Tile_Fishing : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         playermove_manger.event_time = false;
-        playermove_manger.StopFishingAnimation();
+        //playermove_manger.StopFishingAnimation();
 
         // CSV에서 아이템 로드
         var fishItem = ItemDataCsvLoader.instance?.GetItemDataByID("fish");
