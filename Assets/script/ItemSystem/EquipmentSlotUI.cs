@@ -95,20 +95,20 @@ public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler, IBe
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_wasDragging) return;
-        if (eventData.button != PointerEventData.InputButton.Left)
-            return;
+        //if (eventData.button != PointerEventData.InputButton.Left)
+        //    return;
 
-        if (EquipmentManager.instance == null)
-            return;
+        //if (EquipmentManager.instance == null)
+        //    return;
 
-        var removed = EquipmentManager.instance.Unequip(slotType);
-        if (removed == null)
-            return;
+        //var removed = EquipmentManager.instance.Unequip(slotType);
+        //if (removed == null)
+        //    return;
 
-        bool ok = Inventory.instance.AddItem(removed);
-        if (!ok)
-        {
-            EquipmentManager.instance.Equip(slotType, removed);
-        }
+        //bool ok = Inventory.instance.AddItem(removed);
+        //if (!ok)
+        //{
+        //    EquipmentManager.instance.Equip(slotType, removed);
+        //}
     }
 }

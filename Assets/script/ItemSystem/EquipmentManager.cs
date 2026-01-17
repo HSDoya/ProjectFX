@@ -34,17 +34,22 @@ public class EquipmentManager : MonoBehaviour
     public Item Equip(EquipmentSlotType slotType, Item newItem)
     {
         if (newItem == null || newItem.data == null) return null;
-
-        // 슬롯 타입 불일치면 거부
-        if (newItem.data.equipSlot != slotType)
-            return null;
+        if (newItem.data.equipSlot != slotType) return newItem; // 슬롯 타입 안 맞으면 아이템 반환
 
         Item previous = null;
-        if (equipped.TryGetValue(slotType, out var old))
-            previous = old;
 
+        // 이미 장착중인 아이템이 있으면 뺌
+        if (equipped.TryGetValue(slotType, out var old))
+        {
+            previous = old;
+        }
+
+        // 새 아이템 장착
         equipped[slotType] = newItem;
+
+        // ★ 이벤트 호출 필수 (이게 없으면 UI 안 바뀜)
         OnEquipmentChanged?.Invoke();
+
         return previous;
     }
 

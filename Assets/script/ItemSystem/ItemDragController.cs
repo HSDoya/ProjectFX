@@ -159,37 +159,40 @@ public class ItemDragController : MonoBehaviour
 
     private void EquipFromInventory(InventorySlotUI invSrc, EquipmentSlotUI eqDst)
     {
-        // 인벤에서 1개(또는 통째) 꺼내기
+        // 1. 인벤토리에서 아이템 꺼내기 (배열 인덱스 사용)
         if (!Inventory.instance.TryTakeOneAt(invSrc.slotIndex, out var taken))
             return;
 
-        // 장착 시도 (기존 장비가 있다면 리턴됨)
+        // 2. 장착 시도 (매니저가 슬롯 타입 일치 여부 확인)
+        // 기존 장착된 아이템이 있다면 replaced로 반환됨
         var replaced = EquipmentManager.instance.Equip(eqDst.slotType, taken);
 
-        // 교체된 장비가 있으면 인벤으로 반환
+        // 3. 교체된 아이템(기존 장비) 처리
         if (replaced != null)
         {
-            // 인벤토리의 해당 슬롯이 비었으면 그 자리에 넣고, 아니면 AddItem으로 빈 곳 찾기
-            // (방금 TryTakeOneAt으로 비웠으니 그 자리가 비어있을 확률이 높지만, 스택 분리 시에는 아닐 수 있음)
-
-            // 1. 원래 있던 자리에 넣기 시도 (사용자 경험상 좋음)
+            // A. 원래 있던 인벤토리 자리(invSrc.slotIndex)가 비어있으면 거기로 넣음 (스왑 느낌)
             if (Inventory.instance.items[invSrc.slotIndex] == null)
             {
                 Inventory.instance.items[invSrc.slotIndex] = replaced;
-                Inventory.instance.RefreshUI();
+                Inventory.instance.RefreshUI(); // UI 갱신 필수
             }
+            // B. 원래 자리가 안 비었으면(스택 분리 등 희귀 케이스) 빈칸 찾아 넣기
             else
             {
-                // 2. 원래 자리가 찼으면(스택 분리 등) 다른 빈칸에 넣기
                 bool ok = Inventory.instance.AddItem(replaced);
                 if (!ok)
                 {
                     // 인벤 꽉 참 -> 장착 취소(원복)
-                    EquipmentManager.instance.Equip(eqDst.slotType, replaced); // 다시 장착
-                    Inventory.instance.AddItem(taken); // 뺀거 다시 넣기
                     Debug.Log("인벤토리가 꽉 차서 장비를 교체할 수 없습니다.");
+                    EquipmentManager.instance.Equip(eqDst.slotType, replaced); // 다시 원래 장비 장착
+                    Inventory.instance.AddItem(taken); // 빼낸 아이템 다시 인벤으로
                 }
             }
+        }
+        else
+        {
+            // 교체된 템이 없으면 그냥 성공 -> 인벤토리 UI만 갱신하면 됨
+            Inventory.instance.RefreshUI();
         }
     }
 

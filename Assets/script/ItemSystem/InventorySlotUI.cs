@@ -3,13 +3,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IBeginDragHandler,IDragHandler,IEndDragHandler,IDropHandler
+public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
 
     [Header("Binding")]
     public int slotIndex;
     public ItemUI itemUI;
-
+    
+    
+    //public bool isQuickSlot = false;
     // Interface Property
     public Item CurrentItem { get; set; }
 
@@ -57,27 +59,6 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IB
     public bool CanReceive(Item item) => true;
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 기존 OnPointerClick 로직 그대로 유지
         if (_wasDragging) return;
-        if (eventData.button != PointerEventData.InputButton.Left) return;
-        if (CurrentItem == null || CurrentItem.data == null) return;
-        if (EquipmentManager.instance == null) return;
-        if (CurrentItem.data.itemType != ItemType.Equipment) return;
-        if (CurrentItem.data.equipSlot == EquipmentSlotType.None) return;
-
-        // ★ 주의: 여기서 TryTakeOneAt 호출 시 Inventory 로직이 바뀌었으므로
-        // Inventory.cs의 TryTakeOneAt이 정상 구현되어 있다면 여기는 수정할 필요 없습니다.
-        if (!Inventory.instance.TryTakeOneAt(slotIndex, out var taken)) return;
-
-        var replaced = EquipmentManager.instance.Equip(taken.data.equipSlot, taken);
-        if (replaced != null)
-        {
-            bool ok = Inventory.instance.AddItem(replaced);
-            if (!ok)
-            {
-                EquipmentManager.instance.Equip(replaced.data.equipSlot, replaced);
-                Inventory.instance.AddItem(taken);
-            }
-        }
     }
 }

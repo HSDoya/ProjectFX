@@ -13,32 +13,27 @@ public class InventoryUI : MonoBehaviour
 
     void Awake()
     {
-        // 1. 메인 인벤토리 슬롯 수집
+        // 1. 메인 인벤토리 슬롯 설정
         mainSlots.Clear();
         if (itemGrid != null)
-        {
             mainSlots.AddRange(itemGrid.GetComponentsInChildren<InventorySlotUI>(true));
+
+        for (int i = 0; i < mainSlots.Count; i++)
+        {
+            mainSlots[i].slotIndex = i;
+            //mainSlots[i].isQuickSlot = false; // ★ 메인 인벤토리임
         }
 
-        // 메인 슬롯 인덱스 설정 (0 ~ 69)
-        for (int i = 0; i < mainSlots.Count; i++)
-            mainSlots[i].slotIndex = i;
-
-        // 2. 퀵슬롯 UI 수집 (만약 퀵슬롯 UI도 InventorySlotUI를 재사용한다면)
+        // 2. 퀵슬롯 UI 설정
         quickSlotsUI.Clear();
         if (quickSlotGrid != null)
-        {
             quickSlotsUI.AddRange(quickSlotGrid.GetComponentsInChildren<InventorySlotUI>(true));
-        }
 
-        // 퀵슬롯 인덱스 설정 (퀵슬롯은 별도 로직이 필요할 수 있으나, 일단 0~13으로 세팅)
-        // 주의: 드래그 시 인덱스 혼동을 막기 위해 퀵슬롯용 별도 컴포넌트를 쓰거나,
-        // InventorySlotUI에 isQuickSlot 같은 플래그를 두는 것이 좋습니다.
-        for (int i = 0; i < quickSlotsUI.Count; i++)
-        {
-            quickSlotsUI[i].slotIndex = i;
-            // 퀵슬롯임을 구분할 방법이 필요합니다.
-        }
+        //for (int i = 0; i < quickSlotsUI.Count; i++)
+        //{
+        //    quickSlotsUI[i].slotIndex = i;
+        //    //quickSlotsUI[i].isQuickSlot = true; // ★ 퀵슬롯임!
+        //}
     }
 
     void OnEnable()
