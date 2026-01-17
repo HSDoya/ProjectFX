@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 7858389368608964790}
   - component: {fileID: 6751978257785397386}
   - component: {fileID: 4266950316612092113}
+  - component: {fileID: -1873493752093322848}
   m_Layer: 0
   m_Name: Tree2
   m_TagString: Untagged
@@ -206,11 +207,11 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.000000007450581, y: -1}
+  m_Offset: {x: -0.018912792, y: 0.14611173}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -220,5 +221,20 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.9, y: 0.56999993}
+  m_Size: {x: 2.2995424, y: 2.2872763}
   m_EdgeRadius: 0
+--- !u!114 &-1873493752093322848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8947777375043445381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e291f869365b43d43ae2f1efc4924741, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transparencyAlpha: 0.5
+  hiddenPlayerColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+  outlineMaterial: {fileID: 2100000, guid: fafd56ec9e214f343acd71c2053c06a5, type: 2}
