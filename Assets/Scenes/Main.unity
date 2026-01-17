@@ -981,27 +981,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  species: 0
-  groundTilemap: {fileID: 1051139131}
-  waterTilemap: {fileID: 1214443929}
   moveSpeed: 0.5
-  idleTimeMin: 1
-  idleTimeMax: 7
-  turnBias: 0.58
-  chickenMoveDuration: {x: 5, y: 10}
-  cowMoveDuration: {x: 10, y: 20}
-  bodyRadius: 0.2
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 0
-  enablePecking: 1
-  peckDurationRange: {x: 3, y: 4}
-  peckThinkInterval: {x: 6, y: 12}
-  dropTable:
-  - species: 0
-    prefabs:
-    - {fileID: 8502303760413215344, guid: bd2868df0814dcd4097ebfbcae8d4548, type: 3}
-    countRange: {x: 1, y: 1}
+  changeDirTime: 3
+  walkableTilemaps:
+  - {fileID: 1051139131}
+  blockedTilemaps:
+  - {fileID: 1214443929}
 --- !u!95 &243217325
 Animator:
   serializedVersion: 7
@@ -8174,8 +8159,7 @@ MonoBehaviour:
     prefabs:
     - {fileID: 8947777375043445381, guid: 360abb19e4bd6b64ebf61f34b16c6c86, type: 3}
     spawnCount: 5
-  spawnedObjects:
-  - {fileID: 0}
+  spawnedObjects: []
 --- !u!1001 &1080564361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18998,27 +18982,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  species: 1
-  groundTilemap: {fileID: 1051139131}
-  waterTilemap: {fileID: 1214443929}
   moveSpeed: 0.3
-  idleTimeMin: 1
-  idleTimeMax: 7
-  turnBias: 0.3
-  chickenMoveDuration: {x: 5, y: 10}
-  cowMoveDuration: {x: 10, y: 20}
-  bodyRadius: 0.2
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 0
-  enablePecking: 1
-  peckDurationRange: {x: 3, y: 4}
-  peckThinkInterval: {x: 6, y: 12}
-  dropTable:
-  - species: 1
-    prefabs:
-    - {fileID: 3599026317574321350, guid: 63e9b481ba567124b9996ec30829da1a, type: 3}
-    countRange: {x: 1, y: 1}
+  changeDirTime: 3
+  walkableTilemaps:
+  - {fileID: 1051139131}
+  blockedTilemaps:
+  - {fileID: 1214443929}
 --- !u!114 &3725341131651433850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20486,7 +20455,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 684178961192891762}
-  - component: {fileID: 9149746017620009546}
   m_Layer: 0
   m_Name: Animal Group
   m_TagString: Untagged
@@ -20494,30 +20462,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &9149746017620009546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9149746017620009545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d3fc326bdfcebb4db69a311b4bf1371, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groundTilemap: {fileID: 1051139131}
-  waterTilemap: {fileID: 1214443929}
-  animalLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  spawnCheckRadius: 0.5
-  minDistanceFromPlayer: 12
-  playerTransform: {fileID: 0}
-  animalRules: []
-  minCheckInterval: 5
-  maxCheckInterval: 15
-  spawnImmediatelyOnStart: 0
 --- !u!114 &9155569660027139351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20555,12 +20499,12 @@ SceneRoots:
   m_Roots:
   - {fileID: 1721243586}
   - {fileID: 6234071091465051156}
+  - {fileID: 2064229487}
   - {fileID: 684178961192891762}
   - {fileID: 1982829124}
   - {fileID: 175549962}
   - {fileID: 1343961925}
   - {fileID: 1300271829}
   - {fileID: 503744151}
-  - {fileID: 2064229487}
   - {fileID: 851873501}
   - {fileID: 1523788521}

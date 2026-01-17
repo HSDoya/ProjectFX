@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,12 +6,12 @@ using System.Collections.Generic;
 public class AnimalSpawner : MonoBehaviour
 {
     [Header("Tilemaps")]
-    public Tilemap groundTilemap;
-    public Tilemap waterTilemap;
+    public Tilemap groundTilemap;   // ê¸°ë³¸ ìŠ¤í° ê°€ëŠ¥ ë•…
+    public Tilemap waterTilemap;    // ìŠ¤í° ë¶ˆê°€ ì§€ì—­
     public LayerMask animalLayer;
     public float spawnCheckRadius = 0.5f;
 
-    [Header("Ä«¸Ş¶ó ¹Û ½ºÆù ¼³Á¤")]
+    [Header("ì¹´ë©”ë¼ ë°– ìŠ¤í° ì„¤ì •")]
     public float minDistanceFromPlayer = 12f;
     public Transform playerTransform;
 
@@ -23,14 +23,11 @@ public class AnimalSpawner : MonoBehaviour
         public int targetCount = 5;
     }
 
-    [Header("Spawn Settings")]
+    [Header("Spawn Rules")]
     public List<AnimalRule> animalRules = new List<AnimalRule>();
 
-    [Tooltip("´ÙÀ½ °³Ã¼¸¦ ½ºÆùÇÏ±â±îÁö ´ë±âÇÒ ½Ã°£ (ÃÊ)")]
     public float minCheckInterval = 2f;
     public float maxCheckInterval = 5f;
-
-    [Tooltip("½ÃÀÛÇÏÀÚ¸¶ÀÚ ¹Ù·Î ½ºÆùÀ» ½ÃÀÛÇÒÁö ¿©ºÎ")]
     public bool spawnImmediatelyOnStart = false;
 
     private List<Vector3Int> groundCells = new List<Vector3Int>();
@@ -40,106 +37,90 @@ public class AnimalSpawner : MonoBehaviour
     void Start()
     {
         mainCam = Camera.main;
-
-        // 1. ¶¥ Å¸ÀÏ Á¤º¸ ÀúÀå
         CacheGroundCells();
-
-        // 2. ¼øÂ÷Àû ½ºÆùÀ» À§ÇØ ÄÚ·çÆ¾ ½ÃÀÛ (Start¿¡¼­ ¹Ù·Î ½ºÆùÇÏÁö ¾ÊÀ½)
         StartCoroutine(SequentialPopulationControlRoutine());
     }
 
-    // ÇÏ³ª¾¿ ¼øÂ÷ÀûÀ¸·Î °³Ã¼ ¼ö¸¦ Ã¼Å©ÇÏ°í º¸ÃæÇÏ´Â ·çÆ¾
     IEnumerator SequentialPopulationControlRoutine()
     {
-        // ½ÃÀÛ ½Ã ¾à°£ÀÇ ´ë±â (¼±ÅÃ »çÇ×)
         if (!spawnImmediatelyOnStart)
             yield return new WaitForSeconds(minCheckInterval);
 
         while (true)
         {
-            // ¸®½ºÆ® Á¤¸® (Á×Àº °³Ã¼ Á¦°Å)
             activeAnimals.RemoveAll(a => a == null);
 
-            bool spawnedAny = false;
-
-            // ¸ğµç ±ÔÄ¢À» ¼øÈ¸ÇÏ¸ç µü 'ÇÑ ¸¶¸®'¸¸ ½ºÆù ½Ãµµ
             foreach (var rule in animalRules)
             {
-                if (rule.prefab == null) continue;
-
-                int currentCount = 0;
+                int count = 0;
                 foreach (var a in activeAnimals)
                 {
                     if (a != null && a.name.StartsWith(rule.prefab.name))
-                        currentCount++;
+                        count++;
                 }
 
-                // ¸ñÇ¥ ¼öº¸´Ù ÀûÀ¸¸é ÇÑ ¸¶¸® ½ºÆùÇÏ°í ·çÇÁ Å»Ãâ (´ÙÀ½ ´ë±â ½Ã°£À¸·Î)
-                if (currentCount < rule.targetCount)
+                if (count < rule.targetCount)
                 {
-                    // °ÔÀÓ ½ÃÀÛ Á÷ÈÄ°¡ ¾Æ´Ï¶ó¸é(¶Ç´Â ¼³Á¤¿¡ µû¶ó) Ä«¸Ş¶ó ¹Û¿¡¼­ ½ºÆù
-                    // ÃÊ±â¿¡µµ ¼øÂ÷ÀûÀ¸·Î ³ª¿À±æ ¿øÇÏ¹Ç·Î ±âº»ÀûÀ¸·Î Ä«¸Ş¶ó Ã¼Å©¸¦ ÇÔ
-                    if (TrySpawnOneAnimal(rule, false))
-                    {
-                        spawnedAny = true;
-                        // ÇÑ ¸¶¸® ½ºÆù ¼º°øÇßÀ¸¹Ç·Î ÁöÁ¤µÈ ½Ã°£¸¸Å­ ±â´Ù¸²
+                    if (TrySpawnOneAnimal(rule))
                         break;
-                    }
                 }
             }
 
-            // ½ºÆùÀ» Çßµç, ¸ğµç °³Ã¼¼ö°¡ ²Ë Ã¡µç ´ÙÀ½ Ã¼Å©±îÁö ·£´ıÇÏ°Ô ´ë±â
-            float waitTime = Random.Range(minCheckInterval, maxCheckInterval);
-            yield return new WaitForSeconds(waitTime);
+            yield return new WaitForSeconds(Random.Range(minCheckInterval, maxCheckInterval));
         }
     }
 
-    private void CacheGroundCells()
+    void CacheGroundCells()
     {
         groundCells.Clear();
-        if (groundTilemap == null) return;
-
         BoundsInt bounds = groundTilemap.cellBounds;
+            
         foreach (var pos in bounds.allPositionsWithin)
         {
-            if (groundTilemap.HasTile(pos))
-            {
-                if (waterTilemap == null || !waterTilemap.HasTile(pos))
-                {
-                    groundCells.Add(pos);
-                }
-            }
+            if (!groundTilemap.HasTile(pos)) continue;
+            if (waterTilemap != null && waterTilemap.HasTile(pos)) continue;
+
+            groundCells.Add(pos);
         }
     }
 
-    // ÇÑ ¸¶¸®¸¸ ½ºÆù ½ÃµµÇÏ°í ¼º°ø ¿©ºÎ ¹İÈ¯
-    private bool TrySpawnOneAnimal(AnimalRule rule, bool ignoreCamera)
+    // ===============================
+    // â­ í•œ ë§ˆë¦¬ ìŠ¤í°
+    // ===============================
+    bool TrySpawnOneAnimal(AnimalRule rule)
     {
-        if (groundCells.Count == 0) return false;
-
         for (int i = 0; i < 50; i++)
         {
             Vector3Int cell = groundCells[Random.Range(0, groundCells.Count)];
             Vector3 worldPos = groundTilemap.GetCellCenterWorld(cell);
             worldPos.z = 0;
 
-            if (!ignoreCamera)
-            {
-                Vector3 viewportPos = mainCam.WorldToViewportPoint(worldPos);
-                if (viewportPos.x > -0.1f && viewportPos.x < 1.1f && viewportPos.y > -0.1f && viewportPos.y < 1.1f)
-                    continue;
-            }
-
-            if (playerTransform != null && Vector3.Distance(worldPos, playerTransform.position) < minDistanceFromPlayer)
+            // ì¹´ë©”ë¼ ì•ˆìª½ ì œì™¸
+            Vector3 vp = mainCam.WorldToViewportPoint(worldPos);
+            if (vp.x > 0 && vp.x < 1 && vp.y > 0 && vp.y < 1)
                 continue;
 
-            if (Physics2D.OverlapCircle(worldPos, spawnCheckRadius, animalLayer) == null)
+            if (playerTransform != null &&
+                Vector3.Distance(worldPos, playerTransform.position) < minDistanceFromPlayer)
+                continue;
+
+            if (Physics2D.OverlapCircle(worldPos, spawnCheckRadius, animalLayer))
+                continue;
+
+            // â­ AnimalAI ì´ë™ ê°€ëŠ¥ ì—¬ë¶€ 1íšŒ ê²€ì‚¬
+            GameObject go = Instantiate(rule.prefab, worldPos, Quaternion.identity);
+            AnimalAI ai = go.GetComponent<AnimalAI>();
+
+            if (ai != null && !ai.CanMoveTo(worldPos))
             {
-                GameObject go = Instantiate(rule.prefab, worldPos, Quaternion.identity);
-                activeAnimals.Add(go);
-                return true; // ½ºÆù ¼º°ø
+                Destroy(go);
+                continue;
             }
+
+            activeAnimals.Add(go);
+            return true;
         }
-        return false; // ½ºÆù ½ÇÆĞ (ºó ÀÚ¸® ¾øÀ½)
+
+        return false;
     }
 }

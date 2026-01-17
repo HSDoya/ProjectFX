@@ -23,7 +23,7 @@ public class PlayerMove : MonoBehaviour
    
     [SerializeField] private ObjectSpawner objectSpawner; // 드래그 연결 필요(2025-07-27)
 
-   
+
 
     private void Awake()
     {
@@ -101,14 +101,29 @@ private void OnMouseClick()
             RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f);
             if (hit.collider != null)
             {
+                // ❌ 기존 AnimalAI 도살 방식 (주석 처리)
+                /*
                 AnimalAI animal = hit.collider.GetComponent<AnimalAI>();
                 if (animal != null)
                 {
                     float dist = Vector2.Distance(transform.position, animal.transform.position);
                     if (dist <= 1.5f)
                     {
-                        //Destroy(animal.gameObject);
                         animal.KillAndDrop(animal.transform.position);
+                        Debug.Log("가축이 도살되었습니다.");
+                        return;
+                    }
+                }
+                */
+
+                // 변경: AnimalHealth 기반 도살 방식
+                AnimalHealth health = hit.collider.GetComponent<AnimalHealth>();
+                if (health != null)
+                {
+                    float dist = Vector2.Distance(transform.position, hit.transform.position);
+                    if (dist <= 1.5f)
+                    {
+                        health.Kill(); // 내부에서 Destroy + 드롭 처리
                         Debug.Log("가축이 도살되었습니다.");
                         return;
                     }
