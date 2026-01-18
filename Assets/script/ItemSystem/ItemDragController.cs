@@ -151,9 +151,7 @@ public class ItemDragController : MonoBehaviour
         items[b] = tmp;
 
         // UI 갱신 알림
-        // (Inventory 스크립트에서 public event Action onItemChangedCallback; 으로 변경했다고 가정)
-        // 만약 에러나면 Inventory.cs의 이벤트 이름을 확인하세요.
-        // 여기서는 기존 코드 호환을 위해 delegate Invoke 방식으로 호출합니다.
+        
         Inventory.instance.RefreshUI();
     }
 
