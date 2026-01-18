@@ -22,8 +22,6 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IB
         if (itemUI == null)
             itemUI = GetComponentInChildren<ItemUI>(true);
     }
-
-    // ★ [핵심 변경] 리스트를 통째로 받는 대신, 아이템 1개를 받아서 세팅하도록 변경
     public void BindItem(Item item)
     {
         CurrentItem = item;
@@ -41,10 +39,6 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IB
             itemUI.ClearSlot();
     }
 
-    // ... (OnBeginDrag, OnDrag, OnEndDrag, OnDrop, OnPointerClick 등 기존 로직은 그대로 유지) ...
-    // ... (기존 드래그 및 클릭 로직에는 변경 사항 없습니다) ...
-
-    // 드래그 코드 생략 (기존과 동일)
     public void OnBeginDrag(PointerEventData eventData)
     {
         _wasDragging = false;

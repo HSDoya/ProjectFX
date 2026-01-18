@@ -201,13 +201,7 @@ private void OnMouseClick()
             Debug.Log("칼 장착됨 🗡️");
         }
 }
-    public void OnInteraction()
-    {
-        if (collidedObject != null && collidedObject.CompareTag("sea"))
-        {
-            //HandleFishingAction();
-        }
-    }
+    
     private void TryDestroyNearestSpawnedObject()
     {
         if (objectSpawner == null || objectSpawner.spawnedObjects.Count == 0) return;
