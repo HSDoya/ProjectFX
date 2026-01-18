@@ -60,7 +60,7 @@ public class AnimalAI : MonoBehaviour
     // ===============================
     public bool CanMoveTo(Vector2 worldPos)
     {
-        // 1️⃣ 이동 불가 타일 먼저 검사 (하나라도 걸리면 바로 false)
+        // 1️ 이동 불가 타일 먼저 검사 (하나라도 걸리면 바로 false)
         foreach (var tilemap in blockedTilemaps)
         {
             if (tilemap == null) continue;
@@ -70,7 +70,7 @@ public class AnimalAI : MonoBehaviour
                 return false;
         }
 
-        // 2️⃣ 이동 가능 타일 검사 (하나라도 있으면 true)
+        // 2️ 이동 가능 타일 검사 (하나라도 있으면 true)
         foreach (var tilemap in walkableTilemaps)
         {
             if (tilemap == null) continue;
@@ -80,7 +80,7 @@ public class AnimalAI : MonoBehaviour
                 return true;
         }
 
-        // 3️⃣ 아무 타일에도 해당 안 되면 이동 불가
+        // 3️ 아무 타일에도 해당 안 되면 이동 불가
         return false;
     }
 
