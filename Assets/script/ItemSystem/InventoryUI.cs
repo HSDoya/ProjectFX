@@ -29,11 +29,11 @@ public class InventoryUI : MonoBehaviour
         if (quickSlotGrid != null)
             quickSlotsUI.AddRange(quickSlotGrid.GetComponentsInChildren<InventorySlotUI>(true));
 
-        //for (int i = 0; i < quickSlotsUI.Count; i++)
-        //{
-        //    quickSlotsUI[i].slotIndex = i;
-        //    //quickSlotsUI[i].isQuickSlot = true; // ★ 퀵슬롯임!
-        //}
+        for (int i = 0; i < quickSlotsUI.Count; i++)
+        {
+            quickSlotsUI[i].slotIndex = i;
+            quickSlotsUI[i].isQuickSlot = true; // ★ 퀵슬롯임!
+        }
     }
 
     void OnEnable()

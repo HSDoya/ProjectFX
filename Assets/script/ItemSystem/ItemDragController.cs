@@ -109,10 +109,10 @@ public class ItemDragController : MonoBehaviour
 
     private void PerformMove(ItemSlot src, ItemSlot dst, Item srcItem, Item dstItem)
     {
-        // 케이스 A: 인벤 ↔ 인벤 스왑 (또는 이동)
+        // 케이스 A: 인벤/퀵슬롯 내부 및 상호 스왑 (인덱스 대신 UI 컴포넌트 자체를 넘기도록 수정)
         if (src is InventorySlotUI invA && dst is InventorySlotUI invB)
         {
-            SwapInventory(invA.slotIndex, invB.slotIndex);
+            SwapInventory(invA, invB);
             return;
         }
 
@@ -129,29 +129,28 @@ public class ItemDragController : MonoBehaviour
             UnequipToInventory(eqSrc, invDst);
             return;
         }
-
-        // (추후 퀵슬롯 로직이 추가된다면 여기서 처리)
     }
 
     /// <summary>
-    /// 인벤토리 내부 스왑 (또는 빈칸으로 이동)
+    /// 인벤토리 및 퀵슬롯 상호 스왑 처리
     /// </summary>
-    private void SwapInventory(int a, int b)
+    private void SwapInventory(InventorySlotUI invA, InventorySlotUI invB)
     {
-        // ★ [수정됨] Inventory.instance.items는 이제 배열(Array)입니다.
-        var items = Inventory.instance.items;
+        // 1. 각 슬롯이 퀵슬롯인지 메인 인벤토리인지에 따라 참조할 배열을 다르게 가져옵니다.
+        Item[] arrA = invA.isQuickSlot ? Inventory.instance.quickSlots : Inventory.instance.items;
+        Item[] arrB = invB.isQuickSlot ? Inventory.instance.quickSlots : Inventory.instance.items;
 
-        // ★ .Count -> .Length 로 변경
-        if (items == null || a < 0 || b < 0 || a >= items.Length || b >= items.Length)
-            return;
+        // 2. 예외 처리 (배열이 없거나, 인덱스가 범위를 벗어나면 중단)
+        if (arrA == null || arrB == null) return;
+        if (invA.slotIndex < 0 || invA.slotIndex >= arrA.Length) return;
+        if (invB.slotIndex < 0 || invB.slotIndex >= arrB.Length) return;
 
-        // 단순 교환 (빈칸이 null이어도 정상 작동)
-        var tmp = items[a];
-        items[a] = items[b];
-        items[b] = tmp;
+        // 3. 실제 데이터 교환 (빈칸 null 포함)
+        var tmp = arrA[invA.slotIndex];
+        arrA[invA.slotIndex] = arrB[invB.slotIndex];
+        arrB[invB.slotIndex] = tmp;
 
-        // UI 갱신 알림
-        
+        // 4. UI 갱신 알림
         Inventory.instance.RefreshUI();
     }
 

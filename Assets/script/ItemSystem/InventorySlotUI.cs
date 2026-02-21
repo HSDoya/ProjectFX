@@ -11,7 +11,7 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IB
     public ItemUI itemUI;
     
     
-    //public bool isQuickSlot = false; Äü½½·Ô Ãß°¡½Ã Ãß°¡ ¿¹Á¤ 
+    public bool isQuickSlot = false; //260221 Äü½½·Ô Ãß°¡  
     // Interface Property
     public Item CurrentItem { get; set; }
 
