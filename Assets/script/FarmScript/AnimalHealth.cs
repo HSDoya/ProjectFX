@@ -1,37 +1,35 @@
 using UnityEngine;
 
-[DisallowMultipleComponent]
 public class AnimalHealth : MonoBehaviour
 {
-    public int maxHP = 1;
-    private int currentHP;
+    public int hp = 1;
 
-    private AnimalDropper dropper;
+    [Header("드랍 설정")]
+    public GameObject dropPrefab;
+    public int dropCount = 2;
 
-    void Awake()
-    {
-        currentHP = maxHP;
-        dropper = GetComponent<AnimalDropper>();
-    }
+    private bool isDead = false;
 
-    // kill 안에 고기, 가죽 아이템 드롭 방식으로 변경
     public void Kill()
     {
-        Die();
-    }
+        if (isDead) return;
+        isDead = true;
 
-    public void TakeDamage(int dmg)
-    {
-        currentHP -= dmg;
-        if (currentHP <= 0)
-            Die();
-    }
-
-    private void Die()
-    {
-        if (dropper != null)
-            dropper.Drop();
+        DropItems();
 
         Destroy(gameObject);
+    }
+
+    void DropItems()
+    {
+        if (dropPrefab == null) return;
+
+        for (int i = 0; i < dropCount; i++)
+        {
+            Vector3 pos = transform.position +
+                (Vector3)Random.insideUnitCircle * 0.3f;
+
+            Instantiate(dropPrefab, pos, Quaternion.identity);
+        }
     }
 }

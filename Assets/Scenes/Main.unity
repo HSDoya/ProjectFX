@@ -790,6 +790,7 @@ GameObject:
   - component: {fileID: 243217326}
   - component: {fileID: 243217325}
   - component: {fileID: 243217324}
+  - component: {fileID: 243217328}
   m_Layer: 3
   m_Name: Chicken
   m_TagString: Untagged
@@ -879,7 +880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.5
+  moveSpeed: 0.3
   changeDirTime: 3
   walkableTilemaps:
   - {fileID: 1051139131}
@@ -980,6 +981,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &243217328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 243217321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d46e736f592d51499f1b8ee6344b426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 1
+  dropPrefab: {fileID: 8502303760413215344, guid: bd2868df0814dcd4097ebfbcae8d4548, type: 3}
+  dropCount: 2
 --- !u!1001 &252908735
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16210,8 +16226,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1214443927}
   - {fileID: 1051139129}
+  - {fileID: 1214443927}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2010521818
@@ -17329,6 +17345,7 @@ MonoBehaviour:
   event_time: 0
   inventory: {fileID: 1686479086}
   objectSpawner: {fileID: 1051139134}
+  selectedQuickSlotIndex: 0
 --- !u!1 &2024451591086108891
 GameObject:
   m_ObjectHideFlags: 0
@@ -17399,7 +17416,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 2
+  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!222 &2211073117137147486
 CanvasRenderer:
@@ -20248,6 +20265,7 @@ GameObject:
   - component: {fileID: 6275056485628184046}
   - component: {fileID: 1121445954410455681}
   - component: {fileID: 7422467048764444836}
+  - component: {fileID: 7492941268922218338}
   m_Layer: 3
   m_Name: COW
   m_TagString: Untagged
@@ -23019,6 +23037,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 684178961192891762}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7492941268922218338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4421147239190456030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d46e736f592d51499f1b8ee6344b426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 1
+  dropPrefab: {fileID: 8502303760413215344, guid: bd2868df0814dcd4097ebfbcae8d4548, type: 3}
+  dropCount: 2
 --- !u!50 &8438013331671520196
 Rigidbody2D:
   serializedVersion: 5

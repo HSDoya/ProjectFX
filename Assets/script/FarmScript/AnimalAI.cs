@@ -83,13 +83,4 @@ public class AnimalAI : MonoBehaviour
         // 3️ 아무 타일에도 해당 안 되면 이동 불가
         return false;
     }
-
-    // ===============================
-    // 도살 처리 (기존 로직 유지)
-    // ===============================
-    public void KillAndDrop(Vector3 pos)
-    {
-        // TODO : 드랍 아이템 생성
-        Destroy(gameObject);
-    }
 }
