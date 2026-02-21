@@ -101,19 +101,23 @@ public class PlayerMove : MonoBehaviour
         mouseWorldPos.z = 0;
 
         // 동물 제거 시도
+        // 🔪 Knife 도살 처리
         if (currentEquipment == "Knife")
         {
-            RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f);
-            if (hit.collider != null)
+            Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos);
+
+            if (hit != null)
             {
-                AnimalHealth health = hit.collider.GetComponent<AnimalHealth>();
+                AnimalHealth health = hit.GetComponent<AnimalHealth>();
+
                 if (health != null)
                 {
                     float dist = Vector2.Distance(transform.position, hit.transform.position);
+
                     if (dist <= 1.5f)
                     {
-                        health.Kill(); // 내부에서 Destroy + 드롭 처리
-                        Debug.Log("가축이 도살되었습니다.");
+                        health.Kill();
+                        Debug.Log("도살 성공");
                         return;
                     }
                 }
