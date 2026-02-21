@@ -62,7 +62,7 @@ public class Inventory : MonoBehaviour
         {
             var wood = ItemDataCsvLoader.instance.GetItemDataByID("wood");
             var armor = ItemDataCsvLoader.instance.GetItemDataByID("Breastplate");
-
+            var sword = ItemDataCsvLoader.instance.GetItemDataByID("Sword");
             if (wood != null)
             {
                 // 나무 99개 넣기
@@ -72,6 +72,12 @@ public class Inventory : MonoBehaviour
             {
                 // 갑옷 1개 넣기
                 AddItem(new Item(armor, 1));
+            }
+
+            if (sword != null)
+            {
+                // 갑옷 1개 넣기
+                AddItem(new Item(sword, 1));
             }
         }
         // ---------------------------------------------
