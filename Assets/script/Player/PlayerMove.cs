@@ -86,12 +86,20 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() //WeatherManager 플레이어가 날씨 영향받게 수정함(2026-03-01)
     {
         if (!event_time)
-            rigid.linearVelocity = inputVec * speed;
+        {
+            // 날씨 매니저의 인스턴스가 있을 경우 배율을 가져옴, 없으면 1.0f(기본값)
+            float speedModifier = (WeatherManager.Instance != null) ? WeatherManager.Instance.GetSpeedModifier() : 1.0f;
+
+            // 최종 속도 = 기본 속도 * 날씨 배율
+            rigid.linearVelocity = inputVec * (speed * speedModifier);
+        }
         else
+        {
             rigid.linearVelocity = Vector2.zero;
+        }
     }
 
     // 마우스 클릭 함수 (동물 도살 및 농사)
