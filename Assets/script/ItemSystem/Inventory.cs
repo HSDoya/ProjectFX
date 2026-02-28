@@ -9,6 +9,8 @@ public class Inventory : MonoBehaviour
     #region Singleton
     public static Inventory instance;
 
+    
+
     private void Awake()
     {
         if (instance != null)
@@ -27,7 +29,8 @@ public class Inventory : MonoBehaviour
 
     [Header("UI Reference")]
     [SerializeField] private GameObject inventoryUI; // 인벤토리 UI 전체 부모
-
+    [SerializeField] private GameObject hudQuickSlotUI; // 게임 화면용 하단 퀵슬롯 UI
+   
     [Header("Inventory Settings")]
     // 이미지에 맞춘 14x5 설정
     public const int COL_COUNT = 14;
@@ -56,13 +59,15 @@ public class Inventory : MonoBehaviour
         // UI 초기 상태 설정
         if (inventoryUI != null)
             inventoryUI.SetActive(isInventoryOpen);
-
+        //게임 시작시 하단 UI 활성화 
+        if (hudQuickSlotUI != null)
+            hudQuickSlotUI.SetActive(!isInventoryOpen);
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
         if (ItemDataCsvLoader.instance != null)
         {
             var wood = ItemDataCsvLoader.instance.GetItemDataByID("wood");
             var armor = ItemDataCsvLoader.instance.GetItemDataByID("Breastplate");
-            var sword = ItemDataCsvLoader.instance.GetItemDataByID("Sword");
+            var sword = ItemDataCsvLoader.instance.GetItemDataByID("Sword_iron");
             if (wood != null)
             {
                 // 나무 99개 넣기
@@ -150,6 +155,10 @@ public class Inventory : MonoBehaviour
         {
             inventoryUI.SetActive(isInventoryOpen);
         }
+
+        // 인벤토리의 반대 상태로 하단 퀵슬롯 켜고 끄기
+        if (hudQuickSlotUI != null)
+            hudQuickSlotUI.SetActive(!isInventoryOpen);
 
         // 3. (선택사항) 인벤토리가 켜질 때 UI 내용도 최신화하고 싶다면
         if (isInventoryOpen) RefreshUI(); 

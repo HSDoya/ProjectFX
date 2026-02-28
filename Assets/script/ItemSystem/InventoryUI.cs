@@ -7,10 +7,12 @@ public class InventoryUI : MonoBehaviour
     [Header("UI Grid Parents")]
     [SerializeField] public Transform itemGrid;      // 메인 인벤토리(14x5) 부모
     [SerializeField] public Transform quickSlotGrid; // 퀵슬롯(1x14) 부모 (없으면 비워도 됨)
+    [SerializeField] public Transform hudQuickSlotGrid;
+
 
     private List<InventorySlotUI> mainSlots = new();
     private List<InventorySlotUI> quickSlotsUI = new();
-
+    private List<InventorySlotUI> hudQuickSlotsUI = new();
     void Awake()
     {
         // 1. 메인 인벤토리 슬롯 설정
@@ -29,11 +31,22 @@ public class InventoryUI : MonoBehaviour
         if (quickSlotGrid != null)
             quickSlotsUI.AddRange(quickSlotGrid.GetComponentsInChildren<InventorySlotUI>(true));
 
+        hudQuickSlotsUI.Clear();
+        if (hudQuickSlotGrid != null)
+            hudQuickSlotsUI.AddRange(hudQuickSlotGrid.GetComponentsInChildren<InventorySlotUI>(true));
+
+
         for (int i = 0; i < quickSlotsUI.Count; i++)
         {
             quickSlotsUI[i].slotIndex = i;
             quickSlotsUI[i].isQuickSlot = true; // ★ 퀵슬롯임!
         }
+        for (int i = 0; i < hudQuickSlotsUI.Count; i++)
+        {
+            hudQuickSlotsUI[i].slotIndex = i;
+            hudQuickSlotsUI[i].isQuickSlot = true; // 퀵슬롯과 동일하게 취급
+        }
+
     }
 
     void OnEnable()
@@ -78,5 +91,19 @@ public class InventoryUI : MonoBehaviour
                     quickSlotsUI[i].BindItem(null);
             }
         }
+
+        // ★ 3. 새로 추가된 부분: HUD 퀵슬롯 갱신
+        var hqItems = Inventory.instance.quickSlots;
+        if (hqItems != null && hudQuickSlotsUI.Count > 0)
+        {
+            for (int i = 0; i < hudQuickSlotsUI.Count; i++)
+            {
+                if (i < hqItems.Length)
+                    hudQuickSlotsUI[i].BindItem(hqItems[i]);
+                else
+                    hudQuickSlotsUI[i].BindItem(null);
+            }
+        }
+
     }
 }

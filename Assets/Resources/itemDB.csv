@@ -4,5 +4,8 @@ fish,Consumable,참치,음식,TRUE,99,food,TRUE,None,None,None
 wood,Material,나무판자,재료 ,TRUE,99,Material,TRUE,None,None,None
 Meat,Consumable,소고기 ,음식,TRUE,99,food,TRUE,None,None,None
 Chicken,Consumable,치킨,음식,TRUE,99,food,TRUE,None,None,None
-Sword,Equipment ,철검,무기,TRUE,1,Equipment,TRUE,Weapon,10,None
+Sword_iron,Equipment ,철검,무기,TRUE,1,Equipment,TRUE,Weapon,10,None
 Breastplate,Equipment ,흉갑,갑옷,TRUE,1,Equipment,TRUE,Armor,None,10
+Ax_iron,Equipment ,철도끼,무기,TRUE,1,Equipment,TRUE,Weapon,5,None
+Ax_stone,Equipment ,돌도끼,무기,TRUE,1,Equipment,TRUE,Weapon,3,None
+Ax_wood,Equipment ,나무도끼,무기,TRUE,1,Equipment,TRUE,Weapon,1,None
