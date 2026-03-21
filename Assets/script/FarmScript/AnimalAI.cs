@@ -85,16 +85,6 @@ public class AnimalAI : MonoBehaviour
         moveDir = Random.insideUnitCircle.normalized;
     }
 
-    // ⭐ 핵심: 이동 방향에 따라 스프라이트 뒤집기
-    void UpdateSpriteFlip()
-    {
-        if (!isMoving || moveDir.x == 0) return;
-
-        // moveDir.x가 0보다 작으면 왼쪽(true), 크면 오른쪽(false)
-        // (참고: 스프라이트의 기본 방향이 오른쪽을 보고 있을 때 기준입니다)
-        spriteRenderer.flipX = moveDir.x < 0;
-    }
-
     public bool CanMoveTo(Vector2 worldPos)
     {
         foreach (var tilemap in blockedTilemaps)
@@ -118,19 +108,23 @@ public class AnimalAI : MonoBehaviour
     {
         if (anim == null) return;
 
-        // 1. 움직이고 있는지 여부를 전달
         anim.SetBool("IsMoving", isMoving);
 
-        // 2. 움직일 때만 방향 데이터를 업데이트 (멈췄을 때 마지막 방향을 기억하게 함)
         if (isMoving)
         {
             anim.SetFloat("DirX", moveDir.x);
             anim.SetFloat("DirY", moveDir.y);
 
-            // 만약 상하 애니메이션이 있고, 좌우 반전은 좌우 이동시에만 쓰고 싶다면:
+            // 상하 애니메이션이 따로 있다면, 굳이 Flip을 하지 않아도 됩니다.
+            // 좌우 이동이 확실할 때만 FlipX를 써주세요.
             if (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y))
             {
                 spriteRenderer.flipX = moveDir.x < 0;
+            }
+            else
+            {
+                // 위/아래로 갈 때는 Flip을 꺼줘야 정면/뒷모습이 제대로 나옵니다.
+                spriteRenderer.flipX = false;
             }
         }
     }

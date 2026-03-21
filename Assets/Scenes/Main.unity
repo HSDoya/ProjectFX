@@ -1857,7 +1857,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0608decb35ae503409d93ebdf717b03d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  csvFileName: itemDB
 --- !u!1001 &536820167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18610,9 +18609,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.3
+  moveSpeed: 0.4
   changeDirTime: 3
-  idleTime: 1.5
+  idleTime: 4
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
