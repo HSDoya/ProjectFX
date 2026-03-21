@@ -18,10 +18,10 @@ public class ItemPickup : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        var db = ItemDataCsvLoader.instance;  // CSV 로더 싱글턴
+        var db = ItemDataManager.instance;  // CSV 로더 싱글턴
         if (db == null)
         {
-            Debug.LogError("[ItemPickup] ItemDataCsvLoader.instance가 없습니다. 씬에 배치하세요.");
+            Debug.LogError("[ItemPickup] ItemDataManager.instance가 없습니다. 씬에 배치하세요.");
             return;
         }
 

@@ -34,7 +34,7 @@ public class Tile_Fishing : MonoBehaviour
         //playermove_manger.StopFishingAnimation();
 
         // CSV에서 아이템 로드
-        var fishItem = ItemDataCsvLoader.instance?.GetItemDataByID("fish");
+        var fishItem = ItemDataManager.instance?.GetItemDataByID("fish");
 
         if (fishItem == null)
         {

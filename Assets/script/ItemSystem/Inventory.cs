@@ -63,11 +63,11 @@ public class Inventory : MonoBehaviour
         if (hudQuickSlotUI != null)
             hudQuickSlotUI.SetActive(!isInventoryOpen);
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
-        if (ItemDataCsvLoader.instance != null)
+        if (ItemDataManager.instance != null)
         {
-            var wood = ItemDataCsvLoader.instance.GetItemDataByID("wood");
-            var armor = ItemDataCsvLoader.instance.GetItemDataByID("Breastplate");
-            var sword = ItemDataCsvLoader.instance.GetItemDataByID("Sword_iron");
+            var wood = ItemDataManager.instance.GetItemDataByID("wood");
+            var armor = ItemDataManager.instance.GetItemDataByID("Breastplate");
+            var sword = ItemDataManager.instance.GetItemDataByID("Sword_iron");
             if (wood != null)
             {
                 // 나무 99개 넣기

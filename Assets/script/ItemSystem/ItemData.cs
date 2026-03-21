@@ -20,23 +20,25 @@ public enum EquipmentSlotType
     Accessory
 }
 
-public class ItemData
+// 유니티 메뉴에서 우클릭으로 생성할 수 있도록 속성 추가
+[CreateAssetMenu(fileName = "NewItemData", menuName = "Inventory/Item Data")]
+public class ItemData : ScriptableObject // ScriptableObject 상속으로 변경
 {
-    public string itemID;        // CSV: itemID
-    public string displayName;   // CSV: Name
-    public string description;   // CSV: Description
+    public string itemID;
+    public string displayName;
+    [TextArea] // 인스펙터에서 보기 편하게 속성 추가
+    public string description;
     public Sprite icon;
 
-    public bool canStack = true; // CSV: canStack
-    public int maxStackAmount = 1; // CSV: MaxStack
+    public bool canStack = true;
+    public int maxStackAmount = 1;
 
-    // ▼ 새로 추가한 필드들 (CSV와 매핑)
-    public ItemType itemType;        // CSV: ItemType
-    public string type;              // CSV: type (세부 분류용 문자열, 예: Food, Material 등)
-    public bool isConsumable;        // CSV: isConsumable
+    public ItemType itemType;
+    public string type;
+    public bool isConsumable;
 
-    public EquipmentSlotType equipSlot; // CSV: equipSlot
-    public int atk;                  // CSV: atk
-    public int def;                  // CSV: def
+    public EquipmentSlotType equipSlot;
+    public int atk;
+    public int def;
 }
 
