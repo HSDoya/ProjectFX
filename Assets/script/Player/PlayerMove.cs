@@ -13,7 +13,7 @@ public class PlayerMove : MonoBehaviour
     public Tilemap farmTilemap;
     public Tilemap waterTilemap;
     public landtiles landTileManager;
-    private string currentEquipment = "";
+    
 
     public bool event_time;
     Animator anim;
@@ -24,6 +24,12 @@ public class PlayerMove : MonoBehaviour
 
     // ★ 추가된 변수: 현재 선택된 퀵슬롯 번호 (0~13)
     public int selectedQuickSlotIndex = 0;
+
+    // 기존 코드 유지 (농사 등에서 쓰고 있다면 일단 둡니다)
+    private string currentEquipment = "";
+
+    // ★ 추가: 현재 손에 들고 있는 아이템의 전체 데이터 참조
+    private ItemData currentEquippedItemData = null;
 
     private void Awake()
     {
@@ -110,7 +116,7 @@ public class PlayerMove : MonoBehaviour
 
         // 동물 제거 시도
         // 🔪 Knife 도살 처리
-        if (currentEquipment == "Knife")
+        if (currentEquippedItemData != null && currentEquippedItemData.equipSlot == EquipmentSlotType.Weapon)
         {
             Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos);
 
@@ -124,21 +130,22 @@ public class PlayerMove : MonoBehaviour
 
                     if (dist <= 1.5f)
                     {
+                        // 나중에 여기에 무기의 공격력(currentEquippedItemData.atk)을 전달할 수도 있습니다!
                         health.Kill();
-                        Debug.Log("도살 성공");
+                        Debug.Log($"[{currentEquippedItemData.displayName}] (으)로 도살 성공!");
                         return;
                     }
                 }
             }
-        }
 
-        // 기존 농사 처리
-        Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
-        tilePos.z = 0;
+            // 기존 농사 처리
+            Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
+            tilePos.z = 0;
 
-        if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
-        {
-            HandleFarmAction(tilePos);
+            if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
+            {
+                HandleFarmAction(tilePos);
+            }
         }
     }
 
@@ -224,13 +231,16 @@ public class PlayerMove : MonoBehaviour
 
         if (selectedItem != null && selectedItem.data != null)
         {
-            // CSV에 등록된 itemID (예: Hoe, Seeds, Water)를 currentEquipment로 설정
             currentEquipment = selectedItem.data.itemID;
+            // ★ 추가: 아이템 데이터 원본을 저장
+            currentEquippedItemData = selectedItem.data;
+
             Debug.Log($"[퀵슬롯 {selectedQuickSlotIndex + 1}번] 장착됨: {currentEquipment}");
         }
         else
         {
-            currentEquipment = ""; // 빈 칸이면 장착 해제
+            currentEquipment = "";
+            currentEquippedItemData = null; // ★ 빈 칸이면 null
         }
     }
 

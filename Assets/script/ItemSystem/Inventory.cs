@@ -65,6 +65,7 @@ public class Inventory : MonoBehaviour
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
         if (ItemDataManager.instance != null)
         {
+            
             var wood = ItemDataManager.instance.GetItemDataByID("wood");
             var armor = ItemDataManager.instance.GetItemDataByID("Breastplate");
             var sword = ItemDataManager.instance.GetItemDataByID("Sword_iron");
@@ -84,6 +85,7 @@ public class Inventory : MonoBehaviour
                 // 갑옷 1개 넣기
                 AddItem(new Item(sword, 1));
             }
+            Debug.Log("아이템지급완료");
         }
         // ---------------------------------------------
     }
