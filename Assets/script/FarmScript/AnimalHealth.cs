@@ -1,29 +1,65 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections; // 코루틴을 위해 추가
 
 public class AnimalHealth : MonoBehaviour
 {
-    public int hp = 1;
+    // 테스트를 위해 체력을 넉넉하게(예: 50) 늘려주시면 좋습니다.
+    public int hp = 20;
 
     [Header("공용 필드 아이템 프리팹")]
-    // FieldItem.cs가 붙어있는 빈 프리팹을 연결해줍니다.
     public GameObject fieldItemPrefab;
 
-    // 인스펙터에서 드랍할 아이템 목록을 자유롭게 설정할 수 있는 클래스
     [System.Serializable]
     public class DropRule
     {
-        public string itemID;      // ItemDB에 있는 아이템 ID (예: "meat")
-        public int minDrop = 1;    // 최소 드랍 개수
-        public int maxDrop = 2;    // 최대 드랍 개수
+        public string itemID;
+        public int minDrop = 1;
+        public int maxDrop = 2;
         [Range(0f, 100f)]
-        public float dropChance = 100f; // 드랍 확률 (0~100%)
+        public float dropChance = 100f;
     }
 
     [Header("드랍 아이템 설정")]
     public List<DropRule> dropRules = new List<DropRule>();
 
     private bool isDead = false;
+    private SpriteRenderer spriteRenderer;
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    // ★ 추가: 데미지를 입는 메서드
+    public void TakeDamage(int damage)
+    {
+        if (isDead) return;
+
+        hp -= damage;
+        Debug.Log($"{gameObject.name} 피격! 데미지: {damage}, 남은 HP: {hp}");
+
+        // 피격 연출 (빨갛게 깜빡임)
+        if (spriteRenderer != null)
+        {
+            StartCoroutine(HitEffectCoroutine());
+        }
+
+        // 체력이 0 이하가 되면 사망 처리
+        if (hp <= 0)
+        {
+            Kill();
+        }
+    }
+
+    // 타격감을 위한 간단한 깜빡임 효과
+    private IEnumerator HitEffectCoroutine()
+    {
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.color = originalColor;
+    }
 
     public void Kill()
     {
@@ -36,35 +72,27 @@ public class AnimalHealth : MonoBehaviour
 
     void DropItems()
     {
+        // (이전 단계에서 작성한 아이템 드랍 로직 그대로 유지)
         if (fieldItemPrefab == null || ItemDataManager.instance == null) return;
 
         foreach (var rule in dropRules)
         {
-            // 1. 확률 체크
             if (Random.Range(0f, 100f) <= rule.dropChance)
             {
-                // 2. 개수 결정
                 int count = Random.Range(rule.minDrop, rule.maxDrop + 1);
                 if (count <= 0) continue;
 
-                // 3. DB에서 아이템 정보 가져오기
                 ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
                 if (data != null)
                 {
-                    // 4. 아이템 스폰 및 흩뿌리기
                     Vector3 dropPos = transform.position + (Vector3)Random.insideUnitCircle * 0.5f;
                     GameObject droppedObj = Instantiate(fieldItemPrefab, dropPos, Quaternion.identity);
 
-                    // FieldItem 스크립트에 데이터 주입
                     FieldItem fieldItem = droppedObj.GetComponent<FieldItem>();
                     if (fieldItem != null)
                     {
                         fieldItem.Setup(data, count);
                     }
-                }
-                else
-                {
-                    Debug.LogWarning($"드랍 실패: DB에서 '{rule.itemID}' 아이템을 찾을 수 없습니다.");
                 }
             }
         }

@@ -114,13 +114,13 @@ public class PlayerMove : MonoBehaviour
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorldPos.z = 0;
 
-        // 동물 제거 시도
-        // 🔪 Knife 도살 처리
+        // 1. 무기를 들고 있을 때의 처리 (전투)
         if (currentEquippedItemData != null && currentEquippedItemData.equipSlot == EquipmentSlotType.Weapon)
         {
-            Collider2D hit = Physics2D.OverlapPoint(mouseWorldPos);
+            // 변경점 1: 정확한 점 클릭 대신, 마우스 클릭 위치 주변(반지름 0.3f)의 모든 것을 검사해서 타격 판정을 후하게 만듦
+            Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, 0.3f);
 
-            if (hit != null)
+            foreach (var hit in hits)
             {
                 AnimalHealth health = hit.GetComponent<AnimalHealth>();
 
@@ -128,26 +128,36 @@ public class PlayerMove : MonoBehaviour
                 {
                     float dist = Vector2.Distance(transform.position, hit.transform.position);
 
+                    // 거리가 1.5f 이내일 때만 데미지 적용
                     if (dist <= 1.5f)
                     {
-                        // 나중에 여기에 무기의 공격력(currentEquippedItemData.atk)을 전달할 수도 있습니다!
-                        health.Kill();
-                        Debug.Log($"[{currentEquippedItemData.displayName}] (으)로 도살 성공!");
-                        return;
+                        int damage = currentEquippedItemData.atk;
+                        if (damage <= 0) damage = 1;
+
+                        health.TakeDamage(damage);
+                        break; // 여러 마리가 겹쳐 있어도 한 번 클릭에 한 마리만 때리도록 루프 탈출
+                    }
+                    else
+                    {
+                        Debug.Log("무기가 닿기엔 너무 멉니다!");
                     }
                 }
             }
 
-            // 기존 농사 처리
-            Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
-            tilePos.z = 0;
+            // 변경점 2: 무기를 들고 클릭했다면, 때렸든 못 때렸든 여기서 함수를 종료! (아래 농사 로직으로 넘어가지 않음)
+            return;
+        }
 
-            if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
-            {
-                HandleFarmAction(tilePos);
-            }
+        // 2. 무기가 아닐 때 (농사 도구 등)의 처리
+        Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
+        tilePos.z = 0;
+
+        if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
+        {
+            HandleFarmAction(tilePos);
         }
     }
+
 
     private void HandleFarmAction(Vector3Int tilePosition)
     {
