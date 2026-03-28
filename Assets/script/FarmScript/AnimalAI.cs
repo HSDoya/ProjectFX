@@ -112,19 +112,26 @@ public class AnimalAI : MonoBehaviour
 
         if (isMoving)
         {
-            anim.SetFloat("DirX", moveDir.x);
-            anim.SetFloat("DirY", moveDir.y);
+            float absX = Mathf.Abs(moveDir.x);
+            float absY = Mathf.Abs(moveDir.y);
 
-            // 상하 애니메이션이 따로 있다면, 굳이 Flip을 하지 않아도 됩니다.
-            // 좌우 이동이 확실할 때만 FlipX를 써주세요.
-            if (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y))
+            // 1. 좌우 이동이 상하 이동보다 클 때 (옆으로 걷기)
+            if (absX > absY)
             {
-                spriteRenderer.flipX = moveDir.x < 0;
+                // [핵심] 블렌드 트리에는 무조건 '오른쪽(1, 0)' 위치의 애니메이션을 틀라고 시킵니다.
+                anim.SetFloat("DirX", 1f);
+                anim.SetFloat("DirY", 0f);
+
+                // 실제 방향은 스프라이트를 뒤집어서 해결합니다.
+                spriteRenderer.flipX = moveDir.x > 0;
             }
+            // 2. 상하 이동이 더 클 때 (위/아래 걷기)
             else
             {
-                // 위/아래로 갈 때는 Flip을 꺼줘야 정면/뒷모습이 제대로 나옵니다.
                 spriteRenderer.flipX = false;
+
+                anim.SetFloat("DirX", 0f);
+                anim.SetFloat("DirY", moveDir.y); // 위(1) 또는 아래(-1)
             }
         }
     }

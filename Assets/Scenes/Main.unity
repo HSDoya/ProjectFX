@@ -16775,10 +16775,10 @@ MonoBehaviour:
   animalRules:
   - animalName: COW
     prefab: {fileID: 4421147239190456030}
-    targetCount: 5
+    targetCount: 0
   - animalName: Chicken
     prefab: {fileID: 243217321}
-    targetCount: 5
+    targetCount: 0
   minCheckInterval: 1
   maxCheckInterval: 2
   spawnImmediatelyOnStart: 0
