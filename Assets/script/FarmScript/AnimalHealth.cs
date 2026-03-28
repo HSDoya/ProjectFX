@@ -72,8 +72,26 @@ public class AnimalHealth : MonoBehaviour
 
     void DropItems()
     {
-        // (이전 단계에서 작성한 아이템 드랍 로직 그대로 유지)
-        if (fieldItemPrefab == null || ItemDataManager.instance == null) return;
+        // 1. 프리팹이 안 들어가 있는지 체크
+        if (fieldItemPrefab == null)
+        {
+            Debug.LogError("[드랍 실패] fieldItemPrefab이 비어있습니다! 동물 프리팹의 인스펙터에 FieldItem 프리팹을 넣어주세요.");
+            return;
+        }
+
+        // 2. 매니저가 없는지 체크
+        if (ItemDataManager.instance == null)
+        {
+            Debug.LogError("[드랍 실패] 씬에 ItemDataManager가 없습니다.");
+            return;
+        }
+
+        // 3. 드랍 아이템 목록이 비어있는지 체크
+        if (dropRules.Count == 0)
+        {
+            Debug.LogWarning("[드랍 경고] 동물 인스펙터의 Drop Rules(드랍 목록)가 비어있습니다. 설정해 주세요!");
+            return;
+        }
 
         foreach (var rule in dropRules)
         {
@@ -82,6 +100,7 @@ public class AnimalHealth : MonoBehaviour
                 int count = Random.Range(rule.minDrop, rule.maxDrop + 1);
                 if (count <= 0) continue;
 
+                // 4. DB에서 아이템 찾기
                 ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
                 if (data != null)
                 {
@@ -92,7 +111,17 @@ public class AnimalHealth : MonoBehaviour
                     if (fieldItem != null)
                     {
                         fieldItem.Setup(data, count);
+                        Debug.Log($"아이템 드랍 성공: {data.displayName} {count}개");
                     }
+                    else
+                    {
+                        Debug.LogError(" [드랍 실패] 스폰된 fieldItemPrefab에 FieldItem 스크립트가 안 붙어있습니다!");
+                    }
+                }
+                else
+                {
+                    // 5. 스펠링 대소문자가 틀렸을 경우
+                    Debug.LogError($"[드랍 실패] ItemDB에서 '{rule.itemID}'(을)를 찾을 수 없습니다. 대소문자나 띄어쓰기를 확인하세요!");
                 }
             }
         }
