@@ -122,24 +122,33 @@ public class PlayerMove : MonoBehaviour
 
             foreach (var hit in hits)
             {
-                AnimalHealth health = hit.GetComponent<AnimalHealth>();
+                float dist = Vector2.Distance(transform.position, hit.transform.position);
+                if (dist > 1.5f) continue; // 거리가 멀면 패스
 
-                if (health != null)
+                int damage = currentEquippedItemData.atk;
+                if (damage <= 0) damage = 1;
+
+                // [A] 동물 사냥 체크
+                AnimalHealth animal = hit.GetComponent<AnimalHealth>();
+                if (animal != null)
                 {
-                    float dist = Vector2.Distance(transform.position, hit.transform.position);
+                    animal.TakeDamage(damage);
+                    break;
+                }
 
-                    // 거리가 1.5f 이내일 때만 데미지 적용
-                    if (dist <= 1.5f)
+                // [B] 나무 벌목 체크 (★ 추가된 부분)
+                TreeHealth tree = hit.GetComponent<TreeHealth>();
+                if (tree != null)
+                {
+                    // 손에 든 무기의 Type이 "Axe"일 때만 타격 가능!
+                    if (currentEquippedItemData.type == "Axe")
                     {
-                        int damage = currentEquippedItemData.atk;
-                        if (damage <= 0) damage = 1;
-
-                        health.TakeDamage(damage);
-                        break; // 여러 마리가 겹쳐 있어도 한 번 클릭에 한 마리만 때리도록 루프 탈출
+                        tree.TakeDamage(damage);
+                        break;
                     }
                     else
                     {
-                        Debug.Log("무기가 닿기엔 너무 멉니다!");
+                        Debug.Log("이 무기로는 나무를 벨 수 없습니다! 도끼가 필요합니다.");
                     }
                 }
             }

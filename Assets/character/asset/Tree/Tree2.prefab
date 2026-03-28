@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 6751978257785397386}
   - component: {fileID: 4266950316612092113}
   - component: {fileID: -1873493752093322848}
+  - component: {fileID: 8620323188814051415}
   m_Layer: 0
   m_Name: Tree2
   m_TagString: Untagged
@@ -238,3 +239,22 @@ MonoBehaviour:
   transparencyAlpha: 0.5
   hiddenPlayerColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
   outlineMaterial: {fileID: 2100000, guid: fafd56ec9e214f343acd71c2053c06a5, type: 2}
+--- !u!114 &8620323188814051415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8947777375043445381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7d76fc4202b0a6488e4c05155640d63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 20
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
+  dropRules:
+  - itemID: Wood
+    minDrop: 1
+    maxDrop: 3
+    dropChance: 100

@@ -27,19 +27,25 @@ public class FieldItem : MonoBehaviour
     }
 
     // 플레이어가 아이템에 닿았을 때 인벤토리로 획득
+    
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            // 인벤토리에 추가 시도 (공간이 있어서 성공하면 true 반환)
+            // ★ 추가: AddItem에 들어가면 quantity가 0이 되므로, 들어가기 전에 미리 개수를 기억해 둡니다!
+            int originalQuantity = item.quantity;
+
+            // 인벤토리에 추가 시도
             if (Inventory.instance.AddItem(item))
             {
-                Debug.Log($"{item.data.displayName} {item.quantity}개 획득!");
+                // ★ 변경: item.quantity 대신 기억해둔 originalQuantity를 출력
+                Debug.Log($"{item.data.displayName} {originalQuantity}개 획득!");
                 Destroy(gameObject); // 필드에서 아이템 삭제
             }
             else
             {
-                Debug.Log("인벤토리가 가득 차서 먹을 수 없습니다.");
+                // 인벤토리가 꽉 차서 못 먹었을 때는 일부만 먹었을 수도 있으니 남은 개수 표시
+                Debug.Log($"인벤토리가 가득 차서 {item.data.displayName}을(를) {item.quantity}개 남겼습니다.");
             }
         }
     }

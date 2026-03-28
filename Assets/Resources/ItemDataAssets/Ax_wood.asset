@@ -19,7 +19,7 @@ MonoBehaviour:
   canStack: 1
   maxStackAmount: 1
   itemType: 2
-  type: Equipment
+  type: Axe
   isConsumable: 1
   equipSlot: 1
   atk: 1
