@@ -48,7 +48,12 @@ public class InventoryUI : MonoBehaviour
         }
 
     }
-
+    void Start()
+    {
+        // Start는 모든 스크립트의 Awake가 끝난 뒤 실행되므로, 
+        // 이때는 Inventory.instance가 무조건 존재합니다.
+        UpdateUI();
+    }
     void OnEnable()
     {
         if (Inventory.instance != null)

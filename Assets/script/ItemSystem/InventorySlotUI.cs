@@ -9,9 +9,10 @@ public class InventorySlotUI : MonoBehaviour, ItemSlot, IPointerClickHandler, IB
     [Header("Binding")]
     public int slotIndex;
     public ItemUI itemUI;
-    
-    
-    public bool isQuickSlot = false; //260221 Äü½½·Ô Ãß°¡  
+
+
+    [Header("Slot Type")]
+    public bool isQuickSlot;
     // Interface Property
     public Item CurrentItem { get; set; }
 
