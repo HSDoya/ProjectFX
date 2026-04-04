@@ -1395,9 +1395,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.3
-  changeDirTime: 3
-  idleTime: 1.5
+  animalType: 1
+  moveSpeed: 0.4
+  minMoveTime: 3
+  maxMoveTime: 7
+  minIdleTime: 3
+  maxIdleTime: 15
+  peckProbability: 5
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
@@ -5994,7 +5998,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 99770450341b34f45993a6edff4832e2, type: 2}
+  - {fileID: 2100000, guid: d083e991cbc8d1d4199b191bcefa9601, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9548,6 +9552,14 @@ MonoBehaviour:
   - ruleName: tree2
     prefabs:
     - {fileID: 8947777375043445381, guid: 360abb19e4bd6b64ebf61f34b16c6c86, type: 3}
+    spawnCount: 5
+  - ruleName: Rock1
+    prefabs:
+    - {fileID: 5808118218866733295, guid: 3cbf46e1d06436748a82e031102fcfd6, type: 3}
+    spawnCount: 5
+  - ruleName: Rock2
+    prefabs:
+    - {fileID: 3608330660068463224, guid: c484f4cca39a0b249ad8592f7749551e, type: 3}
     spawnCount: 5
   spawnedObjects: []
 --- !u!1001 &1080564361
@@ -21626,9 +21638,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.4
-  changeDirTime: 3
-  idleTime: 4
+  animalType: 0
+  moveSpeed: 0.2
+  minMoveTime: 3
+  maxMoveTime: 7
+  minIdleTime: 4
+  maxIdleTime: 15
+  peckProbability: 30
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
