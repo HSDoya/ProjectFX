@@ -5952,7 +5952,6 @@ GameObject:
   - component: {fileID: 1051139130}
   - component: {fileID: 1051139132}
   - component: {fileID: 1051139133}
-  - component: {fileID: 1051139134}
   m_Layer: 0
   m_Name: lend
   m_TagString: farmTile
@@ -9525,43 +9524,6 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
---- !u!114 &1051139134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051139128}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d35c94003852fa41aa63b989d225fc9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groundTilemap: {fileID: 1051139131}
-  waterTilemap: {fileID: 1214443929}
-  spawnCheckRadius: 0.3
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  maxPositionSearchTries: 3
-  resourceRules:
-  - ruleName: tree
-    prefabs:
-    - {fileID: 633869742299772239, guid: 2f2710baf83968b4995c952596d2cc47, type: 3}
-    spawnCount: 5
-  - ruleName: tree2
-    prefabs:
-    - {fileID: 8947777375043445381, guid: 360abb19e4bd6b64ebf61f34b16c6c86, type: 3}
-    spawnCount: 5
-  - ruleName: Rock1
-    prefabs:
-    - {fileID: 5808118218866733295, guid: 3cbf46e1d06436748a82e031102fcfd6, type: 3}
-    spawnCount: 5
-  - ruleName: Rock2
-    prefabs:
-    - {fileID: 3608330660068463224, guid: c484f4cca39a0b249ad8592f7749551e, type: 3}
-    spawnCount: 5
-  spawnedObjects: []
 --- !u!1001 &1080564361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16615,6 +16577,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1365982338}
   - component: {fileID: 1365982337}
+  - component: {fileID: 1365982339}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -16646,6 +16609,7 @@ MonoBehaviour:
   edgeWaterPenalty: 0.5
   player: {fileID: 6234071091465051156}
   safeZoneRadius: 2
+  objectSpawner: {fileID: 1365982339}
   useRandomSeed: 1
   seed: 0
 --- !u!4 &1365982338
@@ -16663,6 +16627,45 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1365982339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365982336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d35c94003852fa41aa63b989d225fc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundTilemap: {fileID: 1051139131}
+  waterTilemap: {fileID: 1214443929}
+  spawnCheckRadius: 1
+  minDistanceBetweenObjects: 2
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  maxPositionSearchTries: 1
+  resourceRules:
+  - ruleName: tree
+    prefabs:
+    - {fileID: 633869742299772239, guid: 2f2710baf83968b4995c952596d2cc47, type: 3}
+    spawnCount: 5
+  - ruleName: tree2
+    prefabs:
+    - {fileID: 8947777375043445381, guid: 360abb19e4bd6b64ebf61f34b16c6c86, type: 3}
+    spawnCount: 5
+  - ruleName: Rock1
+    prefabs:
+    - {fileID: 5808118218866733295, guid: 3cbf46e1d06436748a82e031102fcfd6, type: 3}
+    spawnCount: 5
+  - ruleName: Rock2
+    prefabs:
+    - {fileID: 3608330660068463224, guid: c484f4cca39a0b249ad8592f7749551e, type: 3}
+    spawnCount: 5
+  spawnedObjects:
+  - {fileID: 5808110219454188836, guid: 027a7182c13cebc42a3ab3fe21511ca0, type: 3}
 --- !u!1 &1397002792
 GameObject:
   m_ObjectHideFlags: 0
@@ -20669,7 +20672,7 @@ MonoBehaviour:
   landTileManager: {fileID: 1051139132}
   event_time: 0
   inventory: {fileID: 1686479086}
-  objectSpawner: {fileID: 1051139134}
+  objectSpawner: {fileID: 0}
   selectedQuickSlotIndex: 0
 --- !u!1 &2024451591086108891
 GameObject:
