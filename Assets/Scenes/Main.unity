@@ -16578,6 +16578,7 @@ GameObject:
   - component: {fileID: 1365982338}
   - component: {fileID: 1365982337}
   - component: {fileID: 1365982339}
+  - component: {fileID: 1365982340}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -16601,14 +16602,13 @@ MonoBehaviour:
   waterTilemap: {fileID: 1214443929}
   groundTile: {fileID: 11400000, guid: 9bd65c69e57b7f5469821d3b42587041, type: 2}
   waterTile: {fileID: 11400000, guid: 5852acbd5ab103d42aa9dd197f1ccbe9, type: 2}
-  mapWidth: 50
-  mapHeight: 50
+  chunkSize: 24
   noiseScale: 0.1
   waterThreshold: 0.519
-  centerIslandBoost: 0.5
-  edgeWaterPenalty: 0.5
+  islandEdgePenalty: 0.8
+  islandCenterBoost: 0.3
   player: {fileID: 6234071091465051156}
-  safeZoneRadius: 2
+  safeZoneRadius: 8
   objectSpawner: {fileID: 1365982339}
   useRandomSeed: 1
   seed: 0
@@ -16651,21 +16651,37 @@ MonoBehaviour:
   - ruleName: tree
     prefabs:
     - {fileID: 633869742299772239, guid: 2f2710baf83968b4995c952596d2cc47, type: 3}
-    spawnCount: 5
+    spawnCount: 15
   - ruleName: tree2
     prefabs:
     - {fileID: 8947777375043445381, guid: 360abb19e4bd6b64ebf61f34b16c6c86, type: 3}
-    spawnCount: 5
+    spawnCount: 15
   - ruleName: Rock1
     prefabs:
     - {fileID: 5808118218866733295, guid: 3cbf46e1d06436748a82e031102fcfd6, type: 3}
-    spawnCount: 5
+    spawnCount: 15
   - ruleName: Rock2
     prefabs:
     - {fileID: 3608330660068463224, guid: c484f4cca39a0b249ad8592f7749551e, type: 3}
-    spawnCount: 5
+    spawnCount: 15
   spawnedObjects:
   - {fileID: 5808110219454188836, guid: 027a7182c13cebc42a3ab3fe21511ca0, type: 3}
+--- !u!114 &1365982340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365982336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db57b6b5d880a474184299e9233ff79d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapGenerator: {fileID: 1365982337}
+  unlockSignPrefab: {fileID: 6791045825572003945, guid: e1d59d45618f15140bf54bed985d0e85, type: 3}
+  baseUnlockCost: 261
+  maxGridRadius: 2
 --- !u!1 &1397002792
 GameObject:
   m_ObjectHideFlags: 0

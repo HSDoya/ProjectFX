@@ -8,8 +8,8 @@ public class ObjectSpawner : MonoBehaviour
     public Tilemap waterTilemap;
 
     [Header("배치 설정")]
-    public float spawnCheckRadius = 0.5f; // 겹침 감지 반경 (조금 키우는 것 추천)
-    public float minDistanceBetweenObjects = 0.8f; // 오브젝트 간 최소 거리 유지
+    public float spawnCheckRadius = 0.5f;
+    public float minDistanceBetweenObjects = 0.8f;
     public LayerMask obstacleLayer;
     public int maxPositionSearchTries = 50;
 
@@ -18,41 +18,50 @@ public class ObjectSpawner : MonoBehaviour
     {
         public string ruleName;
         public GameObject[] prefabs;
-        public int spawnCount = 20;
+        public int spawnCount = 5; // 💡 주의: 이제 맵 전체가 아니라 '1개 구역(청크) 당' 생성 개수입니다!
     }
 
     public List<StaticResourceRule> resourceRules = new List<StaticResourceRule>();
     public List<GameObject> spawnedObjects = new List<GameObject>();
-    private List<Vector3Int> groundTiles = new List<Vector3Int>();
-    private List<Vector3> spawnedPositions = new List<Vector3>(); // 위치 기록용
 
-    public void SpawnInitialObjects()
+    private List<Vector3Int> currentChunkGroundTiles = new List<Vector3Int>(); // 현재 청크의 땅 타일 목록
+    private List<Vector3> spawnedPositions = new List<Vector3>();
+
+    // 🌟 맵 전체가 아니라 '특정 구역(청크)'에만 오브젝트를 스폰하는 함수로 변경되었습니다.
+    public void SpawnObjectsInChunk(Vector2Int chunkCoord, int chunkSize)
     {
-        // 기존 데이터 초기화
-        foreach (var obj in spawnedObjects) { if (obj != null) Destroy(obj); }
-        spawnedObjects.Clear();
-        spawnedPositions.Clear();
+        // 🚨 주의: 기존 오브젝트를 파괴하는 Clear() 로직을 삭제했습니다! (기존 땅의 자원 유지)
 
-        CacheGroundTiles();
-        InitialSpawnAll();
+        CacheGroundTilesInChunk(chunkCoord, chunkSize);
+        SpawnInCachedTiles();
     }
 
-    private void CacheGroundTiles()
+    // 딱 해당 구역(chunkCoord) 안의 땅 타일만 찾아내는 함수
+    private void CacheGroundTilesInChunk(Vector2Int chunkCoord, int chunkSize)
     {
-        groundTiles.Clear();
-        BoundsInt bounds = groundTilemap.cellBounds;
-        foreach (var pos in bounds.allPositionsWithin)
+        currentChunkGroundTiles.Clear();
+
+        int startX = chunkCoord.x * chunkSize;
+        int startY = chunkCoord.y * chunkSize;
+
+        for (int x = 0; x < chunkSize; x++)
         {
-            if (groundTilemap.HasTile(pos) && (waterTilemap == null || !waterTilemap.HasTile(pos)))
+            for (int y = 0; y < chunkSize; y++)
             {
-                groundTiles.Add(pos);
+                Vector3Int pos = new Vector3Int(startX + x, startY + y, 0);
+
+                // 물 타일이 없고 땅 타일만 있는 곳 추출
+                if (groundTilemap.HasTile(pos) && (waterTilemap == null || !waterTilemap.HasTile(pos)))
+                {
+                    currentChunkGroundTiles.Add(pos);
+                }
             }
         }
     }
 
-    private void InitialSpawnAll()
+    private void SpawnInCachedTiles()
     {
-        if (groundTiles.Count == 0) return;
+        if (currentChunkGroundTiles.Count == 0) return;
 
         foreach (var rule in resourceRules)
         {
@@ -61,7 +70,7 @@ public class ObjectSpawner : MonoBehaviour
             {
                 if (TrySpawn(rule)) successCount++;
             }
-            Debug.Log($"[ObjectSpawner] {rule.ruleName}: {successCount}/{rule.spawnCount} 배치 성공");
+            Debug.Log($"[ObjectSpawner] {rule.ruleName}: 새 구역에 {successCount}/{rule.spawnCount} 배치 성공");
         }
     }
 
@@ -69,16 +78,16 @@ public class ObjectSpawner : MonoBehaviour
     {
         for (int i = 0; i < maxPositionSearchTries; i++)
         {
-            // 1. 랜덤 타일 선택 및 좌표 변환
-            Vector3Int tilePos = groundTiles[Random.Range(0, groundTiles.Count)];
+            // 1. 현재 청크의 땅 중에서만 랜덤 타일 선택
+            Vector3Int tilePos = currentChunkGroundTiles[Random.Range(0, currentChunkGroundTiles.Count)];
             Vector3 worldPos = groundTilemap.GetCellCenterWorld(tilePos);
             worldPos.z = 0;
 
-            // 2. 물리적 겹침 체크 (Physics2D)
+            // 2. 물리적 겹침 체크
             Collider2D hit = Physics2D.OverlapCircle(worldPos, spawnCheckRadius, obstacleLayer);
             if (hit != null) continue;
 
-            // 3. 코드 레벨 거리 체크 (기록된 위치들과 비교)
+            // 3. 거리 체크 (다른 청크에서 스폰된 오브젝트와의 거리도 고려됨)
             bool isTooClose = false;
             foreach (Vector3 pos in spawnedPositions)
             {
@@ -90,12 +99,12 @@ public class ObjectSpawner : MonoBehaviour
             }
             if (isTooClose) continue;
 
-            // 4. 모든 조건 통과 시 생성
+            // 4. 생성
             GameObject prefab = rule.prefabs[Random.Range(0, rule.prefabs.Length)];
             GameObject obj = Instantiate(prefab, worldPos, Quaternion.identity, this.transform);
 
             spawnedObjects.Add(obj);
-            spawnedPositions.Add(worldPos); // 위치 기록
+            spawnedPositions.Add(worldPos);
             return true;
         }
         return false;
