@@ -84,7 +84,7 @@ public class EnemyDataManager : MonoBehaviour
         {
             return data;
         }
-        Debug.LogError($"[EnemyDataManager] {id}에 해당하는 데이터가 없습니다!");
+        //Debug.LogError($"[EnemyDataManager] {id}에 해당하는 데이터가 없습니다!");
         return null;
     }
 }

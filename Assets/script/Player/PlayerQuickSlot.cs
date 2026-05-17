@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI; // UI(Image) 제어를 위해 추가
 
 public class PlayerQuickSlot : MonoBehaviour
 {
     [SerializeField] private Inventory inventory;
+
+    [Header("UI Settings")]
+    [SerializeField] private Image[] slotHighlightImages; // 인스펙터에서 할당할 테두리 이미지들
 
     // PlayerMove의 event_time을 제어하기 위한 참조
     private PlayerMove playerMove;
@@ -28,6 +32,9 @@ public class PlayerQuickSlot : MonoBehaviour
         {
             inventory.onItemChangedCallback += UpdateCurrentEquipment;
         }
+
+        // 게임 시작 시 첫 번째 슬롯 테두리 켜기
+        UpdateHighlightUI();
     }
 
     private void OnDestroy()
@@ -51,6 +58,10 @@ public class PlayerQuickSlot : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha3)) SelectQuickSlot(2);
         else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectQuickSlot(3);
         else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(4);
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(5);
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(6);
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(7);
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(8);
 
         // 2. 마우스 휠 스크롤로 퀵슬롯 이동
         float scroll = Mouse.current.scroll.ReadValue().y;
@@ -87,6 +98,9 @@ public class PlayerQuickSlot : MonoBehaviour
         }
 
         UpdateCurrentEquipment();
+
+        // 슬롯이 변경될 때마다 테두리 UI도 같이 갱신해줍니다.
+        UpdateHighlightUI();
     }
 
     public void UpdateCurrentEquipment()
@@ -106,6 +120,22 @@ public class PlayerQuickSlot : MonoBehaviour
         {
             currentEquipment = "";
             currentEquippedItemData = null;
+        }
+    }
+
+    // 새롭게 추가된 테두리 UI 갱신 함수
+    private void UpdateHighlightUI()
+    {
+        // 배열이 비어있으면 에러 방지
+        if (slotHighlightImages == null || slotHighlightImages.Length == 0) return;
+
+        for (int i = 0; i < slotHighlightImages.Length; i++)
+        {
+            if (slotHighlightImages[i] != null)
+            {
+                // 현재 검사 중인 인덱스(i)가 선택된 슬롯 인덱스와 같으면 true(켜짐), 아니면 false(꺼짐)
+                slotHighlightImages[i].enabled = (i == selectedQuickSlotIndex);
+            }
         }
     }
 }
