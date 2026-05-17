@@ -16602,13 +16602,14 @@ MonoBehaviour:
   waterTilemap: {fileID: 1214443929}
   groundTile: {fileID: 11400000, guid: c437fd64f53e64948b4f385bbbe300fd, type: 2}
   waterTile: {fileID: 11400000, guid: 5852acbd5ab103d42aa9dd197f1ccbe9, type: 2}
-  chunkSize: 24
+  chunkSize: 40
   noiseScale: 0.1
   waterThreshold: 0.519
-  islandEdgePenalty: 0.8
-  islandCenterBoost: 0.3
+  startIslandRadius: 12
+  unlockedIslandRadius: 4
+  shapeWobbleAmount: 6
+  islandEdgePenalty: 2
   player: {fileID: 6234071091465051156}
-  safeZoneRadius: 8
   objectSpawner: {fileID: 1365982339}
   useRandomSeed: 1
   seed: 0

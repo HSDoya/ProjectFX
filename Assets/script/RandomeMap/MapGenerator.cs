@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Tilemaps;
-
+using System.Collections.Generic;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -16,15 +15,18 @@ public class MapGenerator : MonoBehaviour
     public float noiseScale = 0.08f;
     [Range(0f, 1f)] public float waterThreshold = 0.4f;
 
-    [Header("섬 형태 만들기 (청크별 독립된 섬)")]
-    [Tooltip("수치가 클수록 구역의 가장자리가 물이 되어 섬이 둥글고 작아집니다. (권장: 0.8 ~ 1.2)")]
-    public float islandEdgePenalty = 0.8f;
-    [Tooltip("수치가 클수록 구역 중앙에 땅이 생길 확률이 높아집니다. (권장: 0.3 ~ 0.5)")]
-    public float islandCenterBoost = 0.3f;
+    [Header("섬 크기 및 고립 설정")]
+    [Tooltip("시작 섬의 기본 크기 반경 (권장: 10 ~ 14)")]
+    public float startIslandRadius = 12f;
+    [Tooltip("해금되는 섬들의 기본 크기 반경 (권장: 8 ~ 12)")]
+    public float unlockedIslandRadius = 10f;
+    [Tooltip("해금된 섬의 테두리가 자연스럽게 구불구불해지는 정도 (권장: 4 ~ 8)")]
+    public float shapeWobbleAmount = 6f;
+    [Tooltip("구역 끝부분을 강제로 바다로 만드는 힘 (대륙 끊김 방지) 권장: 2.0")]
+    public float islandEdgePenalty = 2.0f;
 
     [Header("기타 설정")]
     public Transform player;
-    public int safeZoneRadius = 8;
     public ObjectSpawner objectSpawner;
 
     [Header("시드")]
@@ -54,8 +56,7 @@ public class MapGenerator : MonoBehaviour
         int startX = (chunkCoord.x * chunkSize) - (chunkSize / 2);
         int startY = (chunkCoord.y * chunkSize) - (chunkSize / 2);
 
-        // 청크 내부의 중심점(localCenter)을 구합니다.
-        Vector2 localCenter = new Vector2(chunkSize / 2f, chunkSize / 2f);
+        float centerOffset = chunkSize / 2f;
         float maxLocalDistance = chunkSize / 2f;
 
         for (int x = 0; x < chunkSize; x++)
@@ -67,29 +68,43 @@ public class MapGenerator : MonoBehaviour
 
                 float pX = worldX * noiseScale + offsetX;
                 float pY = worldY * noiseScale + offsetY;
-
                 float noiseValue = Mathf.PerlinNoise(pX, pY);
 
-                //  핵심: 청크(구역)별로 둥근 섬의 모양을 깎아냅니다!
-                float distanceToLocalCenter = Vector2.Distance(new Vector2(x, y), localCenter);
-                float normalizedDistance = distanceToLocalCenter / maxLocalDistance;
+                float dx = x - centerOffset;
+                float dy = y - centerOffset;
+                float distanceToCenter;
+                float baseRadius;
 
-                // 중앙은 가산점, 외곽은 감점을 주어 둥근 섬 형태를 유도합니다.
-                float centerBoost = 1f - normalizedDistance;
-                noiseValue += (centerBoost * islandCenterBoost); // 구역 중앙은 땅이 되기 쉬움
-                noiseValue -= (normalizedDistance * islandEdgePenalty); // 구역 외곽은 무조건 물이 됨
+                if (chunkCoord == Vector2Int.zero)
+                {
+                    distanceToCenter = Mathf.Sqrt(dx * dx + (dy * 1.5f) * (dy * 1.5f));
+                    baseRadius = startIslandRadius;
+                }
+                else
+                {
+                    float wobble = (Mathf.PerlinNoise(worldX * 0.15f + offsetX, worldY * 0.15f + offsetY) - 0.5f) * shapeWobbleAmount;
+                    distanceToCenter = Mathf.Sqrt(dx * dx + dy * dy) + wobble;
+                    baseRadius = unlockedIslandRadius;
+                }
+
+                // 지정된 baseRadius 안쪽은 0, 구역 끝(maxLocalDistance)으로 갈수록 1이 되는 비율
+                float falloffStart = baseRadius;
+                float falloffEnd = maxLocalDistance - 1f;
+                float falloff = Mathf.InverseLerp(falloffStart, falloffEnd, distanceToCenter);
+
+                // 반경 안쪽은 가산점(+1.0)을 주어 무조건 땅으로 만들고, 반경 밖은 페널티를 주어 바다로 만듦
+                float finalNoiseValue = noiseValue + 1.0f - (falloff * islandEdgePenalty);
 
                 Vector3Int tilePosition = new Vector3Int(worldX, worldY, 0);
 
-                // 스폰 지점 주변을 부드러운 원형/타원형 땅으로 보장합니다!
-                // Y축 값에 1.5f를 곱해주면, 세로보다 가로가 더 넓은 자연스러운 '타원형'이 됩니다.
-                float distFromCenter = Vector2.Distance(Vector2.zero, new Vector2(worldX, worldY * 1.5f));
-                bool isSafeZone = distFromCenter <= safeZoneRadius;
-
-                if (isSafeZone || noiseValue > waterThreshold)
+                if (finalNoiseValue > waterThreshold)
+                {
                     groundTilemap.SetTile(tilePosition, groundTile);
+                }
                 else
+                {
                     waterTilemap.SetTile(tilePosition, waterTile);
+                }
             }
         }
 
