@@ -1,2 +1,2 @@
-itemID,ItemType,Name,Description
-Slime_01,초록 슬라임,20,5
+itemID,enemyName,maxHealth,detectRange,attackRange,moveSpeed,attackDamage,attackCooldown,animType
+Slime_01,초록 슬라임,20,5,1.2,2,0.5,1.5,SimpleAnimation

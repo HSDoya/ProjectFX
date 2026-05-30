@@ -24422,7 +24422,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyItemID: Slime_01
-  animType: 1
   targetTransform: {fileID: 6234071091465051156}
   minWalkTime: 1.5
   maxWalkTime: 3.5
