@@ -21504,6 +21504,7 @@ GameObject:
   - component: {fileID: 5154640296364292895}
   - component: {fileID: 2804901198228486112}
   - component: {fileID: 5154640296364292896}
+  - component: {fileID: 5154640296364292897}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Untagged
@@ -21523,6 +21524,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68510c1039ec1794bbc6252c04ad7f72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 10
+  currentHealth: 0
+  isDead: 0
   inputVec: {x: 0, y: 0}
   speed: 5
   farmTilemap: {fileID: 1051139131}
@@ -24431,6 +24435,24 @@ MonoBehaviour:
   - {fileID: 1051139131}
   blockedTilemaps:
   - {fileID: 1214443929}
+--- !u!114 &5154640296364292897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538345137379261383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa6c58e158fb77046838b581cec78864, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
+  dropRules:
+  - itemID: GreenSlime_item
+    dropChance: 100
+    minDrop: 1
+    maxDrop: 3
 --- !u!212 &5373119019852454117
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Meat
   m_EditorClassIdentifier: 
   itemID: Meat
-  displayName: "\uC18C\uACE0\uAE30"
-  description: "\uC74C\uC2DD"
+  displayName: "\uFFFD\u04B0\uFFFD\uFFFD"
+  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
   icon: {fileID: -8098845009229183484, guid: 71507cd539fd0034899f89fa31688c29, type: 3}
   canStack: 1
   maxStackAmount: 99

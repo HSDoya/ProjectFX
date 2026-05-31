@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: fish
   m_EditorClassIdentifier: 
   itemID: fish
-  displayName: "\uCC38\uCE58"
-  description: "\uC74C\uC2DD"
+  displayName: "\uFFFD\uFFFD\u0121"
+  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
   icon: {fileID: -1915776564401465818, guid: 02a0b2472793b5c4dbd56cb5dda46328, type: 3}
   canStack: 1
   maxStackAmount: 99

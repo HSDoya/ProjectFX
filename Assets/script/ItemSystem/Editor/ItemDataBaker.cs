@@ -9,10 +9,10 @@ public class ItemDataBaker : EditorWindow
     public static void BakeItemData()
     {
         // 1. CSV 파일 로드 (기존 ItemDataCsvLoader와 동일한 위치)
-        TextAsset csvFile = Resources.Load<TextAsset>("itemDB");
+        TextAsset csvFile = Resources.Load<TextAsset>("ItemDatabase");
         if (csvFile == null)
         {
-            Debug.LogError("Resources 폴더에서 itemDB.csv 파일을 찾을 수 없습니다!");
+            Debug.LogError("Resources 폴더에서 ItemDatabase.csv 파일을 찾을 수 없습니다!");
             return;
         }
 

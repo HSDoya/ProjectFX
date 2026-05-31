@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Chicken
   m_EditorClassIdentifier: 
   itemID: Chicken
-  displayName: "\uCE58\uD0A8"
-  description: "\uC74C\uC2DD"
+  displayName: "\u0121\u0172"
+  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
   icon: {fileID: -2716067610124315709, guid: 41714ff4d77283f4080dece3c49a69ee, type: 3}
   canStack: 1
   maxStackAmount: 99

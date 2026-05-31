@@ -161,7 +161,25 @@ public class EnemyBaseAI : MonoBehaviour
         {
             if (anim != null) anim.SetTrigger("Attack");
             lastAttackTime = Time.time;
-            Debug.Log($"[{stats.enemyName}]이(가) [{targetTransform.name}]을(를) 공격했습니다!");
+            Debug.Log($"[{stats.enemyName}]이(가) [{targetTransform.name}]을(를) 공격 시도!");
+
+            if (targetTransform != null)
+            {
+                PlayerMove player = targetTransform.GetComponent<PlayerMove>();
+
+                if (player != null)
+                {
+                    // ★ 수정: 반올림(Mathf.RoundToInt) 제거, stats.attackDamage를 그대로 전달
+                    float damageToPlayer = stats.attackDamage;
+                    Debug.Log($"-> 타겟(PlayerMove) 발견 성공! 전달할 데미지: {damageToPlayer}");
+
+                    player.TakeDamage(damageToPlayer);
+                }
+                else
+                {
+                    Debug.LogWarning($"-> 주의: {targetTransform.name} 오브젝트에서 PlayerMove 컴포넌트를 찾을 수 없습니다!");
+                }
+            }
         }
     }
 
@@ -216,6 +234,18 @@ public class EnemyBaseAI : MonoBehaviour
         if (!isInitialized) return;
         currentHealth -= damageAmount;
         if (anim != null) anim.SetTrigger("Hit");
-        if (currentHealth <= 0) Destroy(gameObject);
+        if (currentHealth <= 0)
+        {
+            // ==========================================
+            // ★ 수정: 분리된 컴포넌트(ItemDropper)를 활용하여 아이템 드랍
+            // ==========================================
+            ItemDropper dropper = GetComponent<ItemDropper>();
+            if (dropper != null)
+            {
+                dropper.DropItems();
+            }
+
+            Destroy(gameObject);
+        }
     }
 }

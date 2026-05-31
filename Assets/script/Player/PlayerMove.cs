@@ -6,6 +6,11 @@ using Kinnly;
 
 public class PlayerMove : MonoBehaviour
 {
+    [Header("Player Stats")]
+    public float maxHealth = 100;
+    public float currentHealth;
+    public bool isDead = false;
+
     public Vector2 inputVec;
     public float speed = 5f;
     private Rigidbody2D rigid;
@@ -13,7 +18,7 @@ public class PlayerMove : MonoBehaviour
     public Tilemap farmTilemap;
     public Tilemap waterTilemap;
     public landtiles landTileManager;
-    
+    private Coroutine flashCoroutine;
 
     public bool event_time;
     Animator anim;
@@ -46,6 +51,9 @@ public class PlayerMove : MonoBehaviour
         {
             inventory.onItemChangedCallback += UpdateCurrentEquipment;
         }
+
+        // ★ 추가: 시작 시 체력 초기화
+        currentHealth = maxHealth;
     }
 
     // ★ 추가: 메모리 누수 방지용 이벤트 해제
@@ -150,6 +158,14 @@ public class PlayerMove : MonoBehaviour
                     {
                         Debug.Log("이 무기로는 나무를 벨 수 없습니다! 도끼가 필요합니다.");
                     }
+                }
+                // [C] 적 체크 
+                EnemyBaseAI enemy = hit.GetComponent<EnemyBaseAI>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(damage);
+                    Debug.Log($"[{enemy.name}]에게 무기 데미지 {damage}를 입혔습니다!");
+                    break; // 한 번에 하나의 타겟만 공격하도록 break (광역 공격을 원하시면 제거 가능)
                 }
             }
 
@@ -310,5 +326,55 @@ public class PlayerMove : MonoBehaviour
             collidedObject = null;
             Debug.Log("충돌 객체 해제됨");
         }
+    }
+
+    //데미지 및 Die 코드 추가 
+    public void TakeDamage(float damage)
+    {
+        if (isDead || event_time) return;
+
+        currentHealth -= damage;
+        Debug.Log($"플레이어가 {damage}의 데미지를 받았습니다! 현재 체력: {currentHealth} / {maxHealth}");
+
+        // ★ 빨간색 깜빡임 코루틴 실행
+        if (flashCoroutine != null)
+        {
+            StopCoroutine(flashCoroutine); // 이미 깜빡이고 있었다면 중지하고 새로 시작
+        }
+        flashCoroutine = StartCoroutine(FlashRedCoroutine());
+
+        // TODO: 추후 피격 애니메이션이 준비되면 여기에 추가 (예: anim.SetTrigger("Hit");)
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private IEnumerator FlashRedCoroutine()
+    {
+        // 원래 2D 스프라이트의 기본 색상은 투명도가 없는 완전히 밝은 흰색(Color.white)입니다.
+        spriteRenderer.color = Color.red;
+
+        // 0.1초 동안 대기 (원하는 속도에 따라 0.15f 등으로 조절 가능)
+        yield return new WaitForSeconds(0.1f);
+
+        spriteRenderer.color = Color.white;
+    }
+
+    private void Die()
+    {
+        // 테스트 단계: 사망 상태(isDead)를 true로 만들지 않고 곧바로 체력 회복
+        // 플레이어 사망 애니메이션 및 화면 UI 추가시 수정 
+        Debug.Log("플레이어 체력이 0이 되었습니다! (테스트: 체력을 100으로 리셋합니다)");
+
+        // 체력을 다시 최대 체력(100)으로 복구
+        currentHealth = maxHealth;
+
+        // 사망 시 색상 초기화 (빨간색 상태로 굳는 것 방지)
+        if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+        spriteRenderer.color = Color.white;
+
+
     }
 }

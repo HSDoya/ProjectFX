@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Ax_stone
   m_EditorClassIdentifier: 
   itemID: Ax_stone
-  displayName: "\uB3CC\uB3C4\uB07C"
-  description: "\uBB34\uAE30"
+  displayName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"
+  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
   icon: {fileID: 6377876528812204834, guid: 89f2f4dfce9b6ee49952dff8f0e62d0b, type: 3}
   canStack: 1
   maxStackAmount: 1

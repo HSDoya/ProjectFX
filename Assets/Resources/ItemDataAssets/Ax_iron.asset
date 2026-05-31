@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Ax_iron
   m_EditorClassIdentifier: 
   itemID: Ax_iron
-  displayName: "\uCCA0\uB3C4\uB07C"
-  description: "\uBB34\uAE30"
+  displayName: "\xF6\uFFFD\uFFFD\uFFFD\uFFFD"
+  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
   icon: {fileID: 8178967689405408386, guid: ce38c02db1b367741a5a25984f8b0eb0, type: 3}
   canStack: 1
   maxStackAmount: 1

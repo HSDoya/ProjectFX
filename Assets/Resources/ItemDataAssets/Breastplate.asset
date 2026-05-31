@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Breastplate
   m_EditorClassIdentifier: 
   itemID: Breastplate
-  displayName: "\uD749\uAC11"
-  description: "\uAC11\uC637"
+  displayName: "\uFFFD\u4C29"
+  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
   icon: {fileID: 21300000, guid: cfa0b53cefbba4a4aa5a1d63bc9a462e, type: 3}
   canStack: 1
   maxStackAmount: 1

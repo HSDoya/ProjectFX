@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9963ba8ceb84d3347aa4aaccf2aca835, type: 3}
-  m_Name: Ax_wood
+  m_Name: GreenSlime_item
   m_EditorClassIdentifier: 
-  itemID: Ax_wood
-  displayName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"
-  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
-  icon: {fileID: -3678516283053963210, guid: 86727beb86fb5674791f7174fca08c8e, type: 3}
+  itemID: GreenSlime_item
+  displayName: "\uFFFD\u02B7\u03FA\uFFFD\uFFFD\uFFFD"
+  description: "\uFFFD\uFFFD\uFFFD"
+  icon: {fileID: 733966707566787272, guid: dc6b9da802263984e8dafa4944b03eba, type: 3}
   canStack: 1
-  maxStackAmount: 1
-  itemType: 2
-  type: Axe
+  maxStackAmount: 99
+  itemType: 3
+  type: Material
   isConsumable: 1
-  equipSlot: 1
-  atk: 1
+  equipSlot: 0
+  atk: 0
   def: 0

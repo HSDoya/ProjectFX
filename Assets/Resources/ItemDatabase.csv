@@ -9,3 +9,6 @@ Breastplate,Equipment ,Èä°©,°©¿Ê,TRUE,1,Equipment,TRUE,Armor,None,10
 Ax_iron,Equipment ,Ã¶µµ³¢,¹«±â,TRUE,1,Axe,TRUE,Weapon,5,None
 Ax_stone,Equipment ,µ¹µµ³¢,¹«±â,TRUE,1,Axe,TRUE,Weapon,3,None
 Ax_wood,Equipment ,³ª¹«µµ³¢,¹«±â,TRUE,1,Axe,TRUE,Weapon,1,None
+GreenSlime_item,Material,ÃÊ·Ïº¸¼®,Àç·á ,TRUE,99,Material,TRUE,None,None,None
+BlueSlime_item,Material,ÆÄ¶ûº¸¼®,Àç·á ,TRUE,99,Material,TRUE,None,None,None
+RedSlime_item,Material,»¡°£º¸¼®,Àç·á ,TRUE,99,Material,TRUE,None,None,None
