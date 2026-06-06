@@ -25,16 +25,16 @@ public class PlayerMove : MonoBehaviour
     private GameObject collidedObject = null;
 
     [SerializeField] private Inventory inventory;
-    [SerializeField] private ObjectSpawner objectSpawner; // 드래그 연결 필요
+    [SerializeField] private ObjectSpawner objectSpawner;
 
-    // ★ 추가된 변수: 현재 선택된 퀵슬롯 번호 (0~13)
-    public int selectedQuickSlotIndex = 0;
+    // ★ 수정: 게임 시작 시 빈손(-1)으로 시작하도록 초기값 설정
+    public int selectedQuickSlotIndex = -1;
 
-    // 기존 코드 유지 (농사 등에서 쓰고 있다면 일단 둡니다)
     private string currentEquipment = "";
-
-    // ★ 추가: 현재 손에 들고 있는 아이템의 전체 데이터 참조
     private ItemData currentEquippedItemData = null;
+
+    [Header("UI & Effect")]
+    public GameObject attackRangeIndicator;
 
     private void Awake()
     {
@@ -44,7 +44,6 @@ public class PlayerMove : MonoBehaviour
         event_time = false;
     }
 
-    // ★ 추가: 인벤토리 아이템 변경 시 손에 든 장비도 동기화하도록 이벤트 구독
     private void Start()
     {
         if (inventory != null)
@@ -52,11 +51,17 @@ public class PlayerMove : MonoBehaviour
             inventory.onItemChangedCallback += UpdateCurrentEquipment;
         }
 
-        // ★ 추가: 시작 시 체력 초기화
         currentHealth = maxHealth;
+
+        // ★ 수정: 시작 시 확실하게 빈손 처리 및 사거리 UI 끄기
+        selectedQuickSlotIndex = -1;
+        if (attackRangeIndicator != null)
+        {
+            attackRangeIndicator.SetActive(false);
+        }
+        UpdateCurrentEquipment();
     }
 
-    // ★ 추가: 메모리 누수 방지용 이벤트 해제
     private void OnDestroy()
     {
         if (inventory != null)
@@ -69,17 +74,17 @@ public class PlayerMove : MonoBehaviour
     {
         Quickslot();
 
-        // 마우스 클릭 시 농사/도살 행동 처리
         if (Mouse.current.leftButton.wasPressedThisFrame && !event_time)
         {
             OnMouseClick();
         }
 
-        // F키 누를 시 스폰된 오브젝트 파괴
         if (Keyboard.current.fKey.wasPressedThisFrame)
         {
             TryDestroyNearestSpawnedObject();
         }
+
+        // ★ 수정: Update() 안에 있던 중복된 키보드 입력 for문 삭제 (Quickslot 함수로 통합)
     }
 
     private void LateUpdate()
@@ -100,14 +105,11 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() //WeatherManager 플레이어가 날씨 영향받게 수정함(2026-03-01)
+    private void FixedUpdate()
     {
         if (!event_time)
         {
-            // 날씨 매니저의 인스턴스가 있을 경우 배율을 가져옴, 없으면 1.0f(기본값)
             float speedModifier = (WeatherManager.Instance != null) ? WeatherManager.Instance.GetSpeedModifier() : 1.0f;
-
-            // 최종 속도 = 기본 속도 * 날씨 배율
             rigid.linearVelocity = inputVec * (speed * speedModifier);
         }
         else
@@ -116,27 +118,23 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    // 마우스 클릭 함수 (동물 도살 및 농사)
     private void OnMouseClick()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorldPos.z = 0;
 
-        // 1. 무기를 들고 있을 때의 처리 (전투)
         if (currentEquippedItemData != null && currentEquippedItemData.equipSlot == EquipmentSlotType.Weapon)
         {
-            // 변경점 1: 정확한 점 클릭 대신, 마우스 클릭 위치 주변(반지름 0.3f)의 모든 것을 검사해서 타격 판정을 후하게 만듦
             Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, 0.3f);
 
             foreach (var hit in hits)
             {
                 float dist = Vector2.Distance(transform.position, hit.transform.position);
-                if (dist > 1.5f) continue; // 거리가 멀면 패스
+                if (dist > 1.5f) continue;
 
                 int damage = currentEquippedItemData.atk;
                 if (damage <= 0) damage = 1;
 
-                // [A] 동물 사냥 체크
                 AnimalHealth animal = hit.GetComponent<AnimalHealth>();
                 if (animal != null)
                 {
@@ -144,11 +142,9 @@ public class PlayerMove : MonoBehaviour
                     break;
                 }
 
-                // [B] 나무 벌목 체크 (★ 추가된 부분)
                 TreeHealth tree = hit.GetComponent<TreeHealth>();
                 if (tree != null)
                 {
-                    // 손에 든 무기의 Type이 "Axe"일 때만 타격 가능!
                     if (currentEquippedItemData.type == "Axe")
                     {
                         tree.TakeDamage(damage);
@@ -159,21 +155,18 @@ public class PlayerMove : MonoBehaviour
                         Debug.Log("이 무기로는 나무를 벨 수 없습니다! 도끼가 필요합니다.");
                     }
                 }
-                // [C] 적 체크 
+
                 EnemyBaseAI enemy = hit.GetComponent<EnemyBaseAI>();
                 if (enemy != null)
                 {
                     enemy.TakeDamage(damage);
                     Debug.Log($"[{enemy.name}]에게 무기 데미지 {damage}를 입혔습니다!");
-                    break; // 한 번에 하나의 타겟만 공격하도록 break (광역 공격을 원하시면 제거 가능)
+                    break;
                 }
             }
-
-            // 변경점 2: 무기를 들고 클릭했다면, 때렸든 못 때렸든 여기서 함수를 종료! (아래 농사 로직으로 넘어가지 않음)
             return;
         }
 
-        // 2. 무기가 아닐 때 (농사 도구 등)의 처리
         Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
         tilePos.z = 0;
 
@@ -183,25 +176,12 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-
     private void HandleFarmAction(Vector3Int tilePosition)
     {
-        if (currentEquipment == "Hoe")
-        {
-            landTileManager.PlowSoil(tilePosition);
-        }
-        else if (currentEquipment == "Seeds")
-        {
-            landTileManager.PlantSeed(tilePosition);
-        }
-        else if (currentEquipment == "Water")
-        {
-            landTileManager.WaterTile(tilePosition);
-        }
-        else if (currentEquipment == "Harvest")
-        {
-            landTileManager.HarvestCrop(tilePosition);
-        }
+        if (currentEquipment == "Hoe") landTileManager.PlowSoil(tilePosition);
+        else if (currentEquipment == "Seeds") landTileManager.PlantSeed(tilePosition);
+        else if (currentEquipment == "Water") landTileManager.WaterTile(tilePosition);
+        else if (currentEquipment == "Harvest") landTileManager.HarvestCrop(tilePosition);
     }
 
     private void OnInventory()
@@ -209,42 +189,50 @@ public class PlayerMove : MonoBehaviour
         if (inventory != null)
         {
             inventory.ToggleUI();
-            Debug.Log($"인벤토리 상태: {inventory.isInventoryOpen}");
         }
     }
 
-    // ★ 수정됨: 실제 인벤토리(Inventory.instance.quickSlots) 데이터를 기반으로 장비 변경
     private void Quickslot()
     {
-        // 1. 키보드 숫자 키 (1~5번)
-        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectQuickSlot(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2)) SelectQuickSlot(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3)) SelectQuickSlot(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectQuickSlot(3);
-        else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(4);
+        // ★ 수정: 숫자 키를 누를 때 무조건 장착이 아니라 '토글(Toggle)' 되도록 변경
+        if (Input.GetKeyDown(KeyCode.Alpha1)) ToggleQuickSlot(0);
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleQuickSlot(1);
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleQuickSlot(2);
+        else if (Input.GetKeyDown(KeyCode.Alpha4)) ToggleQuickSlot(3);
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) ToggleQuickSlot(4);
 
-        // 2. 마우스 휠 스크롤로 퀵슬롯 이동
         float scroll = Mouse.current.scroll.ReadValue().y;
-
-        if (scroll > 0) // 휠 위로 굴림 (이전 슬롯)
+        if (scroll > 0)
         {
             int newIndex = selectedQuickSlotIndex - 1;
             if (newIndex < 0 && Inventory.instance != null && Inventory.instance.quickSlots != null)
                 newIndex = Inventory.instance.quickSlots.Length - 1;
-
             SelectQuickSlot(newIndex);
         }
-        else if (scroll < 0) // 휠 아래로 굴림 (다음 슬롯)
+        else if (scroll < 0)
         {
             int newIndex = selectedQuickSlotIndex + 1;
             if (Inventory.instance != null && Inventory.instance.quickSlots != null && newIndex >= Inventory.instance.quickSlots.Length)
                 newIndex = 0;
-
             SelectQuickSlot(newIndex);
         }
     }
 
-    // ★ 추가: 공통 슬롯 선택 로직
+    // ★ 추가: 같은 키를 누르면 맨손(-1)으로 바꾸는 토글 전용 함수
+    private void ToggleQuickSlot(int index)
+    {
+        if (selectedQuickSlotIndex == index)
+        {
+            selectedQuickSlotIndex = -1; // 이미 들고 있는 무기면 집어넣기
+        }
+        else
+        {
+            selectedQuickSlotIndex = index; // 다른 무기면 꺼내기
+        }
+        event_time = false;
+        UpdateCurrentEquipment();
+    }
+
     private void SelectQuickSlot(int index)
     {
         if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
@@ -252,30 +240,49 @@ public class PlayerMove : MonoBehaviour
 
         selectedQuickSlotIndex = index;
         event_time = false;
-
-        UpdateCurrentEquipment(); // 선택 직후 인벤토리 데이터를 읽어 장착 갱신
+        UpdateCurrentEquipment();
     }
 
-    // ★ 추가: 인벤토리의 퀵슬롯 배열에서 현재 아이템 정보를 가져와 currentEquipment에 등록
     private void UpdateCurrentEquipment()
     {
         if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
-        if (selectedQuickSlotIndex < 0 || selectedQuickSlotIndex >= Inventory.instance.quickSlots.Length) return;
+
+        // ★ 수정: 빈손(-1)일 때 강제로 사거리 UI를 끄고 초기화!
+        if (selectedQuickSlotIndex < 0 || selectedQuickSlotIndex >= Inventory.instance.quickSlots.Length)
+        {
+            currentEquipment = "";
+            currentEquippedItemData = null;
+            if (attackRangeIndicator != null)
+            {
+                attackRangeIndicator.SetActive(false);
+            }
+            return;
+        }
 
         Item selectedItem = Inventory.instance.quickSlots[selectedQuickSlotIndex];
 
         if (selectedItem != null && selectedItem.data != null)
         {
             currentEquipment = selectedItem.data.itemID;
-            // ★ 추가: 아이템 데이터 원본을 저장
             currentEquippedItemData = selectedItem.data;
 
+            if (attackRangeIndicator != null)
+            {
+                bool isWeapon = (currentEquippedItemData.equipSlot == EquipmentSlotType.Weapon);
+                attackRangeIndicator.SetActive(isWeapon);
+            }
             Debug.Log($"[퀵슬롯 {selectedQuickSlotIndex + 1}번] 장착됨: {currentEquipment}");
         }
         else
         {
             currentEquipment = "";
-            currentEquippedItemData = null; // ★ 빈 칸이면 null
+            currentEquippedItemData = null;
+
+            // ★ 수정: 빈 칸일 때도 강제로 사거리 UI 끄기
+            if (attackRangeIndicator != null)
+            {
+                attackRangeIndicator.SetActive(false);
+            }
         }
     }
 
@@ -289,7 +296,6 @@ public class PlayerMove : MonoBehaviour
         for (int i = objectSpawner.spawnedObjects.Count - 1; i >= 0; i--)
         {
             GameObject obj = objectSpawner.spawnedObjects[i];
-
             if (obj == null)
             {
                 objectSpawner.spawnedObjects.RemoveAt(i);
@@ -324,26 +330,20 @@ public class PlayerMove : MonoBehaviour
         if (collision.gameObject == collidedObject)
         {
             collidedObject = null;
-            Debug.Log("충돌 객체 해제됨");
         }
     }
 
-    //데미지 및 Die 코드 추가 
     public void TakeDamage(float damage)
     {
         if (isDead || event_time) return;
 
         currentHealth -= damage;
-        Debug.Log($"플레이어가 {damage}의 데미지를 받았습니다! 현재 체력: {currentHealth} / {maxHealth}");
 
-        // ★ 빨간색 깜빡임 코루틴 실행
         if (flashCoroutine != null)
         {
-            StopCoroutine(flashCoroutine); // 이미 깜빡이고 있었다면 중지하고 새로 시작
+            StopCoroutine(flashCoroutine);
         }
         flashCoroutine = StartCoroutine(FlashRedCoroutine());
-
-        // TODO: 추후 피격 애니메이션이 준비되면 여기에 추가 (예: anim.SetTrigger("Hit");)
 
         if (currentHealth <= 0)
         {
@@ -353,28 +353,15 @@ public class PlayerMove : MonoBehaviour
 
     private IEnumerator FlashRedCoroutine()
     {
-        // 원래 2D 스프라이트의 기본 색상은 투명도가 없는 완전히 밝은 흰색(Color.white)입니다.
         spriteRenderer.color = Color.red;
-
-        // 0.1초 동안 대기 (원하는 속도에 따라 0.15f 등으로 조절 가능)
         yield return new WaitForSeconds(0.1f);
-
         spriteRenderer.color = Color.white;
     }
 
     private void Die()
     {
-        // 테스트 단계: 사망 상태(isDead)를 true로 만들지 않고 곧바로 체력 회복
-        // 플레이어 사망 애니메이션 및 화면 UI 추가시 수정 
-        Debug.Log("플레이어 체력이 0이 되었습니다! (테스트: 체력을 100으로 리셋합니다)");
-
-        // 체력을 다시 최대 체력(100)으로 복구
         currentHealth = maxHealth;
-
-        // 사망 시 색상 초기화 (빨간색 상태로 굳는 것 방지)
         if (flashCoroutine != null) StopCoroutine(flashCoroutine);
         spriteRenderer.color = Color.white;
-
-
     }
 }
