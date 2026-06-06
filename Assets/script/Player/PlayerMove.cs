@@ -135,13 +135,20 @@ public class PlayerMove : MonoBehaviour
                 int damage = currentEquippedItemData.atk;
                 if (damage <= 0) damage = 1;
 
+                // --------------------------------------------------------
+                // 모든 개체가 EnemyBaseAI로 통합되었으므로
+                // 기존 AnimalHealth 타격 검사는 주석 처리하거나 삭제함
+                // --------------------------------------------------------
+                /*
                 AnimalHealth animal = hit.GetComponent<AnimalHealth>();
                 if (animal != null)
                 {
                     animal.TakeDamage(damage);
                     break;
                 }
+                */
 
+                // 나무 벌목 연동
                 TreeHealth tree = hit.GetComponent<TreeHealth>();
                 if (tree != null)
                 {
@@ -156,10 +163,11 @@ public class PlayerMove : MonoBehaviour
                     }
                 }
 
+                // ★ [최종 연동 확인] 선공 몬스터 / 비선공 동물 모두 EnemyBaseAI를 치도록 통합 연동
                 EnemyBaseAI enemy = hit.GetComponent<EnemyBaseAI>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(damage);
+                    enemy.TakeDamage(damage); // 체력 차감, 빨간 깜빡임, 사망 시 아이템 드랍 연쇄 시동
                     Debug.Log($"[{enemy.name}]에게 무기 데미지 {damage}를 입혔습니다!");
                     break;
                 }

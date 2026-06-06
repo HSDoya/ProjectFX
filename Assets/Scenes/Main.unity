@@ -1463,7 +1463,6 @@ GameObject:
   - component: {fileID: 243217327}
   - component: {fileID: 243217326}
   - component: {fileID: 243217325}
-  - component: {fileID: 243217324}
   - component: {fileID: 243217328}
   m_Layer: 3
   m_Name: Chicken
@@ -1542,29 +1541,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 684178961192891762}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &243217324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 243217321}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animalType: 1
-  moveSpeed: 0.4
-  minMoveTime: 3
-  maxMoveTime: 7
-  minIdleTime: 3
-  maxIdleTime: 15
-  peckProbability: 5
-  walkableTilemaps:
-  - {fileID: 1051139131}
-  blockedTilemaps:
-  - {fileID: 1214443929}
 --- !u!95 &243217325
 Animator:
   serializedVersion: 7
@@ -1669,16 +1645,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 243217321}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d46e736f592d51499f1b8ee6344b426, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d47b6c6f6988764687b1e7c19692ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 30
-  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
+  stats: {fileID: 11400000, guid: 1db1e707d520b7c4083b3773fecdab4b, type: 2}
+  targetTransform: {fileID: 0}
+  minWalkTime: 1.5
+  maxWalkTime: 3.5
+  minIdleTime: 1
+  maxIdleTime: 4
+  wanderAnimStyle: 1
+  chaseAnimStyle: 1
+  fieldItemPrefab: {fileID: 8502303760413215344, guid: bd2868df0814dcd4097ebfbcae8d4548, type: 3}
   dropRules:
-  - itemID: Chicken
+  - itemID: chickn
     minDrop: 1
-    maxDrop: 2
-    dropChance: 100
+    maxDrop: 1
+    dropChance: 5
+  walkableTilemaps:
+  - {fileID: 1051139131}
+  blockedTilemaps:
+  - {fileID: 1214443929}
 --- !u!1 &249002697
 GameObject:
   m_ObjectHideFlags: 0
@@ -19746,7 +19733,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1877212269}
-  - component: {fileID: 1877212270}
   m_Layer: 0
   m_Name: EnemyDataManager
   m_TagString: Untagged
@@ -19770,18 +19756,6 @@ Transform:
   - {fileID: 1085674921211893253}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1877212270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1877212267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f16ebd29766e4974eb191301cfc4c3da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1896207363
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22918,29 +22892,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 7320878614101760187}
   countText: {fileID: 3725341132295374910}
---- !u!114 &3618868777998022472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4421147239190456030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e9178a1002dc6748a05bfe8248fda1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animalType: 0
-  moveSpeed: 0.2
-  minMoveTime: 3
-  maxMoveTime: 7
-  minIdleTime: 4
-  maxIdleTime: 15
-  peckProbability: 30
-  walkableTilemaps:
-  - {fileID: 1051139131}
-  blockedTilemaps:
-  - {fileID: 1214443929}
 --- !u!114 &3725341131625393553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24225,7 +24176,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7492941268922218337}
   - component: {fileID: 2133149556754362216}
-  - component: {fileID: 3618868777998022472}
   - component: {fileID: 6275056485628184046}
   - component: {fileID: 1121445954410455681}
   - component: {fileID: 7422467048764444836}
@@ -24671,12 +24621,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d47b6c6f6988764687b1e7c19692ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyItemID: Slime_01
+  stats: {fileID: 11400000, guid: 10582c4942314f049854c798ec70f856, type: 2}
   targetTransform: {fileID: 6234071091465051156}
   minWalkTime: 1.5
   maxWalkTime: 3.5
   minIdleTime: 1
   maxIdleTime: 3
+  wanderAnimStyle: 1
+  chaseAnimStyle: 1
+  fieldItemPrefab: {fileID: 5729694254161347360, guid: 114d9f3a8b1930446887bd9eb350c8dc, type: 3}
+  dropRules:
+  - itemID: slime
+    minDrop: 1
+    maxDrop: 1
+    dropChance: 5
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
@@ -26543,16 +26501,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 4421147239190456030}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d46e736f592d51499f1b8ee6344b426, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d47b6c6f6988764687b1e7c19692ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 30
-  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
+  stats: {fileID: 11400000, guid: e5ed529bf973ee04ea367db0a40e8843, type: 2}
+  targetTransform: {fileID: 0}
+  minWalkTime: 1.5
+  maxWalkTime: 3.5
+  minIdleTime: 1
+  maxIdleTime: 4
+  wanderAnimStyle: 0
+  chaseAnimStyle: 0
+  fieldItemPrefab: {fileID: 3599026317574321350, guid: 63e9b481ba567124b9996ec30829da1a, type: 3}
   dropRules:
-  - itemID: Meat
+  - itemID: meet
     minDrop: 1
-    maxDrop: 3
-    dropChance: 100
+    maxDrop: 1
+    dropChance: 5
+  walkableTilemaps:
+  - {fileID: 1051139131}
+  blockedTilemaps:
+  - {fileID: 1214443929}
 --- !u!50 &8438013331671520196
 Rigidbody2D:
   serializedVersion: 5

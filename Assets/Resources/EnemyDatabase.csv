@@ -1,2 +1,4 @@
-itemID,enemyName,maxHealth,detectRange,attackRange,moveSpeed,attackDamage,attackCooldown,animType
-Slime_01,초록 슬라임,20,5,1.2,2,0.5,1.5,SimpleAnimation
+itemID,enemyName,maxHealth,isAggressive,detectRange,attackRange,moveSpeed,attackDamage,attackCooldown,animType
+Chicken_01,닭,15,0,0,0,1.5,0,0,0
+Cow_01,젖소,50,0,0,0,1,0,0,0
+Slime_01,초록 슬라임,30,5,1.2,1.2,2,5,1.5,SimpleAnimation
