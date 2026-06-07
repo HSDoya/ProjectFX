@@ -24634,7 +24634,7 @@ MonoBehaviour:
   - itemID: slime
     minDrop: 1
     maxDrop: 1
-    dropChance: 5
+    dropChance: 100
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
@@ -26514,10 +26514,10 @@ MonoBehaviour:
   chaseAnimStyle: 0
   fieldItemPrefab: {fileID: 3599026317574321350, guid: 63e9b481ba567124b9996ec30829da1a, type: 3}
   dropRules:
-  - itemID: meet
-    minDrop: 1
-    maxDrop: 1
-    dropChance: 5
+  - itemID: Meet
+    minDrop: 2
+    maxDrop: 3
+    dropChance: 100
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
