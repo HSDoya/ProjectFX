@@ -36,6 +36,14 @@ public class PlayerMove : MonoBehaviour
     [Header("UI & Effect")]
     public GameObject attackRangeIndicator;
 
+    // --------------------------------------------------------
+    // [회피 시스템 추가] 변수 선언
+    // --------------------------------------------------------
+    [Header("Dodge System")]
+    public float dodgeSpeedMultiplier = 2.0f; // 평소보다 이동할 배수 (원하는 거리만큼 조정)
+    public float dodgeDuration = 0.4f;        // 회피 지속 시간
+    public bool isDodging = false;            // 현재 회피 중인지 (무적 상태 판별)
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -74,7 +82,7 @@ public class PlayerMove : MonoBehaviour
     {
         Quickslot();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame && !event_time)
+        if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging)
         {
             OnMouseClick();
         }
@@ -84,11 +92,20 @@ public class PlayerMove : MonoBehaviour
             TryDestroyNearestSpawnedObject();
         }
 
-        // ★ 수정: Update() 안에 있던 중복된 키보드 입력 for문 삭제 (Quickslot 함수로 통합)
+        // --------------------------------------------------------
+        // [회피 시스템 추가] 스페이스바 입력 감지
+        // (Input System의 Action Map을 사용 중이시라면 OnDodge 등의 함수로 분리하셔도 좋습니다.)
+        // --------------------------------------------------------
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && !isDodging && !event_time)
+        {
+            StartCoroutine(DodgeRoutine());
+        }
     }
 
     private void LateUpdate()
     {
+        if (isDodging) return; // [회피 시스템 추가] 회피 중에는 애니메이션 속도나 방향 전환 고정
+
         anim.SetFloat("Speed", inputVec.magnitude);
         if (inputVec.x != 0)
         {
@@ -107,6 +124,8 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDodging) return; // [회피 시스템 추가] 회피 중에는 코루틴에서 속도를 제어함
+
         if (!event_time)
         {
             float speedModifier = (WeatherManager.Instance != null) ? WeatherManager.Instance.GetSpeedModifier() : 1.0f;
@@ -116,6 +135,49 @@ public class PlayerMove : MonoBehaviour
         {
             rigid.linearVelocity = Vector2.zero;
         }
+    }
+
+    // --------------------------------------------------------
+    // [회피 시스템 추가] 회피 코루틴
+    // --------------------------------------------------------
+    private IEnumerator DodgeRoutine()
+    {
+        isDodging = true;
+
+        // 회피 방향 결정 (가만히 서있을 때는 현재 바라보는 방향, 이동 중일 때는 이동 방향)
+        Vector2 dodgeDir = inputVec;
+        if (dodgeDir == Vector2.zero)
+        {
+            dodgeDir = spriteRenderer.flipX ? Vector2.left : Vector2.right;
+        }
+        dodgeDir.Normalize();
+
+        float timer = 0f;
+        float currentAngle = 0f;
+        float targetAngle = -360f; // 시계 방향 회전 (-360도)
+
+        while (timer < dodgeDuration)
+        {
+            timer += Time.deltaTime;
+
+            // 1. 회피 이동 (평소 속도 * 배수)
+            rigid.linearVelocity = dodgeDir * (speed * dodgeSpeedMultiplier);
+
+            // 2. 시계방향 회전
+            float angleStep = (targetAngle / dodgeDuration) * Time.deltaTime;
+            currentAngle += angleStep;
+
+            // 주의: 스프라이트만 회전시킬지 전체를 회전시킬지 결정해야 합니다.
+            // 여기서는 충돌체 등도 함께 회전해도 무방하다고 가정하여 본체를 회전시킵니다.
+            transform.rotation = Quaternion.Euler(0, 0, currentAngle);
+
+            yield return null;
+        }
+
+        // 회피 종료 후 상태 초기화
+        transform.rotation = Quaternion.identity; // 회전 0도로 복구
+        rigid.linearVelocity = Vector2.zero;      // 관성 제거
+        isDodging = false;
     }
 
     private void OnMouseClick()
@@ -135,20 +197,6 @@ public class PlayerMove : MonoBehaviour
                 int damage = currentEquippedItemData.atk;
                 if (damage <= 0) damage = 1;
 
-                // --------------------------------------------------------
-                // 모든 개체가 EnemyBaseAI로 통합되었으므로
-                // 기존 AnimalHealth 타격 검사는 주석 처리하거나 삭제함
-                // --------------------------------------------------------
-                /*
-                AnimalHealth animal = hit.GetComponent<AnimalHealth>();
-                if (animal != null)
-                {
-                    animal.TakeDamage(damage);
-                    break;
-                }
-                */
-
-                // 나무 벌목 연동
                 TreeHealth tree = hit.GetComponent<TreeHealth>();
                 if (tree != null)
                 {
@@ -163,11 +211,10 @@ public class PlayerMove : MonoBehaviour
                     }
                 }
 
-                // ★ [최종 연동 확인] 선공 몬스터 / 비선공 동물 모두 EnemyBaseAI를 치도록 통합 연동
                 EnemyBaseAI enemy = hit.GetComponent<EnemyBaseAI>();
                 if (enemy != null)
                 {
-                    enemy.TakeDamage(damage); // 체력 차감, 빨간 깜빡임, 사망 시 아이템 드랍 연쇄 시동
+                    enemy.TakeDamage(damage);
                     Debug.Log($"[{enemy.name}]에게 무기 데미지 {damage}를 입혔습니다!");
                     break;
                 }
@@ -202,7 +249,6 @@ public class PlayerMove : MonoBehaviour
 
     private void Quickslot()
     {
-        // ★ 수정: 숫자 키를 누를 때 무조건 장착이 아니라 '토글(Toggle)' 되도록 변경
         if (Input.GetKeyDown(KeyCode.Alpha1)) ToggleQuickSlot(0);
         else if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleQuickSlot(1);
         else if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleQuickSlot(2);
@@ -226,16 +272,15 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    // ★ 추가: 같은 키를 누르면 맨손(-1)으로 바꾸는 토글 전용 함수
     private void ToggleQuickSlot(int index)
     {
         if (selectedQuickSlotIndex == index)
         {
-            selectedQuickSlotIndex = -1; // 이미 들고 있는 무기면 집어넣기
+            selectedQuickSlotIndex = -1;
         }
         else
         {
-            selectedQuickSlotIndex = index; // 다른 무기면 꺼내기
+            selectedQuickSlotIndex = index;
         }
         event_time = false;
         UpdateCurrentEquipment();
@@ -255,7 +300,6 @@ public class PlayerMove : MonoBehaviour
     {
         if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
 
-        // ★ 수정: 빈손(-1)일 때 강제로 사거리 UI를 끄고 초기화!
         if (selectedQuickSlotIndex < 0 || selectedQuickSlotIndex >= Inventory.instance.quickSlots.Length)
         {
             currentEquipment = "";
@@ -286,7 +330,6 @@ public class PlayerMove : MonoBehaviour
             currentEquipment = "";
             currentEquippedItemData = null;
 
-            // ★ 수정: 빈 칸일 때도 강제로 사거리 UI 끄기
             if (attackRangeIndicator != null)
             {
                 attackRangeIndicator.SetActive(false);
@@ -343,7 +386,10 @@ public class PlayerMove : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (isDead || event_time) return;
+        // --------------------------------------------------------
+        // [회피 시스템 추가] isDodging 상태일 때 무적 판정 부여
+        // --------------------------------------------------------
+        if (isDead || event_time || isDodging) return;
 
         currentHealth -= damage;
 

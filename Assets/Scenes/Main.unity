@@ -1656,12 +1656,12 @@ MonoBehaviour:
   maxIdleTime: 4
   wanderAnimStyle: 1
   chaseAnimStyle: 1
-  fieldItemPrefab: {fileID: 8502303760413215344, guid: bd2868df0814dcd4097ebfbcae8d4548, type: 3}
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
   dropRules:
-  - itemID: chickn
+  - itemID: Chicken
     minDrop: 1
     maxDrop: 1
-    dropChance: 5
+    dropChance: 100
   walkableTilemaps:
   - {fileID: 1051139131}
   blockedTilemaps:
@@ -21756,6 +21756,9 @@ MonoBehaviour:
   objectSpawner: {fileID: 1365982339}
   selectedQuickSlotIndex: 0
   attackRangeIndicator: {fileID: 215378571}
+  dodgeSpeedMultiplier: 2
+  dodgeDuration: 0.4
+  isDodging: 0
 --- !u!212 &2009538620054372083
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -25511,7 +25514,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6171795920561781455}
-  - {fileID: 7307171581342605160}
   - {fileID: 215378572}
   - {fileID: 1297344955}
   m_Father: {fileID: 0}
@@ -25950,11 +25952,11 @@ Transform:
   m_GameObject: {fileID: 7221958942305363718}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: -0.07, y: -0.08, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6234071091465051156}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7320878612882165958
 MonoBehaviour:
@@ -26512,9 +26514,9 @@ MonoBehaviour:
   maxIdleTime: 4
   wanderAnimStyle: 0
   chaseAnimStyle: 0
-  fieldItemPrefab: {fileID: 3599026317574321350, guid: 63e9b481ba567124b9996ec30829da1a, type: 3}
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
   dropRules:
-  - itemID: Meet
+  - itemID: Meat
     minDrop: 2
     maxDrop: 3
     dropChance: 100
@@ -26989,6 +26991,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1721243586}
+  - {fileID: 7307171581342605160}
   - {fileID: 6234071091465051156}
   - {fileID: 2064229487}
   - {fileID: 684178961192891762}
