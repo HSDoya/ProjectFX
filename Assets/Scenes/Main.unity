@@ -1648,7 +1648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d47b6c6f6988764687b1e7c19692ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 1db1e707d520b7c4083b3773fecdab4b, type: 2}
+  stats: {fileID: 11400000, guid: 662c754b210df6f4dad0f7261f67da4f, type: 2}
   targetTransform: {fileID: 0}
   minWalkTime: 1.5
   maxWalkTime: 3.5
@@ -21723,7 +21723,6 @@ GameObject:
   - component: {fileID: 5154640296364292895}
   - component: {fileID: 2804901198228486112}
   - component: {fileID: 5154640296364292896}
-  - component: {fileID: 5154640296364292897}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Untagged
@@ -24624,7 +24623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d47b6c6f6988764687b1e7c19692ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 10582c4942314f049854c798ec70f856, type: 2}
+  stats: {fileID: 11400000, guid: d622e3e3dc78bc2478fc8772138ff3f7, type: 2}
   targetTransform: {fileID: 6234071091465051156}
   minWalkTime: 1.5
   maxWalkTime: 3.5
@@ -24632,9 +24631,9 @@ MonoBehaviour:
   maxIdleTime: 3
   wanderAnimStyle: 1
   chaseAnimStyle: 1
-  fieldItemPrefab: {fileID: 5729694254161347360, guid: 114d9f3a8b1930446887bd9eb350c8dc, type: 3}
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
   dropRules:
-  - itemID: slime
+  - itemID: GreenSlime_item
     minDrop: 1
     maxDrop: 1
     dropChance: 100
@@ -24642,24 +24641,6 @@ MonoBehaviour:
   - {fileID: 1051139131}
   blockedTilemaps:
   - {fileID: 1214443929}
---- !u!114 &5154640296364292897
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1538345137379261383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa6c58e158fb77046838b581cec78864, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
-  dropRules:
-  - itemID: GreenSlime_item
-    dropChance: 100
-    minDrop: 1
-    maxDrop: 3
 --- !u!212 &5373119019852454117
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -26506,7 +26487,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d47b6c6f6988764687b1e7c19692ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: e5ed529bf973ee04ea367db0a40e8843, type: 2}
+  stats: {fileID: 11400000, guid: ef7ccbd6d780dcb4b88bd118dbc9c9cd, type: 2}
   targetTransform: {fileID: 0}
   minWalkTime: 1.5
   maxWalkTime: 3.5

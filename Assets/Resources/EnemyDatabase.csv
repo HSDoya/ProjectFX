@@ -1,4 +1,4 @@
 itemID,enemyName,maxHealth,isAggressive,detectRange,attackRange,moveSpeed,attackDamage,attackCooldown,animType
-Chicken_01,¥ﬂ,15,0,0,0,1.5,0,0,0
-Cow_01,¡•º“,50,0,0,0,1,0,0,0
-Slime_01,√ ∑œ ΩΩ∂Û¿”,30,5,1.2,1.2,2,5,1.5,SimpleAnimation
+Chicken_01,Chicken,10,FALSE,0,0,1.5,0,0,SimpleAnimation
+Cow_01,Cow,50,FALSE,0,0,1,0,0,BlendTree
+Slime_01,Slime,30,TRUE,5,1.2,2,15,2,SimpleAnimation
