@@ -46,7 +46,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 496b150f5a073e74692e3daac4b3afb0, type: 2}
+  m_Motion: {fileID: 7400000, guid: ad8fb20d71a091b438c354b12d13cf0f, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -73,7 +73,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 9d911bedbc0af934fac4d0f27694cdf6, type: 2}
+  m_Motion: {fileID: 7400000, guid: fa2f537887b0c644eafdef469d40fd44, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -115,10 +115,10 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 6855710290797429529}
-    m_Position: {x: 280, y: 110, z: 0}
+    m_Position: {x: 270, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6332997792455755020}
-    m_Position: {x: 280, y: 200, z: 0}
+    m_Position: {x: 270, y: 200, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4961626852892353217}
     m_Position: {x: 510, y: 110, z: 0}
@@ -138,7 +138,7 @@ AnimatorController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Slime(green)
+  m_Name: Slime(blue)
   serializedVersion: 5
   m_AnimatorParameters:
   - m_Name: Speed
@@ -241,7 +241,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: b8cd8229b797bba46ad1c2a290317903, type: 2}
+  m_Motion: {fileID: 7400000, guid: 6c94406700c32c745abc559252cc6dfb, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

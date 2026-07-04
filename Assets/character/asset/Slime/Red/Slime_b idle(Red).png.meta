@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: 03f3c758312b1ef4084ebf46581cead7
+guid: ef786a7db140a46498b6598bc3f7f5cc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7991680616042928307
-    second: SlimeRed_b_0
+      213: -4909640397353170432
+    second: Slime_b idle(Red)_0
+  - first:
+      213: 4454402304669308046
+    second: Slime_b idle(Red)_1
+  - first:
+      213: 1204270689761652173
+    second: Slime_b idle(Red)_2
+  - first:
+      213: -9037077667215279172
+    second: Slime_b idle(Red)_3
+  - first:
+      213: -6020327224928481960
+    second: Slime_b idle(Red)_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +125,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SlimeRed_b_0
+      name: Slime_b idle(Red)_0
       rect:
         serializedVersion: 2
         x: 335
@@ -128,8 +140,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d47e26a42d8d71190800000000000000
-      internalID: -7991680616042928307
+      spriteID: 00a4bdc22147ddbb0800000000000000
+      internalID: -4909640397353170432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_b idle(Red)_1
+      rect:
+        serializedVersion: 2
+        x: 1359
+        y: 431
+        width: 354
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e84de70bb4731dd30800000000000000
+      internalID: 4454402304669308046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_b idle(Red)_2
+      rect:
+        serializedVersion: 2
+        x: 2383
+        y: 431
+        width: 354
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcd68a4dfcd66b010800000000000000
+      internalID: 1204270689761652173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_b idle(Red)_3
+      rect:
+        serializedVersion: 2
+        x: 3407
+        y: 431
+        width: 354
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbb740efdb9d59280800000000000000
+      internalID: -9037077667215279172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_b idle(Red)_4
+      rect:
+        serializedVersion: 2
+        x: 4431
+        y: 431
+        width: 354
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85d46863940837ca0800000000000000
+      internalID: -6020327224928481960
       vertices: []
       indices: 
       edges: []
@@ -148,7 +248,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SlimeRed_b_0: -7991680616042928307
+      Slime_b idle(Red)_0: -4909640397353170432
+      Slime_b idle(Red)_1: 4454402304669308046
+      Slime_b idle(Red)_2: 1204270689761652173
+      Slime_b idle(Red)_3: -9037077667215279172
+      Slime_b idle(Red)_4: -6020327224928481960
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

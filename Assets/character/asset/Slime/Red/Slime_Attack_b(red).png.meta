@@ -1,0 +1,1248 @@
+fileFormatVersion: 2
+guid: d151a2de59a76b149a087c41ccfeb355
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 396632189598013241
+    second: Slime_Attack_b(red)_0
+  - first:
+      213: -7389019581968455041
+    second: Slime_Attack_b(red)_1
+  - first:
+      213: -6502249940407845034
+    second: Slime_Attack_b(red)_2
+  - first:
+      213: 394976150736308106
+    second: Slime_Attack_b(red)_3
+  - first:
+      213: -5526976406153864309
+    second: Slime_Attack_b(red)_4
+  - first:
+      213: 7276145764996238784
+    second: Slime_Attack_b(red)_5
+  - first:
+      213: -1481464103027273436
+    second: Slime_Attack_b(red)_6
+  - first:
+      213: -7651213861096012215
+    second: Slime_Attack_b(red)_7
+  - first:
+      213: -1961339023482105358
+    second: Slime_Attack_b(red)_8
+  - first:
+      213: -5774573093089809472
+    second: Slime_Attack_b(red)_9
+  - first:
+      213: -5616040720325318212
+    second: Slime_Attack_b(red)_10
+  - first:
+      213: -7772060983163530819
+    second: Slime_Attack_b(red)_11
+  - first:
+      213: -27526857044986606
+    second: Slime_Attack_b(red)_12
+  - first:
+      213: -62254189313959980
+    second: Slime_Attack_b(red)_13
+  - first:
+      213: -4982373178136974766
+    second: Slime_Attack_b(red)_14
+  - first:
+      213: -4151681528918742857
+    second: Slime_Attack_b(red)_15
+  - first:
+      213: 2764685158204081064
+    second: Slime_Attack_b(red)_16
+  - first:
+      213: -4202158041179260250
+    second: Slime_Attack_b(red)_17
+  - first:
+      213: 7388518880984086888
+    second: Slime_Attack_b(red)_18
+  - first:
+      213: -7377600321349095167
+    second: Slime_Attack_b(red)_19
+  - first:
+      213: -3081527978652555443
+    second: Slime_Attack_b(red)_20
+  - first:
+      213: -6738621250523060958
+    second: Slime_Attack_b(red)_21
+  - first:
+      213: 2997249744344051030
+    second: Slime_Attack_b(red)_22
+  - first:
+      213: 7928919551300828403
+    second: Slime_Attack_b(red)_23
+  - first:
+      213: -451738466838288145
+    second: Slime_Attack_b(red)_24
+  - first:
+      213: -1691353809747818081
+    second: Slime_Attack_b(red)_25
+  - first:
+      213: -1705073501265552319
+    second: Slime_Attack_b(red)_26
+  - first:
+      213: 2956106189200010796
+    second: Slime_Attack_b(red)_27
+  - first:
+      213: -810743908810626370
+    second: Slime_Attack_b(red)_28
+  - first:
+      213: -6259224335207999481
+    second: Slime_Attack_b(red)_29
+  - first:
+      213: -4312777813194909654
+    second: Slime_Attack_b(red)_30
+  - first:
+      213: -4735960527002833858
+    second: Slime_Attack_b(red)_31
+  - first:
+      213: -2079012869255373839
+    second: Slime_Attack_b(red)_32
+  - first:
+      213: -6041575641532008547
+    second: Slime_Attack_b(red)_33
+  - first:
+      213: -4194481711171099155
+    second: Slime_Attack_b(red)_34
+  - first:
+      213: 8969520886018393264
+    second: Slime_Attack_b(red)_35
+  - first:
+      213: 4964969475230581546
+    second: Slime_Attack_b(red)_36
+  - first:
+      213: -4954856042809163251
+    second: Slime_Attack_b(red)_37
+  - first:
+      213: 7890412167166602987
+    second: Slime_Attack_b(red)_38
+  - first:
+      213: -2838812163974988540
+    second: Slime_Attack_b(red)_39
+  - first:
+      213: -6630234898050468818
+    second: Slime_Attack_b(red)_40
+  - first:
+      213: 2028151589256086188
+    second: Slime_Attack_b(red)_41
+  - first:
+      213: 4906691651615439345
+    second: Slime_Attack_b(red)_42
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 400
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_0
+      rect:
+        serializedVersion: 2
+        x: 4303
+        y: 2751
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 937997fffde118500800000000000000
+      internalID: 396632189598013241
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_1
+      rect:
+        serializedVersion: 2
+        x: 4319
+        y: 2479
+        width: 514
+        height: 290
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7a6d52c6dde47990800000000000000
+      internalID: -7389019581968455041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_2
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 2479
+        width: 354
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65f7f2d212e53c5a0800000000000000
+      internalID: -6502249940407845034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_3
+      rect:
+        serializedVersion: 2
+        x: 1375
+        y: 2479
+        width: 370
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a87836767bc3b7500800000000000000
+      internalID: 394976150736308106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_4
+      rect:
+        serializedVersion: 2
+        x: 2399
+        y: 2479
+        width: 386
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8bdb35ed3c3c43b0800000000000000
+      internalID: -5526976406153864309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_5
+      rect:
+        serializedVersion: 2
+        x: 3311
+        y: 2623
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cd4098c5001af460800000000000000
+      internalID: 7276145764996238784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_6
+      rect:
+        serializedVersion: 2
+        x: 3375
+        y: 2479
+        width: 434
+        height: 242
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42111975f38c07be0800000000000000
+      internalID: -1481464103027273436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_7
+      rect:
+        serializedVersion: 2
+        x: 4207
+        y: 2623
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 946c3dcf78d61d590800000000000000
+      internalID: -7651213861096012215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_8
+      rect:
+        serializedVersion: 2
+        x: 4255
+        y: 2639
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f1dc3dbc8ce7c4e0800000000000000
+      internalID: -1961339023482105358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_9
+      rect:
+        serializedVersion: 2
+        x: 3263
+        y: 2607
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cb6ad8ed589cdfa0800000000000000
+      internalID: -5774573093089809472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_10
+      rect:
+        serializedVersion: 2
+        x: 3327
+        y: 2591
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb961ec48b0df02b0800000000000000
+      internalID: -5616040720325318212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_11
+      rect:
+        serializedVersion: 2
+        x: 4271
+        y: 2607
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db15dd5c6b7142490800000000000000
+      internalID: -7772060983163530819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_12
+      rect:
+        serializedVersion: 2
+        x: 3359
+        y: 2559
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 215fc0828743e9ff0800000000000000
+      internalID: -27526857044986606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_13
+      rect:
+        serializedVersion: 2
+        x: 4303
+        y: 2575
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d759280524d22ff0800000000000000
+      internalID: -62254189313959980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_14
+      rect:
+        serializedVersion: 2
+        x: 3343
+        y: 2511
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25a26b20efd0bdab0800000000000000
+      internalID: -4982373178136974766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_15
+      rect:
+        serializedVersion: 2
+        x: 4287
+        y: 2511
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b86f3065a34266c0800000000000000
+      internalID: -4151681528918742857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_16
+      rect:
+        serializedVersion: 2
+        x: 3407
+        y: 2463
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a38c82e0822e5620800000000000000
+      internalID: 2764685158204081064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_17
+      rect:
+        serializedVersion: 2
+        x: 4351
+        y: 2463
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6aa7579868feea5c0800000000000000
+      internalID: -4202158041179260250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_18
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 1455
+        width: 562
+        height: 306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 869b255b6ca498660800000000000000
+      internalID: 7388518880984086888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_19
+      rect:
+        serializedVersion: 2
+        x: 1231
+        y: 1727
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 101fd2f889f7d9990800000000000000
+      internalID: -7377600321349095167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_20
+      rect:
+        serializedVersion: 2
+        x: 1247
+        y: 1455
+        width: 514
+        height: 290
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d47acfa41a63c35d0800000000000000
+      internalID: -3081527978652555443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_21
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 1615
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 225aca6ecab9b72a0800000000000000
+      internalID: -6738621250523060958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_22
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 1631
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65de1ca23ce589920800000000000000
+      internalID: 2997249744344051030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_23
+      rect:
+        serializedVersion: 2
+        x: 1183
+        y: 1615
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fc7feb925e290e60800000000000000
+      internalID: 7928919551300828403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_24
+      rect:
+        serializedVersion: 2
+        x: 2287
+        y: 1599
+        width: 34
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe869b0024a1bb9f0800000000000000
+      internalID: -451738466838288145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_25
+      rect:
+        serializedVersion: 2
+        x: 2351
+        y: 1455
+        width: 434
+        height: 242
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f994a74dbaa1788e0800000000000000
+      internalID: -1691353809747818081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_26
+      rect:
+        serializedVersion: 2
+        x: 3423
+        y: 1455
+        width: 386
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14c92293fac5658e0800000000000000
+      internalID: -1705073501265552319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_27
+      rect:
+        serializedVersion: 2
+        x: 4447
+        y: 1455
+        width: 370
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2ea99dbae2360920800000000000000
+      internalID: 2956106189200010796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_28
+      rect:
+        serializedVersion: 2
+        x: 127
+        y: 1599
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebae78fd5b8afb4f0800000000000000
+      internalID: -810743908810626370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_29
+      rect:
+        serializedVersion: 2
+        x: 1135
+        y: 1599
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 708527241a4c229a0800000000000000
+      internalID: -6259224335207999481
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_30
+      rect:
+        serializedVersion: 2
+        x: 1199
+        y: 1583
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a28d451dd6fe524c0800000000000000
+      internalID: -4312777813194909654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_31
+      rect:
+        serializedVersion: 2
+        x: 2239
+        y: 1583
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3c69bd2efc764eb0800000000000000
+      internalID: -4735960527002833858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_32
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 1567
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fb519c7fccd523e0800000000000000
+      internalID: -2079012869255373839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_33
+      rect:
+        serializedVersion: 2
+        x: 1231
+        y: 1551
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d97f4d2b6f2082ca0800000000000000
+      internalID: -6041575641532008547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_34
+      rect:
+        serializedVersion: 2
+        x: 2303
+        y: 1567
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de526c46b153ac5c0800000000000000
+      internalID: -4194481711171099155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_35
+      rect:
+        serializedVersion: 2
+        x: 2335
+        y: 1535
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b4c29829b32a7c70800000000000000
+      internalID: 8969520886018393264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_36
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 1487
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a23c6c3ae6d17e440800000000000000
+      internalID: 4964969475230581546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_37
+      rect:
+        serializedVersion: 2
+        x: 1215
+        y: 1487
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0289275ea0dc3bb0800000000000000
+      internalID: -4954856042809163251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_38
+      rect:
+        serializedVersion: 2
+        x: 2319
+        y: 1487
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: beea2639f00608d60800000000000000
+      internalID: 7890412167166602987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_39
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 1439
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40d7636a0638a98d0800000000000000
+      internalID: -2838812163974988540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_40
+      rect:
+        serializedVersion: 2
+        x: 1279
+        y: 1439
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e24bd4c1d7cacf3a0800000000000000
+      internalID: -6630234898050468818
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_41
+      rect:
+        serializedVersion: 2
+        x: 2383
+        y: 1439
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca2c044ff11752c10800000000000000
+      internalID: 2028151589256086188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Slime_Attack_b(red)_42
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 431
+        width: 354
+        height: 210
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f9b9e47f02181440800000000000000
+      internalID: 4906691651615439345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Slime_Attack_b(red)_0: 396632189598013241
+      Slime_Attack_b(red)_1: -7389019581968455041
+      Slime_Attack_b(red)_10: -5616040720325318212
+      Slime_Attack_b(red)_11: -7772060983163530819
+      Slime_Attack_b(red)_12: -27526857044986606
+      Slime_Attack_b(red)_13: -62254189313959980
+      Slime_Attack_b(red)_14: -4982373178136974766
+      Slime_Attack_b(red)_15: -4151681528918742857
+      Slime_Attack_b(red)_16: 2764685158204081064
+      Slime_Attack_b(red)_17: -4202158041179260250
+      Slime_Attack_b(red)_18: 7388518880984086888
+      Slime_Attack_b(red)_19: -7377600321349095167
+      Slime_Attack_b(red)_2: -6502249940407845034
+      Slime_Attack_b(red)_20: -3081527978652555443
+      Slime_Attack_b(red)_21: -6738621250523060958
+      Slime_Attack_b(red)_22: 2997249744344051030
+      Slime_Attack_b(red)_23: 7928919551300828403
+      Slime_Attack_b(red)_24: -451738466838288145
+      Slime_Attack_b(red)_25: -1691353809747818081
+      Slime_Attack_b(red)_26: -1705073501265552319
+      Slime_Attack_b(red)_27: 2956106189200010796
+      Slime_Attack_b(red)_28: -810743908810626370
+      Slime_Attack_b(red)_29: -6259224335207999481
+      Slime_Attack_b(red)_3: 394976150736308106
+      Slime_Attack_b(red)_30: -4312777813194909654
+      Slime_Attack_b(red)_31: -4735960527002833858
+      Slime_Attack_b(red)_32: -2079012869255373839
+      Slime_Attack_b(red)_33: -6041575641532008547
+      Slime_Attack_b(red)_34: -4194481711171099155
+      Slime_Attack_b(red)_35: 8969520886018393264
+      Slime_Attack_b(red)_36: 4964969475230581546
+      Slime_Attack_b(red)_37: -4954856042809163251
+      Slime_Attack_b(red)_38: 7890412167166602987
+      Slime_Attack_b(red)_39: -2838812163974988540
+      Slime_Attack_b(red)_4: -5526976406153864309
+      Slime_Attack_b(red)_40: -6630234898050468818
+      Slime_Attack_b(red)_41: 2028151589256086188
+      Slime_Attack_b(red)_42: 4906691651615439345
+      Slime_Attack_b(red)_5: 7276145764996238784
+      Slime_Attack_b(red)_6: -1481464103027273436
+      Slime_Attack_b(red)_7: -7651213861096012215
+      Slime_Attack_b(red)_8: -1961339023482105358
+      Slime_Attack_b(red)_9: -5774573093089809472
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c5d61d1b7f61f1245a61d88a7d6db029, type: 3}
-  m_Name: Slime_01_Slime
+  m_Name: Slime_02_Slime2(red)
   m_EditorClassIdentifier: 
-  itemID: Slime_01
-  enemyName: Slime
-  maxHealth: 30
+  itemID: Slime_02
+  enemyName: Slime2(red)
+  maxHealth: 40
   isAggressive: 1
-  detectRange: 5
-  attackRange: 1.2
-  moveSpeed: 2
-  attackDamage: 15
+  detectRange: 7
+  attackRange: 1.5
+  moveSpeed: 3
+  attackDamage: 20
   attackCooldown: 2
   animType: SimpleAnimation

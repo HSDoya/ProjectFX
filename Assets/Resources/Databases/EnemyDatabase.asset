@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: EnemyDatabase
   m_EditorClassIdentifier: 
   allEnemies:
+  - {fileID: 11400000, guid: 662c754b210df6f4dad0f7261f67da4f, type: 2}
   - {fileID: 11400000, guid: ef7ccbd6d780dcb4b88bd118dbc9c9cd, type: 2}
-  - {fileID: 11400000, guid: d622e3e3dc78bc2478fc8772138ff3f7, type: 2}
+  - {fileID: 11400000, guid: 6bab30b6070b78949baa79685188b460, type: 2}
+  - {fileID: 11400000, guid: 92bdca36c37c2ff4dbcc05b9b9cdb357, type: 2}
+  - {fileID: 11400000, guid: 32f907b53c3bf5b459fd3a245107f6d5, type: 2}

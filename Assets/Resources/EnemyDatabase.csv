@@ -1,4 +1,6 @@
 itemID,enemyName,maxHealth,isAggressive,detectRange,attackRange,moveSpeed,attackDamage,attackCooldown,animType
 Chicken_01,Chicken,10,FALSE,0,0,1.5,0,0,SimpleAnimation
 Cow_01,Cow,50,FALSE,0,0,1,0,0,BlendTree
-Slime_01,Slime,30,TRUE,5,1.2,2,15,2,SimpleAnimation
+Slime_01,Slime(green),30,TRUE,5,1.2,2,15,2,SimpleAnimation
+Slime_02,Slime2(red),40,TRUE,7,1.5,3,20,2,SimpleAnimation
+Slime_03,Slime3(blue),50,TRUE,9,1.9,4,25,2,SimpleAnimation
