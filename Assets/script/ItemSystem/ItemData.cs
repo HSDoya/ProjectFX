@@ -17,6 +17,7 @@ public enum EquipmentSlotType
     Armor,
     Hat,
     Shoes,
+    Tool,         
     Accessory
 }
 

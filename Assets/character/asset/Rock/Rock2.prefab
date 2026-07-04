@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6621559759062728841}
   - component: {fileID: 1847536344455253530}
   - component: {fileID: 4608958283256127644}
+  - component: {fileID: 6069871857506423108}
   m_Layer: 0
   m_Name: Rock2
   m_TagString: Interactable
@@ -134,3 +135,26 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 5.62, y: 3.7}
   m_EdgeRadius: 0
+--- !u!114 &6069871857506423108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3608330660068463224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cc2d4b5db6c44c4097d622be5b6ecee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 20
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
+  dropRules:
+  - itemID: CutRock
+    minDrop: 3
+    maxDrop: 5
+    dropChance: 100
+  - itemID: Gold
+    minDrop: 1
+    maxDrop: 2
+    dropChance: 72

@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 6747448517652672225}
   - component: {fileID: 7410446064709432466}
   - component: {fileID: 6976277824225895005}
+  - component: {fileID: -3819983238845151334}
   m_Layer: 0
-  m_Name: Rock
+  m_Name: rock
   m_TagString: Interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -125,3 +126,22 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.845, y: 0.805}
   m_Direction: 0
+--- !u!114 &-3819983238845151334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5808118218866733295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cc2d4b5db6c44c4097d622be5b6ecee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 20
+  fieldItemPrefab: {fileID: 8763877507329074748, guid: dda19a8202bda4c4cb77164aae423cde, type: 3}
+  dropRules:
+  - itemID: 'CutRock '
+    minDrop: 3
+    maxDrop: 5
+    dropChance: 79.2

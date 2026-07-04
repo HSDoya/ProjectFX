@@ -14,3 +14,8 @@ Ax_wood,Equipment ,나무도끼,무기,TRUE,1,Axe,TRUE,Weapon,1,None
 GreenSlime_item,Material,초록보석,재료 ,TRUE,99,Material,TRUE,None,None,None
 BlueSlime_item,Material,파랑보석,재료 ,TRUE,99,Material,TRUE,None,None,None
 RedSlime_item,Material,빨간보석,재료 ,TRUE,99,Material,TRUE,None,None,None
+Hoe,Equipment ,괭이,농기구,TRUE,1,Hoe,TRUE,Tool,1,None
+Pick,Equipment ,곡괭이,무기,TRUE,1,Pick,TRUE,Weapon,2,None
+WateringCan,Equipment ,물뿌리개,물뿌리개,TRUE,1,WateringCan,TRUE,Tool,0,None
+CutRock,Material,조약돌,재료 ,TRUE,99,Material,TRUE,None,None,None
+Gold,Material,금괴,재료 ,TRUE,99,Material,TRUE,None,None,None

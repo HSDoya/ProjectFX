@@ -63,38 +63,30 @@ public class Inventory : MonoBehaviour
         if (hudQuickSlotUI != null)
             hudQuickSlotUI.SetActive(!isInventoryOpen);
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
+        // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
         if (ItemDataManager.instance != null)
         {
-            
             var wood = ItemDataManager.instance.GetItemDataByID("Wood");
             var armor = ItemDataManager.instance.GetItemDataByID("Breastplate");
             var sword = ItemDataManager.instance.GetItemDataByID("Sword_iron");
             var axe = ItemDataManager.instance.GetItemDataByID("Ax_iron");
-            if (wood != null)
-            {
-                // 나무 99개 넣기
-                AddItem(new Item(wood, 99));
-            }
-            if (armor != null)
-            {
-                // 갑옷 1개 넣기
-                AddItem(new Item(armor, 1));
-            }
+            var pick =  ItemDataManager.instance.GetItemDataByID("Pick");
+            // 농기구 테스트용 데이터 불러오기 추가
+            var hoe = ItemDataManager.instance.GetItemDataByID("Hoe");
+            var wateringCan = ItemDataManager.instance.GetItemDataByID("WateringCan");
 
-            if (sword != null)
-            {
-                // 칼 넣기 
-                AddItem(new Item(sword, 1));
-            }
+            if (wood != null) AddItem(new Item(wood, 99));
+            if (armor != null) AddItem(new Item(armor, 1));
+            if (sword != null) AddItem(new Item(sword, 1));
+            if (axe != null) AddItem(new Item(axe, 1));
+            if (pick != null) AddItem(new Item(pick, 1));
+            // 농기구 테스트 지급 추가
+            if (hoe != null) AddItem(new Item(hoe, 1));
+            if (wateringCan != null) AddItem(new Item(wateringCan, 1));
 
-            if (axe != null)
-            {
-                // 도끼 1개 넣기
-                AddItem(new Item(axe, 1));
-            }
             Debug.Log("아이템지급완료");
         }
-        // ---------------------------------------------
+   
     }
 
 

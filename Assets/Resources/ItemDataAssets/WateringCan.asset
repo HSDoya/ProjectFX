@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9963ba8ceb84d3347aa4aaccf2aca835, type: 3}
+  m_Name: WateringCan
+  m_EditorClassIdentifier: 
+  itemID: WateringCan
+  displayName: "\uFFFD\uFFFD\uFFFD\u0478\uFFFD\uFFFD\uFFFD"
+  description: "\uFFFD\uFFFD\uFFFD\u0478\uFFFD\uFFFD\uFFFD"
+  icon: {fileID: 7524545975266762043, guid: ec2aaff9ead8ae2419dd0d01c674b1eb, type: 3}
+  canStack: 1
+  maxStackAmount: 1
+  itemType: 2
+  type: WateringCan
+  isConsumable: 1
+  equipSlot: 5
+  atk: 0
+  def: 0

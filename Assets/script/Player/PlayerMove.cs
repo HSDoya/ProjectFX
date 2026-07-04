@@ -210,7 +210,19 @@ public class PlayerMove : MonoBehaviour
                         Debug.Log("이 무기로는 나무를 벨 수 없습니다! 도끼가 필요합니다.");
                     }
                 }
-
+                StoneHealth stone = hit.GetComponent<StoneHealth>();
+                if (stone != null)
+                {
+                    if (currentEquippedItemData.type == "Pick") // CSV에서 곡괭이의 type은 "Pick"
+                    {
+                        stone.TakeDamage(damage);
+                        break; // 한 번에 하나의 돌만 타격
+                    }
+                    else
+                    {
+                        Debug.Log("이 도구로는 돌을 깰 수 없습니다! 곡괭이가 필요합니다.");
+                    }
+                }
                 EnemyBaseAI enemy = hit.GetComponent<EnemyBaseAI>();
                 if (enemy != null)
                 {
@@ -233,10 +245,29 @@ public class PlayerMove : MonoBehaviour
 
     private void HandleFarmAction(Vector3Int tilePosition)
     {
-        if (currentEquipment == "Hoe") landTileManager.PlowSoil(tilePosition);
-        else if (currentEquipment == "Seeds") landTileManager.PlantSeed(tilePosition);
-        else if (currentEquipment == "Water") landTileManager.WaterTile(tilePosition);
-        else if (currentEquipment == "Harvest") landTileManager.HarvestCrop(tilePosition);
+        // 장착된 아이템 데이터가 없으면 무시
+        if (currentEquippedItemData == null) return;
+
+        // 아이템 DB(CSV)의 'type' 컬럼 데이터를 기준으로 분기
+        string toolType = currentEquippedItemData.type;
+
+        if (toolType == "Hoe")
+        {
+            landTileManager.PlowSoil(tilePosition);
+        }
+        else if (toolType == "WateringCan") // 기존 "Water"에서 CSV 데이터와 동일하게 수정
+        {
+            landTileManager.WaterTile(tilePosition);
+        }
+        else if (toolType == "Seed") // 추후 씨앗 아이템을 DB에 추가할 때 type을 "Seed"로 설정하세요
+        {
+            landTileManager.PlantSeed(tilePosition);
+        }
+        // 수확의 경우, 빈손(도구 없음)일 때 동작하게 하려면 별도의 조건 처리가 필요할 수 있습니다.
+        else if (toolType == "Harvest")
+        {
+            landTileManager.HarvestCrop(tilePosition);
+        }
     }
 
     private void OnInventory()
