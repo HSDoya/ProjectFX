@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using System.Collections; // 코루틴 연출을 위해 필수
+using System.Collections;
 
 public class EnemyBaseAI : MonoBehaviour
 {
@@ -23,10 +23,7 @@ public class EnemyBaseAI : MonoBehaviour
     public EnemyAnimType wanderAnimStyle = EnemyAnimType.BlendTree;
     public EnemyAnimType chaseAnimStyle = EnemyAnimType.SimpleAnimation;
 
-    // ========================================================
-    // ★ [완벽 복원] 기존 AnimalHealth에 있던 진짜 드랍 필드들 이식
-    // ========================================================
-    [Header("드랍 아이템 설정 (기존 AnimalHealth 구조 완벽 통합)")]
+    [Header("드랍 아이템 설정")]
     [Tooltip("월드 바닥에 생성될 공용 필드 아이템 프리팹")]
     public GameObject fieldItemPrefab;
 
@@ -49,6 +46,7 @@ public class EnemyBaseAI : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private Animator anim;
+    private Collider2D col; // 사망 시 충돌체 비활성화를 위해 추가
 
     private Vector2 moveDir;
     private float lastAttackTime;
@@ -70,6 +68,7 @@ public class EnemyBaseAI : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        col = GetComponent<Collider2D>(); // 콜라이더 컴포넌트 캐싱
 
         if (rb != null)
         {
@@ -77,7 +76,6 @@ public class EnemyBaseAI : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
-        // 플레이어 타겟 자동 추적 백업
         if (targetTransform == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -87,13 +85,11 @@ public class EnemyBaseAI : MonoBehaviour
 
     void Start()
     {
-        // 에셋 데이터가 정상적으로 꽂혀있다면 즉시 가동
         if (stats != null)
         {
             currentHealth = stats.maxHealth;
             isInitialized = true;
 
-            // 데이터에 기입된 기본 타입에 맞춰 초기 스타일 세팅
             if (stats.animType == "SimpleAnimation")
             {
                 wanderAnimStyle = EnemyAnimType.SimpleAnimation;
@@ -119,7 +115,6 @@ public class EnemyBaseAI : MonoBehaviour
 
         float distance = (targetTransform != null) ? Vector2.Distance(transform.position, targetTransform.position) : float.MaxValue;
 
-        // 1단계: 선공 몹(isAggressive)이고 공격 범위 내 진입 시 공격
         if (stats.isAggressive && distance <= stats.attackRange)
         {
             isChasing = true;
@@ -128,7 +123,6 @@ public class EnemyBaseAI : MonoBehaviour
             moveDir = Vector2.zero;
             TryAttack();
         }
-        // 2단계: 선공 몹이고 감지 범위 내 진입 시 플레이어 추격 기동
         else if (stats.isAggressive && distance <= stats.detectRange)
         {
             isChasing = true;
@@ -136,7 +130,6 @@ public class EnemyBaseAI : MonoBehaviour
             isRunning = true;
             moveDir = (targetTransform.position - transform.position).normalized;
         }
-        // 3단계: 비선공 동물이거나, 선공 범위 밖일 때 평화롭게 순찰
         else
         {
             if (isChasing)
@@ -268,9 +261,6 @@ public class EnemyBaseAI : MonoBehaviour
         return false;
     }
 
-    // ========================================================
-    // ★ [완벽 복원] 피격 시 실시간 체력 차감 및 빨간색 깜빡임 타격 연출
-    // ========================================================
     public void TakeDamage(int damageAmount)
     {
         if (!isInitialized || isDead) return;
@@ -278,17 +268,20 @@ public class EnemyBaseAI : MonoBehaviour
         currentHealth -= damageAmount;
         Debug.Log($"{gameObject.name} 피격 발생! 데미지: {damageAmount}, 남은 HP: {currentHealth}");
 
-        if (anim != null) anim.SetTrigger("Hit");
-
-        if (spriteRenderer != null)
-        {
-            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
-            flashCoroutine = StartCoroutine(FlashRedCoroutine());
-        }
-
         if (currentHealth <= 0)
         {
             Kill();
+        }
+        else
+        {
+            // 아직 살아있을 때만 Hit 애니메이션 및 피격 깜빡임 연출
+            if (anim != null) anim.SetTrigger("Hit");
+
+            if (spriteRenderer != null)
+            {
+                if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+                flashCoroutine = StartCoroutine(FlashRedCoroutine());
+            }
         }
     }
 
@@ -299,18 +292,52 @@ public class EnemyBaseAI : MonoBehaviour
         spriteRenderer.color = Color.white;
     }
 
+    // ========================================================
+    // [개선] 사망 애니메이션 재생 후 드랍 및 파괴 처리
+    // ========================================================
     private void Kill()
     {
         if (isDead) return;
         isDead = true;
 
-        DropItems(); // 기존 정교한 매니저 연동형 드랍 함수 실행
+        // 사망 처리 코루틴 시동
+        StartCoroutine(DieSequenceCoroutine());
+    }
+
+    private IEnumerator DieSequenceCoroutine()
+    {
+        // 1. 물리/이동 정지 및 추가 타격 방지
+        rb.linearVelocity = Vector2.zero;
+        if (col != null) col.enabled = false; // 충돌체를 꺼서 플레이어가 미는 현상 방지
+
+        // 2. 피격 빨간색 제거 및 색상 초기화
+        if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+        if (spriteRenderer != null) spriteRenderer.color = Color.white;
+
+        // 3. 사망 애니메이션 트리거 신호 발송
+        float dieAnimDuration = 0.5f; // 기본 대기 시간 (기본값)
+
+        if (anim != null)
+        {
+            anim.SetTrigger("Die");
+
+            // 애니메이터에 재생 중인 Die 클립의 실제 길이를 가져옵니다.
+            yield return new WaitForEndOfFrame(); // 트리거 전환 대기
+            AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsName("Die"))
+            {
+                dieAnimDuration = stateInfo.length;
+            }
+        }
+
+        // 4. 사망 애니메이션 재생 시간만큼 대기
+        yield return new WaitForSeconds(dieAnimDuration);
+
+        // 5. 애니메이션 완료 후 아이템 드랍 및 오브젝트 파괴
+        DropItems();
         Destroy(gameObject);
     }
 
-    // ========================================================
-    // ★ [완벽 복원] 기존 AnimalHealth 내부의 핵심 아이템 스폰 시스템 이식
-    // ========================================================
     private void DropItems()
     {
         if (fieldItemPrefab == null)
@@ -338,7 +365,6 @@ public class EnemyBaseAI : MonoBehaviour
                 int count = Random.Range(rule.minDrop, rule.maxDrop + 1);
                 if (count <= 0) continue;
 
-                // 유저님의 기존 ItemDataManager 시스템에서 데이터 추출
                 ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
                 if (data != null)
                 {
@@ -348,7 +374,7 @@ public class EnemyBaseAI : MonoBehaviour
                     FieldItem fieldItem = droppedObj.GetComponent<FieldItem>();
                     if (fieldItem != null)
                     {
-                        fieldItem.Setup(data, count); // 기존 셋업 방식 호출
+                        fieldItem.Setup(data, count);
                         Debug.Log($"[아이템 드랍 성공]: {data.displayName} {count}개");
                     }
                     else

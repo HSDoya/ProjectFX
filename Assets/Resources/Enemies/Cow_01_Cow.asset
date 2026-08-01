@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5d61d1b7f61f1245a61d88a7d6db029, type: 3}
   m_Name: Cow_01_Cow
   m_EditorClassIdentifier: 
-  itemID: 
-  enemyName: 
-  maxHealth: 0
+  itemID: Cow_01
+  enemyName: Cow
+  maxHealth: 50
   isAggressive: 0
   detectRange: 0
   attackRange: 0
-  moveSpeed: 0
+  moveSpeed: 1
   attackDamage: 0
   attackCooldown: 0
-  animType: 
+  animType: BlendTree

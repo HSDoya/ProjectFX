@@ -1,25 +1,25 @@
 fileFormatVersion: 2
-guid: 7d1c73c944087f44688322611cd15e73
+guid: 05067b756f1a12c4fb3ea090db2aaf33
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8960900709442390454
-    second: Slime_b death(blue)_0
+      213: -1712353757501747620
+    second: Slime_b die(Red)_0
   - first:
-      213: 8983252660065486110
-    second: Slime_b death(blue)_1
+      213: -4376250854251367405
+    second: Slime_b die(Red)_1
   - first:
-      213: -8393277504549680144
-    second: Slime_b death(blue)_2
+      213: 4705518105360647097
+    second: Slime_b die(Red)_2
   - first:
-      213: -1082106605396624928
-    second: Slime_b death(blue)_3
+      213: -5883482338331205000
+    second: Slime_b die(Red)_3
   - first:
-      213: -7351737567641684871
-    second: Slime_b death(blue)_4
+      213: 1725800050772004370
+    second: Slime_b die(Red)_4
   - first:
-      213: -1250458979163683831
-    second: Slime_b death(blue)_5
+      213: 2512026239301422613
+    second: Slime_b die(Red)_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,7 +128,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slime_b death(blue)_0
+      name: Slime_b die(Red)_0
       rect:
         serializedVersion: 2
         x: 335
@@ -143,14 +143,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a46f32a184c74a380800000000000000
-      internalID: -8960900709442390454
+      spriteID: c5e8d4a745f7c38e0800000000000000
+      internalID: -1712353757501747620
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime_b death(blue)_1
+      name: Slime_b die(Red)_1
       rect:
         serializedVersion: 2
         x: 1359
@@ -165,14 +165,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e1549c2f2bceaac70800000000000000
-      internalID: 8983252660065486110
+      spriteID: 314f850d80f6443c0800000000000000
+      internalID: -4376250854251367405
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime_b death(blue)_2
+      name: Slime_b die(Red)_2
       rect:
         serializedVersion: 2
         x: 2383
@@ -187,14 +187,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0fb0a004496158b80800000000000000
-      internalID: -8393277504549680144
+      spriteID: 9b3c03239cb5d4140800000000000000
+      internalID: 4705518105360647097
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime_b death(blue)_3
+      name: Slime_b die(Red)_3
       rect:
         serializedVersion: 2
         x: 3407
@@ -209,14 +209,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0e9fa3096c59bf0f0800000000000000
-      internalID: -1082106605396624928
+      spriteID: 872eb7d3cfba95ea0800000000000000
+      internalID: -5883482338331205000
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime_b death(blue)_4
+      name: Slime_b die(Red)_4
       rect:
         serializedVersion: 2
         x: 4431
@@ -231,14 +231,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 974b2d622a169f990800000000000000
-      internalID: -7351737567641684871
+      spriteID: 21ecd93a00643f710800000000000000
+      internalID: 1725800050772004370
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime_b death(blue)_5
+      name: Slime_b die(Red)_5
       rect:
         serializedVersion: 2
         x: 335
@@ -253,8 +253,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 90440c40f2a75aee0800000000000000
-      internalID: -1250458979163683831
+      spriteID: 51e850c2e828cd220800000000000000
+      internalID: 2512026239301422613
       vertices: []
       indices: 
       edges: []
@@ -273,12 +273,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Slime_b death(blue)_0: -8960900709442390454
-      Slime_b death(blue)_1: 8983252660065486110
-      Slime_b death(blue)_2: -8393277504549680144
-      Slime_b death(blue)_3: -1082106605396624928
-      Slime_b death(blue)_4: -7351737567641684871
-      Slime_b death(blue)_5: -1250458979163683831
+      Slime_b die(Red)_0: -1712353757501747620
+      Slime_b die(Red)_1: -4376250854251367405
+      Slime_b die(Red)_2: 4705518105360647097
+      Slime_b die(Red)_3: -5883482338331205000
+      Slime_b die(Red)_4: 1725800050772004370
+      Slime_b die(Red)_5: 2512026239301422613
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
