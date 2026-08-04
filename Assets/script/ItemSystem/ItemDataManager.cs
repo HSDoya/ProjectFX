@@ -1,11 +1,11 @@
-
+ï»¿
 using UnityEngine;
 
 public class ItemDataManager : MonoBehaviour
 {
     public static ItemDataManager instance;
 
-    // ÀÎ½ºÆåÅÍ¿¡¼­ ItemDatabaseSO ¿¡¼ÂÀ» ¿¬°áÇØÁİ´Ï´Ù.
+    // ì¸ìŠ¤í™í„°ì—ì„œ ItemDatabaseSO ì—ì…‹ì„ ì—°ê²°í•´ì¤ë‹ˆë‹¤.
     [SerializeField] private ItemDatabaseSO database;
 
     void Awake()
@@ -13,7 +13,7 @@ public class ItemDataManager : MonoBehaviour
         if (instance == null) instance = this;
         else Destroy(gameObject);
 
-        // °ÔÀÓ ½ÃÀÛ ½Ã µñ¼Å³Ê¸® ¼¼ÆÃ
+        // ê²Œì„ ì‹œì‘ ì‹œ ë”•ì…”ë„ˆë¦¬ ì„¸íŒ…
         if (database != null) database.Initialize();
     }
 

@@ -5,20 +5,28 @@ public class SkillTreeManager : MonoBehaviour
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private Transform gridContainer;
 
-    private SkillNode[,] skillGrid = new SkillNode[7, 7];
-    public int skillPoints = 5; // Å×½ºÆ®¿ë ½ºÅ³ Æ÷ÀÎÆ®
+    [Header("Grid Settings")]
+    [SerializeField] private int gridWidth = 8;
+    [SerializeField] private int gridHeight = 8;
+
+    private SkillNode[,] skillGrid;
+
+    // ì „ì²´ íŠ¸ë¦¬ë¥¼ ë‹¤ ì—´ì–´ë³¼ ìˆ˜ ìˆëŠ” í…ŒìŠ¤íŠ¸ìš© í¬ì¸íŠ¸ (ê¸°ë³¸ê°’ = gridWidth * gridHeight).
+    // ê·¸ë¦¬ë“œ í¬ê¸°ë¥¼ ë°”ê¾¸ë©´ ì´ ê°’ë„ ë…¸ë“œ ì´ ê°œìˆ˜ì— ë§ì¶° í•¨ê»˜ ì¡°ì •í•´ì¤˜ì•¼ ì „ì²´ íŠ¸ë¦¬ë¥¼ ë‹¤ ì—´ ìˆ˜ ìˆë‹¤.
+    public int skillPoints = 64;
 
     void Start()
     {
+        skillGrid = new SkillNode[gridWidth, gridHeight];
         GenerateGrid();
     }
 
-    // 7x7 ±×¸®µå »ı¼º
+    // gridWidth x gridHeight ê·¸ë¦¬ë“œ ìƒì„±
     void GenerateGrid()
     {
-        for (int y = 0; y < 7; y++)
+        for (int y = 0; y < gridHeight; y++)
         {
-            for (int x = 0; x < 7; x++)
+            for (int x = 0; x < gridWidth; x++)
             {
                 GameObject go = Instantiate(nodePrefab, gridContainer);
                 SkillNode node = go.GetComponent<SkillNode>();
@@ -27,8 +35,8 @@ public class SkillTreeManager : MonoBehaviour
             }
         }
 
-        // Áß¾Ó (3,3) ½ÃÀÛ ³ëµå ÇØ±İ »óÅÂ·Î ½ÃÀÛ
-        UnlockNodeData(3, 3);
+        // ì¤‘ì•™ì— ê°€ì¥ ê°€ê¹Œìš´ ì‹œì‘ ë…¸ë“œë¥¼ í•´ê¸ˆ ìƒíƒœë¡œ ì‹œì‘
+        UnlockNodeData(gridWidth / 2, gridHeight / 2);
     }
 
     public void TryUnlockNode(SkillNode node)
@@ -46,7 +54,7 @@ public class SkillTreeManager : MonoBehaviour
         ActivateNeighbors(x, y);
     }
 
-    // »óÇÏÁÂ¿ì ÀÎÁ¢ ³ëµå È°¼ºÈ­ ·ÎÁ÷
+    // ìƒí•˜ì¢Œìš° ì¸ì ‘ ë…¸ë“œ í™œì„±í™” ë¡œì§
     private void ActivateNeighbors(int x, int y)
     {
         int[] dx = { 0, 0, -1, 1 };
@@ -57,8 +65,8 @@ public class SkillTreeManager : MonoBehaviour
             int nx = x + dx[i];
             int ny = y + dy[i];
 
-            // ±×¸®µå ¹üÀ§¸¦ ¹ş¾î³ªÁö ¾Ê°í, Àá°ÜÀÖ´Â ³ëµå¸¸ ÇØ±İ °¡´É »óÅÂ·Î ÀüÈ¯
-            if (nx >= 0 && nx < 7 && ny >= 0 && ny < 7)
+            // ê·¸ë¦¬ë“œ ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ì§€ ì•Šê³ , ì ê²¨ìˆëŠ” ë…¸ë“œë§Œ í•´ê¸ˆ ê°€ëŠ¥ ìƒíƒœë¡œ ì „í™˜
+            if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight)
             {
                 if (skillGrid[nx, ny].State == NodeState.Locked)
                 {
@@ -68,13 +76,16 @@ public class SkillTreeManager : MonoBehaviour
         }
     }
 
-    // ÀÌ¹ÌÁö ±¸¿ª¿¡ µû¸¥ »ö»ó ¹İÈ¯ ÇÔ¼ö (UI ¿¬Ãâ¿ë)
+    // ì´ë¯¸ì§€ êµ¬ì—­ì— ë”°ë¥¸ ìƒ‰ìƒ ë°˜í™˜ í•¨ìˆ˜ (UI ì—°ì¶œìš©, ì‹¤ì œ ìŠ¤í‚¬ ë°ì´í„°ê°€ ë“¤ì–´ì˜¤ê¸° ì „ê¹Œì§€ì˜ ì„ì‹œ í‘œì‹œ)
     public Color GetZoneColor(int x, int y)
     {
-        if (x == 3 && y == 3) return Color.green; // START
-        if (y < 2) return Color.blue;             // »ó´Ü ¸¶¹ı
-        if (y > 4) return Color.red;              // ÇÏ´Ü ¹°¸®
-        if (x < 2) return Color.magenta;          // ÁÂÃø À¯Æ¿
-        return new Color(1f, 0.6f, 0f);           // ¿ìÃø ¹æ¾î (¿À·»Áö)
+        int startX = gridWidth / 2;
+        int startY = gridHeight / 2;
+
+        if (x == startX && y == startY) return Color.green; // START
+        if (y < gridHeight / 3) return Color.blue;             // ìƒë‹¨ ë§ˆë²•
+        if (y >= gridHeight - gridHeight / 3) return Color.red; // í•˜ë‹¨ ë¬¼ë¦¬
+        if (x < gridWidth / 3) return Color.magenta;           // ì¢Œì¸¡ ìœ í‹¸
+        return new Color(1f, 0.6f, 0f);                        // ìš°ì¸¡ ë°©ì–´ (ì˜¤ë Œì§€)
     }
 }

@@ -1,19 +1,19 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public interface ItemSlot 
 {
     /// <summary>
-    /// ÀÌ ½½·ÔÀÌ ÇöÀç µé°í ÀÖ´Â ¾ÆÀÌÅÛ(¾øÀ¸¸é null)
+    /// ì´ ìŠ¬ë¡¯ì´ í˜„ì¬ ë“¤ê³  ìˆëŠ” ì•„ì´í…œ(ì—†ìœ¼ë©´ null)
     /// </summary>
     Item CurrentItem { get; set; }
 
     /// <summary>
-    /// ÀÌ ½½·ÔÀÌ Æ¯Á¤ ¾ÆÀÌÅÛÀ» ¹ŞÀ» ¼ö ÀÖ´ÂÁö(½½·Ô Á¦ÇÑ ±ÔÄ¢)
+    /// ì´ ìŠ¬ë¡¯ì´ íŠ¹ì • ì•„ì´í…œì„ ë°›ì„ ìˆ˜ ìˆëŠ”ì§€(ìŠ¬ë¡¯ ì œí•œ ê·œì¹™)
     /// </summary>
     bool CanReceive(Item item);
 
     /// <summary>
-    /// CurrentItem »óÅÂ¸¦ ±â¹İÀ¸·Î ³»ºÎ UI(¾ÆÀÌÄÜ/¼ö·®)¸¦ °»½Å
+    /// CurrentItem ìƒíƒœë¥¼ ê¸°ë°˜ìœ¼ë¡œ ë‚´ë¶€ UI(ì•„ì´ì½˜/ìˆ˜ëŸ‰)ë¥¼ ê°±ì‹ 
     /// </summary>
     void Refresh();
 }

@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ItemDatabase", menuName = "Inventory/Item Database")]
 public class ItemDatabaseSO : ScriptableObject
 {
-    // ¸ğµç ¾ÆÀÌÅÛ ¿¡¼ÂÀ» ´ã¾ÆµÑ ¸®½ºÆ®
+    // ëª¨ë“  ì•„ì´í…œ ì—ì…‹ì„ ë‹´ì•„ë‘˜ ë¦¬ìŠ¤íŠ¸
     public List<ItemData> allItems = new List<ItemData>();
 
-    // ·±Å¸ÀÓ ºü¸¥ °Ë»öÀ» À§ÇÑ µñ¼Å³Ê¸®
+    // ëŸ°íƒ€ì„ ë¹ ë¥¸ ê²€ìƒ‰ì„ ìœ„í•œ ë”•ì…”ë„ˆë¦¬
     private Dictionary<string, ItemData> itemDict = new Dictionary<string, ItemData>();
 
     public void Initialize()
@@ -24,7 +24,7 @@ public class ItemDatabaseSO : ScriptableObject
 
     public ItemData GetItemByID(string id)
     {
-        if (itemDict.Count == 0) Initialize(); // ÃÊ±âÈ­ º¸Àå
+        if (itemDict.Count == 0) Initialize(); // ì´ˆê¸°í™” ë³´ì¥
 
         itemDict.TryGetValue(id, out var item);
         return item;

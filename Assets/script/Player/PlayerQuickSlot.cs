@@ -1,8 +1,13 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Collections;
 
+// í€µìŠ¬ë¡¯ ì„ íƒ ìƒíƒœ(selectedQuickSlotIndex)ì™€ í˜„ì¬ ì¥ì°© ì•„ì´í…œì˜ ë‹¨ì¼ ì†Œìœ ì.
+// PlayerMoveëŠ” ì´ ê°’ì„ ì½ê¸°ë§Œ í•˜ê³  ì§ì ‘ ê°±ì‹ í•˜ì§€ ì•ŠëŠ”ë‹¤ (ì˜ˆì „ì—” PlayerMoveë„ ìì²´ì ìœ¼ë¡œ
+// ê°™ì€ ìƒíƒœë¥¼ ë”°ë¡œ ë“¤ê³  ìˆì–´ì„œ, ê°™ì€ ë²ˆí˜¸ë¥¼ ì—°íƒ€í•˜ë©´ í•œìª½ë§Œ ë¹ˆì†ìœ¼ë¡œ í† ê¸€ë˜ê³ 
+// ë‹¤ë¥¸ ìª½(ì´ ìŠ¤í¬ë¦½íŠ¸)ì€ ê·¸ëŒ€ë¡œ ë‚¨ì•„ ìˆëŠ” ë¶ˆì¼ì¹˜ê°€ ìˆì—ˆë‹¤).
 public class PlayerQuickSlot : MonoBehaviour
 {
     [SerializeField] private Inventory inventory;
@@ -13,7 +18,7 @@ public class PlayerQuickSlot : MonoBehaviour
     [Header("Equip Settings")]
     [SerializeField] private SpriteRenderer equippedItemRenderer;
 
-    // ¡Ú Ãß°¡: ÀÎ½ºÆåÅÍ¿¡¼­ ¸¶¿ì½º·Î Á¶ÀıÇÒ '¿À¸¥ÂÊÀ» ¹Ù¶óº¼ ¶§ÀÇ ¼Õ À§Ä¡ Offset'
+    // â˜… ì¶”ê°€: ì¸ìŠ¤í™í„°ì—ì„œ ë§ˆìš°ìŠ¤ë¡œ ì¡°ì ˆí•  'ì˜¤ë¥¸ìª½ì„ ë°”ë¼ë³¼ ë•Œì˜ ì† ìœ„ì¹˜ Offset'
     [SerializeField] private Vector3 rightHandOffset = new Vector3(0.3f, -0.1f, 0f);
 
     private bool isSwinging = false;
@@ -21,9 +26,13 @@ public class PlayerQuickSlot : MonoBehaviour
 
     private PlayerMove playerMove;
 
-    public int selectedQuickSlotIndex = 0;
+    // ê²Œì„ ì‹œì‘ ì‹œ ë¹ˆì†(-1)ìœ¼ë¡œ ì‹œì‘
+    public int selectedQuickSlotIndex = -1;
     public string currentEquipment = "";
     public ItemData currentEquippedItemData = null;
+
+    // ì„ íƒëœ ìŠ¬ë¡¯/ì¥ì°© ì•„ì´í…œì´ ë°”ë€” ë•Œë§ˆë‹¤ í˜¸ì¶œ (PlayerMoveì˜ ì‚¬ê±°ë¦¬ í‘œì‹œ ê°±ì‹  ë“±ì— ì‚¬ìš©)
+    public event Action OnEquippedChanged;
 
     private void Awake()
     {
@@ -40,6 +49,7 @@ public class PlayerQuickSlot : MonoBehaviour
             inventory.onItemChangedCallback += UpdateCurrentEquipment;
         }
 
+        UpdateCurrentEquipment();
         UpdateHighlightUI();
     }
 
@@ -56,7 +66,7 @@ public class PlayerQuickSlot : MonoBehaviour
         HandleQuickslotInput();
         HandleActionInput();
 
-        // ¸Å ÇÁ·¹ÀÓ¸¶´Ù ¹«±â À§Ä¡/¹æÇâ ¾÷µ¥ÀÌÆ®
+        // ë§¤ í”„ë ˆì„ë§ˆë‹¤ ë¬´ê¸° ìœ„ì¹˜/ë°©í–¥ ì—…ë°ì´íŠ¸
         if (!isSwinging)
         {
             UpdateItemDirection();
@@ -65,16 +75,16 @@ public class PlayerQuickSlot : MonoBehaviour
 
     private void HandleQuickslotInput()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectQuickSlot(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2)) SelectQuickSlot(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3)) SelectQuickSlot(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4)) SelectQuickSlot(3);
-        else if (Input.GetKeyDown(KeyCode.Alpha5)) SelectQuickSlot(4);
-        else if (Input.GetKeyDown(KeyCode.Alpha6)) SelectQuickSlot(5);
-        else if (Input.GetKeyDown(KeyCode.Alpha7)) SelectQuickSlot(6);
-        else if (Input.GetKeyDown(KeyCode.Alpha8)) SelectQuickSlot(7);
-        else if (Input.GetKeyDown(KeyCode.Alpha9)) SelectQuickSlot(8);
-        else if (Input.GetKeyDown(KeyCode.Alpha0)) SelectQuickSlot(9);
+        if (Input.GetKeyDown(KeyCode.Alpha1)) ToggleQuickSlot(0);
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleQuickSlot(1);
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleQuickSlot(2);
+        else if (Input.GetKeyDown(KeyCode.Alpha4)) ToggleQuickSlot(3);
+        else if (Input.GetKeyDown(KeyCode.Alpha5)) ToggleQuickSlot(4);
+        else if (Input.GetKeyDown(KeyCode.Alpha6)) ToggleQuickSlot(5);
+        else if (Input.GetKeyDown(KeyCode.Alpha7)) ToggleQuickSlot(6);
+        else if (Input.GetKeyDown(KeyCode.Alpha8)) ToggleQuickSlot(7);
+        else if (Input.GetKeyDown(KeyCode.Alpha9)) ToggleQuickSlot(8);
+        else if (Input.GetKeyDown(KeyCode.Alpha0)) ToggleQuickSlot(9);
 
         float scroll = Mouse.current.scroll.ReadValue().y;
 
@@ -96,7 +106,7 @@ public class PlayerQuickSlot : MonoBehaviour
         }
     }
 
-    // ¹«±â À§Ä¡ ¹× ¹æÇâ ¾÷µ¥ÀÌÆ® ÇÔ¼ö
+    // ë¬´ê¸° ìœ„ì¹˜ ë° ë°©í–¥ ì—…ë°ì´íŠ¸ í•¨ìˆ˜
     private void UpdateItemDirection()
     {
         float moveX = Input.GetAxisRaw("Horizontal");
@@ -106,17 +116,17 @@ public class PlayerQuickSlot : MonoBehaviour
 
         if (equippedItemRenderer != null)
         {
-            // ¡Ú ¼öÁ¤: ¿À¸¥ÂÊÀ» º¼ ¶§´Â ÀÎ½ºÆåÅÍ ¼³Á¤°ª ±×´ë·Î, ¿ŞÂÊÀ» º¼ ¶§´Â X°ª¸¸ ¹İÀü(-x)½ÃÅµ´Ï´Ù.
+            // â˜… ìˆ˜ì •: ì˜¤ë¥¸ìª½ì„ ë³¼ ë•ŒëŠ” ì¸ìŠ¤í™í„° ì„¤ì •ê°’ ê·¸ëŒ€ë¡œ, ì™¼ìª½ì„ ë³¼ ë•ŒëŠ” Xê°’ë§Œ ë°˜ì „(-x)ì‹œí‚µë‹ˆë‹¤.
             Vector3 targetPosition = rightHandOffset;
             if (!isFacingRight)
             {
                 targetPosition.x = -targetPosition.x;
             }
 
-            // °è»êµÈ ÁÂÇ¥¸¦ ¼Õ ¿ÀºêÁ§Æ®ÀÇ localPosition¿¡ ´ëÀÔÇÕ´Ï´Ù.
+            // ê³„ì‚°ëœ ì¢Œí‘œë¥¼ ì† ì˜¤ë¸Œì íŠ¸ì˜ localPositionì— ëŒ€ì…í•©ë‹ˆë‹¤.
             equippedItemRenderer.transform.localPosition = targetPosition;
 
-            // ¹«±â ½ºÇÁ¶óÀÌÆ® ÁÂ¿ì ¹İÀü
+            // ë¬´ê¸° ìŠ¤í”„ë¼ì´íŠ¸ ì¢Œìš° ë°˜ì „
             equippedItemRenderer.flipX = !isFacingRight;
         }
     }
@@ -157,10 +167,20 @@ public class PlayerQuickSlot : MonoBehaviour
         isSwinging = false;
     }
 
+    // ìˆ«ì í‚¤ ì „ìš©: ì´ë¯¸ ì„ íƒëœ ìŠ¬ë¡¯ì„ ë‹¤ì‹œ ëˆ„ë¥´ë©´ ë¹ˆì†(-1)ìœ¼ë¡œ í† ê¸€
+    private void ToggleQuickSlot(int index)
+    {
+        if (selectedQuickSlotIndex == index)
+            SelectQuickSlot(-1);
+        else
+            SelectQuickSlot(index);
+    }
+
     private void SelectQuickSlot(int index)
     {
         if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
-        if (index < 0 || index >= Inventory.instance.quickSlots.Length) return;
+        // -1(ë¹ˆì†)ì€ ìœ íš¨í•œ ìƒíƒœì´ë¯€ë¡œ í•˜í•œì€ -1ë¡œ ì²´í¬
+        if (index < -1 || index >= Inventory.instance.quickSlots.Length) return;
 
         selectedQuickSlotIndex = index;
 
@@ -176,7 +196,21 @@ public class PlayerQuickSlot : MonoBehaviour
     public void UpdateCurrentEquipment()
     {
         if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
-        if (selectedQuickSlotIndex < 0 || selectedQuickSlotIndex >= Inventory.instance.quickSlots.Length) return;
+
+        if (selectedQuickSlotIndex < 0 || selectedQuickSlotIndex >= Inventory.instance.quickSlots.Length)
+        {
+            currentEquipment = "";
+            currentEquippedItemData = null;
+
+            if (equippedItemRenderer != null)
+            {
+                equippedItemRenderer.sprite = null;
+                equippedItemRenderer.enabled = false;
+            }
+
+            OnEquippedChanged?.Invoke();
+            return;
+        }
 
         Item selectedItem = Inventory.instance.quickSlots[selectedQuickSlotIndex];
 
@@ -184,7 +218,6 @@ public class PlayerQuickSlot : MonoBehaviour
         {
             currentEquipment = selectedItem.data.itemID;
             currentEquippedItemData = selectedItem.data;
-            Debug.Log($"[Äü½½·Ô {selectedQuickSlotIndex + 1}¹ø] ÀåÂøµÊ: {currentEquipment}");
 
             if (equippedItemRenderer != null)
             {
@@ -203,6 +236,8 @@ public class PlayerQuickSlot : MonoBehaviour
                 equippedItemRenderer.enabled = false;
             }
         }
+
+        OnEquippedChanged?.Invoke();
     }
 
     private void UpdateHighlightUI()

@@ -1,13 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(BoxCollider2D))]
 public class FieldItem : MonoBehaviour
 {
-    public Item item; // ÀÌ ÇÊµå ¾ÆÀÌÅÛÀÌ °¡Áö°í ÀÖ´Â ½ÇÁ¦ ¾ÆÀÌÅÛ Á¤º¸
+    public Item item; // ì´ í•„ë“œ ì•„ì´í…œì´ ê°€ì§€ê³  ìˆëŠ” ì‹¤ì œ ì•„ì´í…œ ì •ë³´
 
     private SpriteRenderer spriteRenderer;
 
-    // µ¿¹°ÀÌ Á×À» ¶§ ÀÌ ¸Ş¼­µå¸¦ È£ÃâÇÏ¿© ¾ÆÀÌÅÛ Á¤º¸¸¦ ¼¼ÆÃÇØ Áİ´Ï´Ù.
+    // ë™ë¬¼ì´ ì£½ì„ ë•Œ ì´ ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ì•„ì´í…œ ì •ë³´ë¥¼ ì„¸íŒ…í•´ ì¤ë‹ˆë‹¤.
     public void Setup(ItemData data, int amount)
     {
         item = new Item(data, amount);
@@ -18,34 +18,34 @@ public class FieldItem : MonoBehaviour
             spriteRenderer.sprite = data.icon;
         }
 
-        // ¾ÆÀÌÄÜ Å©±â¿¡ ¸ÂÃç Äİ¶óÀÌ´õ Å©±â Á¶Á¤ (¼±ÅÃ »çÇ×)
+        // ì•„ì´ì½˜ í¬ê¸°ì— ë§ì¶° ì½œë¼ì´ë” í¬ê¸° ì¡°ì • (ì„ íƒ ì‚¬í•­)
         BoxCollider2D col = GetComponent<BoxCollider2D>();
         if (col != null)
         {
-            col.isTrigger = true; // ÇÃ·¹ÀÌ¾î°¡ ¹â°í Áö³ª°¥ ¼ö ÀÖ°Ô Trigger·Î ¼³Á¤
+            col.isTrigger = true; // í”Œë ˆì´ì–´ê°€ ë°Ÿê³  ì§€ë‚˜ê°ˆ ìˆ˜ ìˆê²Œ Triggerë¡œ ì„¤ì •
         }
     }
 
-    // ÇÃ·¹ÀÌ¾î°¡ ¾ÆÀÌÅÛ¿¡ ´ê¾ÒÀ» ¶§ ÀÎº¥Åä¸®·Î È¹µæ
+    // í”Œë ˆì´ì–´ê°€ ì•„ì´í…œì— ë‹¿ì•˜ì„ ë•Œ ì¸ë²¤í† ë¦¬ë¡œ íšë“
     
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            // ¡Ú Ãß°¡: AddItem¿¡ µé¾î°¡¸é quantity°¡ 0ÀÌ µÇ¹Ç·Î, µé¾î°¡±â Àü¿¡ ¹Ì¸® °³¼ö¸¦ ±â¾ïÇØ µÓ´Ï´Ù!
+            // â˜… ì¶”ê°€: AddItemì— ë“¤ì–´ê°€ë©´ quantityê°€ 0ì´ ë˜ë¯€ë¡œ, ë“¤ì–´ê°€ê¸° ì „ì— ë¯¸ë¦¬ ê°œìˆ˜ë¥¼ ê¸°ì–µí•´ ë‘¡ë‹ˆë‹¤!
             int originalQuantity = item.quantity;
 
-            // ÀÎº¥Åä¸®¿¡ Ãß°¡ ½Ãµµ
+            // ì¸ë²¤í† ë¦¬ì— ì¶”ê°€ ì‹œë„
             if (Inventory.instance.AddItem(item))
             {
-                // ¡Ú º¯°æ: item.quantity ´ë½Å ±â¾ïÇØµĞ originalQuantity¸¦ Ãâ·Â
-                Debug.Log($"{item.data.displayName} {originalQuantity}°³ È¹µæ!");
-                Destroy(gameObject); // ÇÊµå¿¡¼­ ¾ÆÀÌÅÛ »èÁ¦
+                // â˜… ë³€ê²½: item.quantity ëŒ€ì‹  ê¸°ì–µí•´ë‘” originalQuantityë¥¼ ì¶œë ¥
+                Debug.Log($"{item.data.displayName} {originalQuantity}ê°œ íšë“!");
+                Destroy(gameObject); // í•„ë“œì—ì„œ ì•„ì´í…œ ì‚­ì œ
             }
             else
             {
-                // ÀÎº¥Åä¸®°¡ ²Ë Â÷¼­ ¸ø ¸Ô¾úÀ» ¶§´Â ÀÏºÎ¸¸ ¸Ô¾úÀ» ¼öµµ ÀÖÀ¸´Ï ³²Àº °³¼ö Ç¥½Ã
-                Debug.Log($"ÀÎº¥Åä¸®°¡ °¡µæ Â÷¼­ {item.data.displayName}À»(¸¦) {item.quantity}°³ ³²°å½À´Ï´Ù.");
+                // ì¸ë²¤í† ë¦¬ê°€ ê½‰ ì°¨ì„œ ëª» ë¨¹ì—ˆì„ ë•ŒëŠ” ì¼ë¶€ë§Œ ë¨¹ì—ˆì„ ìˆ˜ë„ ìˆìœ¼ë‹ˆ ë‚¨ì€ ê°œìˆ˜ í‘œì‹œ
+                Debug.Log($"ì¸ë²¤í† ë¦¬ê°€ ê°€ë“ ì°¨ì„œ {item.data.displayName}ì„(ë¥¼) {item.quantity}ê°œ ë‚¨ê²¼ìŠµë‹ˆë‹¤.");
             }
         }
     }

@@ -1,18 +1,18 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class Item
 {
-    public ItemData data;    // ¾ÆÀÌÅÛ Á¤º¸ (ScriptableObject)
-    public int quantity;     // ¾ÆÀÌÅÛ ¼ö·® (½ºÅÃ °¡´É ¾ÆÀÌÅÛ ´ëºñ)
+    public ItemData data;    // ì•„ì´í…œ ì •ë³´ (ScriptableObject)
+    public int quantity;     // ì•„ì´í…œ ìˆ˜ëŸ‰ (ìŠ¤íƒ ê°€ëŠ¥ ì•„ì´í…œ ëŒ€ë¹„)
 
-    // ±âº» »ı¼ºÀÚ
+    // ê¸°ë³¸ ìƒì„±ì
     public Item(ItemData newItemData, int initialQuantity = 1)
     {
         data = newItemData;
         quantity = initialQuantity;
     }
 
-    // ½ºÅÃ Áõ°¡ ¸Ş¼­µå (¼±ÅÃ)
+    // ìŠ¤íƒ ì¦ê°€ ë©”ì„œë“œ (ì„ íƒ)
     public void AddQuantity(int amount)
     {
         quantity += amount;
@@ -20,7 +20,7 @@ public class Item
             quantity = data.maxStackAmount;
     }
 
-    // ½ºÅÃ °¨¼Ò ¸Ş¼­µå (¼±ÅÃ)
+    // ìŠ¤íƒ ê°ì†Œ ë©”ì„œë“œ (ì„ íƒ)
     public void RemoveQuantity(int amount)
     {
         quantity -= amount;

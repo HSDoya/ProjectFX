@@ -1,11 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 public class ItemUI : MonoBehaviour
 {
     public Image icon;
-    public TextMeshProUGUI countText;  // ¼ö·® Ç¥½Ã¿ë ÅØ½ºÆ® (UI¿¡¼­ ¿¬°á ÇÊ¿ä)
-                                       // ItemUI.cs (¼±ÅÃ º¸°­)
+    public TextMeshProUGUI countText;  // ìˆ˜ëŸ‰ í‘œì‹œìš© í…ìŠ¤íŠ¸ (UIì—ì„œ ì—°ê²° í•„ìš”)
+                                       // ItemUI.cs (ì„ íƒ ë³´ê°•)
     private void Awake()
     {
         if (icon == null)
@@ -13,7 +13,7 @@ public class ItemUI : MonoBehaviour
         if (countText == null)
             countText = GetComponentInChildren<TextMeshProUGUI>(true);
 
-        if (icon != null) icon.preserveAspect = true; // ³ÑÄ§ ¹æÁö¿¡ µµ¿ò
+        if (icon != null) icon.preserveAspect = true; // ë„˜ì¹¨ ë°©ì§€ì— ë„ì›€
     }
 
     public void SetItem(Item item)
@@ -21,21 +21,21 @@ public class ItemUI : MonoBehaviour
         if (icon == null || item == null || item.data == null)
             return;
         if (item.data.icon == null)
-            Debug.LogError($"[{item.data.itemID}] ¾ÆÀÌÄÜÀÌ nullÀÔ´Ï´Ù.");
+            Debug.LogError($"[{item.data.itemID}] ì•„ì´ì½˜ì´ nullì…ë‹ˆë‹¤.");
 
         icon.sprite = item.data.icon;
         icon.enabled = true;
 
         if (countText != null)
         {
-            countText.text = item.quantity.ToString(); // Ç×»ó Ç¥½Ã
+            countText.text = item.quantity.ToString(); // í•­ìƒ í‘œì‹œ
         }
-
-        Debug.Log($"[ItemUI] ¾ÆÀÌÄÜ Àû¿ëµÊ: {item.data.displayName}, ¼ö·®: {item.quantity}");
     }
 
     public void ClearSlot()
     {
+        if (icon == null) return;
+
         icon.sprite = null;
         icon.enabled = false;
 

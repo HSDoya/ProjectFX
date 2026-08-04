@@ -91,33 +91,45 @@ public class Inventory : MonoBehaviour
 
 
 
+    // 메인 인벤토리(items)와 퀵슬롯(quickSlots) 중 어느 배열을 다룰지 통일하는 헬퍼
+    // 이 메서드를 거치지 않고 items/quickSlots를 직접 조작하면 두 배열 간 혼선(복제/소실) 버그가 재발한다.
+    public Item[] GetArray(bool isQuickSlot) => isQuickSlot ? quickSlots : items;
+
     /// <summary>
-    /// 아이템 획득 메서드 (메인 인벤토리 우선)
-    /// </summary>
-    /// <summary>
-    /// 아이템 획득 메서드 (메인 인벤토리 우선, 스택 초과분 자동 분할)
+    /// 아이템 획득 메서드 (메인 인벤토리 우선, 가득 차면 퀵슬롯에도 시도, 스택 초과분 자동 분할)
     /// </summary>
     public bool AddItem(Item newItem)
     {
         if (newItem == null || newItem.data == null || newItem.quantity <= 0) return false;
 
+        if (TryAddToArray(items, newItem)) return true;
+        if (TryAddToArray(quickSlots, newItem)) return true;
+
+        Debug.Log($"인벤토리가 가득 차서 {newItem.data.displayName} {newItem.quantity}개를 획득하지 못했습니다.");
+        onItemChangedCallback?.Invoke(); // 일부는 들어갔을 수 있으니 UI 새로고침
+        return false;
+    }
+
+    // newItem.quantity가 0이 되면 arr에 전부 들어간 것 (true 반환)
+    private bool TryAddToArray(Item[] arr, Item newItem)
+    {
         // 1. 스택 가능한 아이템이면 기존에 있는 것과 합치기 시도
         if (newItem.data.canStack)
         {
-            for (int i = 0; i < items.Length; i++)
+            for (int i = 0; i < arr.Length; i++)
             {
                 // 아이템이 존재하고 ID가 같다면
-                if (items[i] != null && items[i].data.itemID == newItem.data.itemID)
+                if (arr[i] != null && arr[i].data.itemID == newItem.data.itemID)
                 {
                     // 현재 슬롯에 남은 빈 공간 계산
-                    int spaceLeft = items[i].data.maxStackAmount - items[i].quantity;
+                    int spaceLeft = arr[i].data.maxStackAmount - arr[i].quantity;
 
                     if (spaceLeft > 0)
                     {
                         if (newItem.quantity <= spaceLeft)
                         {
                             // 남은 공간에 다 들어가는 경우
-                            items[i].quantity += newItem.quantity;
+                            arr[i].quantity += newItem.quantity;
                             newItem.quantity = 0;
                             onItemChangedCallback?.Invoke();
                             return true;
@@ -125,7 +137,7 @@ public class Inventory : MonoBehaviour
                         else
                         {
                             // 일부만 들어가고 남는 경우 (Max를 채움)
-                            items[i].quantity += spaceLeft;
+                            arr[i].quantity += spaceLeft;
                             newItem.quantity -= spaceLeft; // 남은 아이템 수량 갱신 후 계속 다음 루프 진행
                         }
                     }
@@ -136,21 +148,21 @@ public class Inventory : MonoBehaviour
         // 2. 기존 스택을 다 채우고도 남았거나, 아예 빈칸에 새로 넣어야 하는 경우
         if (newItem.quantity > 0)
         {
-            for (int i = 0; i < items.Length; i++)
+            for (int i = 0; i < arr.Length; i++)
             {
-                if (items[i] == null)
+                if (arr[i] == null)
                 {
                     // 획득한 아이템 자체가 Max Stack보다 많을 수 있으므로 분할해서 넣기
                     if (newItem.quantity <= newItem.data.maxStackAmount)
                     {
-                        items[i] = new Item(newItem.data, newItem.quantity);
+                        arr[i] = new Item(newItem.data, newItem.quantity);
                         newItem.quantity = 0;
                         onItemChangedCallback?.Invoke();
                         return true;
                     }
                     else
                     {
-                        items[i] = new Item(newItem.data, newItem.data.maxStackAmount);
+                        arr[i] = new Item(newItem.data, newItem.data.maxStackAmount);
                         newItem.quantity -= newItem.data.maxStackAmount;
                         // 수량이 아직 남았으므로 다음 빈칸 탐색 계속
                     }
@@ -158,25 +170,18 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        // 3. 여기까지 왔는데도 남은 수량이 있다면 인벤토리가 꽉 찬 것
-        if (newItem.quantity > 0)
-        {
-            Debug.Log($"인벤토리가 가득 차서 {newItem.data.displayName} {newItem.quantity}개를 획득하지 못했습니다.");
-            onItemChangedCallback?.Invoke(); // 일부는 들어갔을 수 있으니 UI 새로고침
-            return false;
-        }
-
-        return true;
+        return newItem.quantity <= 0;
     }
 
     /// <summary>
     /// 특정 인덱스의 아이템을 제거 (UI 드래그나 버리기 등에서 사용)
     /// </summary>
-    public void RemoveAt(int index)
+    public void RemoveAt(int index, bool isQuickSlot = false)
     {
-        if (IsIndexValid(index))
+        var arr = GetArray(isQuickSlot);
+        if (IsIndexValid(arr, index))
         {
-            items[index] = null; // 리스트 삭제가 아니라 null로 비움
+            arr[index] = null; // 리스트 삭제가 아니라 null로 비움
             onItemChangedCallback?.Invoke();
         }
     }
@@ -200,16 +205,17 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary>
-    /// 인벤 특정 index에서 1개를 꺼냄 (장착 등에 사용)
+    /// 인벤(또는 퀵슬롯) 특정 index에서 1개를 꺼냄 (장착 등에 사용)
     /// - 수량이 많으면 1개 줄이고, 1개면 null로 만듦
     /// </summary>
-    public bool TryTakeOneAt(int index, out Item taken)
+    public bool TryTakeOneAt(int index, bool isQuickSlot, out Item taken)
     {
         taken = null;
 
-        if (!IsIndexValid(index)) return false;
+        var arr = GetArray(isQuickSlot);
+        if (!IsIndexValid(arr, index)) return false;
 
-        var src = items[index];
+        var src = arr[index];
         if (src == null) return false;
 
         // 스택 분리 (수량이 1보다 크고 스택 가능할 때)
@@ -222,16 +228,16 @@ public class Inventory : MonoBehaviour
         }
 
         // 통째로 꺼내기 (슬롯을 비움)
-        items[index] = null;
+        arr[index] = null;
         taken = src;
         onItemChangedCallback?.Invoke();
         return true;
     }
 
     // 인덱스 유효성 검사 헬퍼
-    private bool IsIndexValid(int index)
+    private bool IsIndexValid(Item[] arr, int index)
     {
-        return index >= 0 && index < items.Length;
+        return index >= 0 && index < arr.Length;
     }
 
     // 편의용: Data만으로 추가

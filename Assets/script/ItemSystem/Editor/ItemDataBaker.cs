@@ -1,74 +1,125 @@
 using UnityEngine;
-using UnityEditor; // ¿¡µğÅÍ Àü¿ë ³×ÀÓ½ºÆäÀÌ½º
+using UnityEditor; // ì—ë””í„° ì „ìš© ë„¤ì„ìŠ¤í˜ì´ìŠ¤
 using System.Collections.Generic;
 
 public class ItemDataBaker : EditorWindow
 {
-    // À¯´ÏÆ¼ »ó´Ü ¸Ş´º¿¡ 'Tools > ¾ÆÀÌÅÛ µ¥ÀÌÅÍ ±Á±â(CSV -> SO)' ¹öÆ°À» »ı¼ºÇÕ´Ï´Ù.
-    [MenuItem("Tools/¾ÆÀÌÅÛ µ¥ÀÌÅÍ ±Á±â(CSV -> SO)")]
+    // CSVì— ë°˜ë“œì‹œ ìˆì–´ì•¼ í•˜ëŠ” ì»¬ëŸ¼ë“¤. ìˆœì„œê°€ ë°”ë€Œê±°ë‚˜ ìƒˆ ì»¬ëŸ¼ì´ ë¼ì–´ë“¤ì–´ë„
+    // ì´ë¦„ìœ¼ë¡œ ì°¾ê¸° ë•Œë¬¸ì— ì•ˆì „í•˜ë‹¤.
+    private static readonly string[] RequiredColumns =
+    {
+        "itemID", "ItemType", "Name", "Description", "canStack",
+        "MaxStack", "type", "isConsumable", "equipSlot", "atk", "def"
+    };
+
+    // ìœ ë‹ˆí‹° ìƒë‹¨ ë©”ë‰´ì— 'Tools > ì•„ì´í…œ ë°ì´í„° êµ½ê¸°(CSV -> SO)' ë²„íŠ¼ì„ ìƒì„±í•©ë‹ˆë‹¤.
+    [MenuItem("Tools/ì•„ì´í…œ ë°ì´í„° êµ½ê¸°(CSV -> SO)")]
     public static void BakeItemData()
     {
-        // 1. CSV ÆÄÀÏ ·Îµå (±âÁ¸ ItemDataCsvLoader¿Í µ¿ÀÏÇÑ À§Ä¡)
+        // 1. CSV íŒŒì¼ ë¡œë“œ (ê¸°ì¡´ ItemDataCsvLoaderì™€ ë™ì¼í•œ ìœ„ì¹˜)
         TextAsset csvFile = Resources.Load<TextAsset>("ItemDatabase");
         if (csvFile == null)
         {
-            Debug.LogError("Resources Æú´õ¿¡¼­ ItemDatabase.csv ÆÄÀÏÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("Resources í´ë”ì—ì„œ ItemDatabase.csv íŒŒì¼ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // 2. ¿¡¼ÂÀ» ÀúÀåÇÒ Æú´õ È®ÀÎ ¹× »ı¼º
+        string[] lines = csvFile.text.Split('\n');
+        if (lines.Length == 0)
+        {
+            Debug.LogError("[ItemDataBaker] CSV íŒŒì¼ì´ ë¹„ì–´ ìˆìŠµë‹ˆë‹¤.");
+            return;
+        }
+
+        // í—¤ë” ì¤„ì„ ì»¬ëŸ¼ ì´ë¦„ -> ì¸ë±ìŠ¤ë¡œ ë§¤í•‘ (ìœ„ì¹˜ê°€ ì•„ë‹ˆë¼ ì´ë¦„ìœ¼ë¡œ ê°’ì„ ì°¾ê¸° ìœ„í•¨)
+        string[] header = lines[0].Split(',');
+        var colIndex = new Dictionary<string, int>();
+        for (int c = 0; c < header.Length; c++)
+        {
+            colIndex[header[c].Trim()] = c;
+        }
+
+        foreach (var required in RequiredColumns)
+        {
+            if (!colIndex.ContainsKey(required))
+            {
+                Debug.LogError($"[ItemDataBaker] CSV í—¤ë”ì— '{required}' ì»¬ëŸ¼ì´ ì—†ìŠµë‹ˆë‹¤. êµ½ê¸°ë¥¼ ì¤‘ë‹¨í•©ë‹ˆë‹¤.");
+                return;
+            }
+        }
+
+        // 2. ì—ì…‹ì„ ì €ì¥í•  í´ë” í™•ì¸ ë° ìƒì„±
         string folderPath = "Assets/Resources/ItemDataAssets";
         if (!AssetDatabase.IsValidFolder(folderPath))
         {
-            // Æú´õ°¡ ¾øÀ¸¸é »õ·Î ¸¸µì´Ï´Ù.
+            // í´ë”ê°€ ì—†ìœ¼ë©´ ìƒˆë¡œ ë§Œë“­ë‹ˆë‹¤.
             AssetDatabase.CreateFolder("Assets/Resources", "ItemDataAssets");
         }
 
-        string[] lines = csvFile.text.Split('\n');
         List<ItemData> bakedItems = new List<ItemData>();
+        HashSet<string> seenIds = new HashSet<string>();
 
-        // 3. CSV ÆÄ½Ì ¹× ScriptableObject »ı¼º/¾÷µ¥ÀÌÆ®
+        // 3. CSV íŒŒì‹± ë° ScriptableObject ìƒì„±/ì—…ë°ì´íŠ¸
         for (int i = 1; i < lines.Length; i++)
         {
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
             string[] cols = lines[i].Split(',');
-            if (cols.Length < 11) continue;
+            if (cols.Length < header.Length)
+            {
+                Debug.LogWarning($"[ItemDataBaker] CSV {i + 1}ë²ˆì§¸ ì¤„ì˜ ì»¬ëŸ¼ ìˆ˜ê°€ ë¶€ì¡±í•©ë‹ˆë‹¤ (í•„ìš” {header.Length}ê°œ, ì‹¤ì œ {cols.Length}ê°œ). ì´ ì¤„ì„ ê±´ë„ˆëœë‹ˆë‹¤.");
+                continue;
+            }
 
-            string itemID = cols[0].Trim();
+            string Col(string name) => cols[colIndex[name]].Trim();
+
+            string itemID = Col("itemID");
+            if (string.IsNullOrEmpty(itemID))
+            {
+                Debug.LogWarning($"[ItemDataBaker] CSV {i + 1}ë²ˆì§¸ ì¤„ì˜ itemIDê°€ ë¹„ì–´ ìˆì–´ ê±´ë„ˆëœë‹ˆë‹¤.");
+                continue;
+            }
+
+            // ì¤‘ë³µ itemIDëŠ” ê°™ì€ .assetì„ ë®ì–´ì¨ì„œ ë¨¼ì € êµ¬ìš´ ì•„ì´í…œ ë°ì´í„°ë¥¼ ì¡°ìš©íˆ ì§€ì›Œë²„ë¦¬ë¯€ë¡œ ê±´ë„ˆë›´ë‹¤.
+            if (!seenIds.Add(itemID))
+            {
+                Debug.LogWarning($"[ItemDataBaker] ì¤‘ë³µëœ itemID '{itemID}' (CSV {i + 1}ë²ˆì§¸ ì¤„)ë¥¼ ê±´ë„ˆëœë‹ˆë‹¤. itemIDëŠ” ê³ ìœ í•´ì•¼ í•©ë‹ˆë‹¤.");
+                continue;
+            }
+
             string assetPath = $"{folderPath}/{itemID}.asset";
 
-            // ÀÌ¹Ì ÇØ´ç IDÀÇ ¿¡¼ÂÀÌ ÀÖ´ÂÁö È®ÀÎ
+            // ì´ë¯¸ í•´ë‹¹ IDì˜ ì—ì…‹ì´ ìˆëŠ”ì§€ í™•ì¸
             ItemData itemData = AssetDatabase.LoadAssetAtPath<ItemData>(assetPath);
             if (itemData == null)
             {
-                // ¾øÀ¸¸é »õ·Î »ı¼º
+                // ì—†ìœ¼ë©´ ìƒˆë¡œ ìƒì„±
                 itemData = ScriptableObject.CreateInstance<ItemData>();
                 AssetDatabase.CreateAsset(itemData, assetPath);
             }
 
-            // µ¥ÀÌÅÍ µ¤¾î¾²±â (±âÁ¸ ÆÄ½Ì ·ÎÁ÷ Àû¿ë)
+            // ë°ì´í„° ë®ì–´ì“°ê¸°
             itemData.itemID = itemID;
-            System.Enum.TryParse(cols[1].Trim(), true, out itemData.itemType);
-            itemData.displayName = cols[2].Trim();
-            itemData.description = cols[3].Trim();
-            itemData.canStack = cols[4].Trim().ToLower() == "true";
-            int.TryParse(cols[5].Trim(), out itemData.maxStackAmount);
-            itemData.type = cols[6].Trim();
-            itemData.isConsumable = cols[7].Trim().ToLower() == "true";
-            System.Enum.TryParse(cols[8].Trim(), true, out itemData.equipSlot);
-            int.TryParse(cols[9].Trim(), out itemData.atk);
-            int.TryParse(cols[10].Trim(), out itemData.def);
+            itemData.itemType = ParseEnumOrWarn<ItemType>(Col("ItemType"), itemID, "ItemType", i + 1);
+            itemData.displayName = Col("Name");
+            itemData.description = Col("Description");
+            itemData.canStack = Col("canStack").ToLower() == "true";
+            itemData.maxStackAmount = ParseIntOrWarn(Col("MaxStack"), itemID, "MaxStack", i + 1);
+            itemData.type = Col("type");
+            itemData.isConsumable = Col("isConsumable").ToLower() == "true";
+            itemData.equipSlot = ParseEnumOrWarn<EquipmentSlotType>(Col("equipSlot"), itemID, "equipSlot", i + 1);
+            itemData.atk = ParseIntOrWarn(Col("atk"), itemID, "atk", i + 1);
+            itemData.def = ParseIntOrWarn(Col("def"), itemID, "def", i + 1);
 
-            // ¾ÆÀÌÄÜ ¿¬°á
+            // ì•„ì´ì½˜ ì—°ê²°
             itemData.icon = Resources.Load<Sprite>($"icon/{itemID}");
 
-            // º¯°æ»çÇ×ÀÌ ÀÖ´Ù°í ¿¡µğÅÍ¿¡ ¾Ë¸²
+            // ë³€ê²½ì‚¬í•­ì´ ìˆë‹¤ê³  ì—ë””í„°ì— ì•Œë¦¼
             EditorUtility.SetDirty(itemData);
             bakedItems.Add(itemData);
         }
 
-        // 4. ItemDatabaseSO(ÅëÇÕ DB) ¾÷µ¥ÀÌÆ®
+        // 4. ItemDatabaseSO(í†µí•© DB) ì—…ë°ì´íŠ¸
         string dbPath = "Assets/Resources/ItemDatabase.asset";
         ItemDatabaseSO database = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>(dbPath);
         if (database == null)
@@ -77,14 +128,34 @@ public class ItemDataBaker : EditorWindow
             AssetDatabase.CreateAsset(database, dbPath);
         }
 
-        // ±¸¿öÁø ¾ÆÀÌÅÛ ¸®½ºÆ®¸¦ DB¿¡ °»½Å
+        // êµ¬ì›Œì§„ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ë¥¼ DBì— ê°±ì‹ 
         database.allItems = bakedItems;
         EditorUtility.SetDirty(database);
 
-        // 5. ½ÇÁ¦ ÆÄÀÏ·Î ÀúÀåÇÏ°í ÇÁ·ÎÁ§Æ® Ã¢ »õ·Î°íÄ§
+        // 5. ì‹¤ì œ íŒŒì¼ë¡œ ì €ì¥í•˜ê³  í”„ë¡œì íŠ¸ ì°½ ìƒˆë¡œê³ ì¹¨
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Debug.Log($"<color=green>¼º°ø!</color> {bakedItems.Count}°³ÀÇ ¾ÆÀÌÅÛ µ¥ÀÌÅÍ°¡ ScriptableObject·Î ±¸¿öÁ³½À´Ï´Ù.");
+        Debug.Log($"<color=green>ì„±ê³µ!</color> {bakedItems.Count}ê°œì˜ ì•„ì´í…œ ë°ì´í„°ê°€ ScriptableObjectë¡œ êµ¬ì›Œì¡ŒìŠµë‹ˆë‹¤.");
+    }
+
+    // ê°’ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì¡°ìš©íˆ 0, ê°’ì´ ìˆëŠ”ë° ìˆ«ìê°€ ì•„ë‹ˆë©´ ê²½ê³  í›„ 0
+    private static int ParseIntOrWarn(string raw, string itemID, string columnName, int lineNumber)
+    {
+        if (string.IsNullOrEmpty(raw)) return 0;
+        if (int.TryParse(raw, out int value)) return value;
+
+        Debug.LogWarning($"[ItemDataBaker] '{itemID}'ì˜ {columnName} ê°’ '{raw}'ì´(ê°€) ìˆ«ìê°€ ì•„ë‹ˆì–´ì„œ 0ìœ¼ë¡œ ì²˜ë¦¬ë©ë‹ˆë‹¤. (CSV {lineNumber}ë²ˆì§¸ ì¤„)");
+        return 0;
+    }
+
+    // ê°’ì´ ë¹„ì–´ ìˆìœ¼ë©´ ì¡°ìš©íˆ ê¸°ë³¸ê°’, ê°’ì´ ìˆëŠ”ë° enum ì´ë¦„ê³¼ ì•ˆ ë§ìœ¼ë©´ ê²½ê³  í›„ ê¸°ë³¸ê°’
+    private static T ParseEnumOrWarn<T>(string raw, string itemID, string columnName, int lineNumber) where T : struct, System.Enum
+    {
+        if (string.IsNullOrEmpty(raw)) return default;
+        if (System.Enum.TryParse<T>(raw, true, out T value)) return value;
+
+        Debug.LogWarning($"[ItemDataBaker] '{itemID}'ì˜ {columnName} ê°’ '{raw}'ì„(ë¥¼) ì•Œ ìˆ˜ ì—†ì–´ {default(T)}(ìœ¼)ë¡œ ì²˜ë¦¬ë©ë‹ˆë‹¤. (CSV {lineNumber}ë²ˆì§¸ ì¤„)");
+        return default;
     }
 }

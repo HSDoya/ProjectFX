@@ -52,11 +52,6 @@ public class Tile_Fishing : MonoBehaviour
         {
             Debug.Log("인벤토리에 공간이 부족합니다.");
         }
-
-        foreach (Item item in Inventory.instance.items)
-        {
-            Debug.Log("- " + item.data.displayName);
-        }
     }
     public void yesButton()
     {

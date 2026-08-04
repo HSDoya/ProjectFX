@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -7,9 +7,9 @@ public class ItemDragController : MonoBehaviour
     public static ItemDragController Instance { get; private set; }
 
     [Header("Drag Visual")]
-    public RectTransform dragIconRoot;   // DragIconÀÇ RectTransform ºÎ¸ğ
-    public Image dragIconImage;          // ½ÇÁ¦ ¾ÆÀÌÄÜ Image
-    public Canvas canvas;                // ÃÖ»óÀ§ Canvas (ÁÂÇ¥ º¯È¯¿ë)
+    public RectTransform dragIconRoot;   // DragIconì˜ RectTransform ë¶€ëª¨
+    public Image dragIconImage;          // ì‹¤ì œ ì•„ì´ì½˜ Image
+    public Canvas canvas;                // ìµœìƒìœ„ Canvas (ì¢Œí‘œ ë³€í™˜ìš©)
 
     private ItemSlot sourceSlot;
     private Item draggedItem;
@@ -26,7 +26,7 @@ public class ItemDragController : MonoBehaviour
 
         if (dragIconImage != null)
         {
-            dragIconImage.raycastTarget = false; // µå·¡±× ÁßÀÎ ¾ÆÀÌÄÜÀÌ ¸¶¿ì½º ÀÌº¥Æ®¸¦ °¡·ÎÃ¤Áö ¾Ê°Ô ¼³Á¤
+            dragIconImage.raycastTarget = false; // ë“œë˜ê·¸ ì¤‘ì¸ ì•„ì´ì½˜ì´ ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ë¥¼ ê°€ë¡œì±„ì§€ ì•Šê²Œ ì„¤ì •
             dragIconImage.enabled = false;
         }
     }
@@ -37,7 +37,7 @@ public class ItemDragController : MonoBehaviour
     {
         if (source == null || item == null || item.data == null) return;
 
-        // ÇÊ¼ö ÄÄÆ÷³ÍÆ® Ã¼Å©
+        // í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ ì²´í¬
         if (dragIconRoot == null || dragIconImage == null || canvas == null)
         {
             Debug.LogError("ItemDragController: dragIconRoot, dragIconImage, or canvas is missing!");
@@ -48,11 +48,11 @@ public class ItemDragController : MonoBehaviour
         draggedItem = item;
         isDragging = true;
 
-        // µå·¡±× ÀÌ¹ÌÁö ¼³Á¤
+        // ë“œë˜ê·¸ ì´ë¯¸ì§€ ì„¤ì •
         dragIconImage.sprite = icon;
         dragIconImage.enabled = true;
 
-        // ¾ÆÀÌÄÜ Å©±â¸¦ ½½·Ô°ú ºñ½ÁÇÏ°Ô ¸ÂÃß·Á¸é ¿©±â¼­ sizeDelta Á¶Á¤ °¡´É
+        // ì•„ì´ì½˜ í¬ê¸°ë¥¼ ìŠ¬ë¡¯ê³¼ ë¹„ìŠ·í•˜ê²Œ ë§ì¶”ë ¤ë©´ ì—¬ê¸°ì„œ sizeDelta ì¡°ì • ê°€ëŠ¥
         // dragIconRoot.sizeDelta = new Vector2(50, 50); 
 
         SetDragPosition(Input.mousePosition);
@@ -86,14 +86,14 @@ public class ItemDragController : MonoBehaviour
             return;
         }
 
-        // 1) Å¸°Ù ½½·ÔÀÌ µå·¡±× ¾ÆÀÌÅÛÀ» ¹ŞÀ» ¼ö ÀÖ´ÂÁö È®ÀÎ (¿¹: Àåºñ ½½·Ô Å¸ÀÔ Ã¼Å©)
+        // 1) íƒ€ê²Ÿ ìŠ¬ë¡¯ì´ ë“œë˜ê·¸ ì•„ì´í…œì„ ë°›ì„ ìˆ˜ ìˆëŠ”ì§€ í™•ì¸ (ì˜ˆ: ì¥ë¹„ ìŠ¬ë¡¯ íƒ€ì… ì²´í¬)
         if (!targetSlot.CanReceive(draggedItem))
         {
             EndDrag();
             return;
         }
 
-        // 2) (½º¿ÒÀÏ °æ¿ì) ¼Ò½º ½½·ÔÀÌ Å¸°Ù ¾ÆÀÌÅÛÀ» ¹ŞÀ» ¼ö ÀÖ´ÂÁöµµ È®ÀÎ
+        // 2) (ìŠ¤ì™‘ì¼ ê²½ìš°) ì†ŒìŠ¤ ìŠ¬ë¡¯ì´ íƒ€ê²Ÿ ì•„ì´í…œì„ ë°›ì„ ìˆ˜ ìˆëŠ”ì§€ë„ í™•ì¸
         var targetItem = targetSlot.CurrentItem;
         if (targetItem != null && !sourceSlot.CanReceive(targetItem))
         {
@@ -101,7 +101,7 @@ public class ItemDragController : MonoBehaviour
             return;
         }
 
-        // 3) ½ÇÁ¦ ÀÌµ¿/½º¿Ò ¼öÇà
+        // 3) ì‹¤ì œ ì´ë™/ìŠ¤ì™‘ ìˆ˜í–‰
         PerformMove(sourceSlot, targetSlot, draggedItem, targetItem);
 
         EndDrag();
@@ -109,21 +109,21 @@ public class ItemDragController : MonoBehaviour
 
     private void PerformMove(ItemSlot src, ItemSlot dst, Item srcItem, Item dstItem)
     {
-        // ÄÉÀÌ½º A: ÀÎº¥/Äü½½·Ô ³»ºÎ ¹× »óÈ£ ½º¿Ò (ÀÎµ¦½º ´ë½Å UI ÄÄÆ÷³ÍÆ® ÀÚÃ¼¸¦ ³Ñ±âµµ·Ï ¼öÁ¤)
+        // ì¼€ì´ìŠ¤ A: ì¸ë²¤/í€µìŠ¬ë¡¯ ë‚´ë¶€ ë° ìƒí˜¸ ìŠ¤ì™‘ (ì¸ë±ìŠ¤ ëŒ€ì‹  UI ì»´í¬ë„ŒíŠ¸ ìì²´ë¥¼ ë„˜ê¸°ë„ë¡ ìˆ˜ì •)
         if (src is InventorySlotUI invA && dst is InventorySlotUI invB)
         {
             SwapInventory(invA, invB);
             return;
         }
 
-        // ÄÉÀÌ½º B: ÀÎº¥ ¡æ Àåºñ (ÀåÂø)
+        // ì¼€ì´ìŠ¤ B: ì¸ë²¤ â†’ ì¥ë¹„ (ì¥ì°©)
         if (src is InventorySlotUI invSrc && dst is EquipmentSlotUI eqDst)
         {
             EquipFromInventory(invSrc, eqDst);
             return;
         }
 
-        // ÄÉÀÌ½º C: Àåºñ ¡æ ÀÎº¥ (ÇØÁ¦)
+        // ì¼€ì´ìŠ¤ C: ì¥ë¹„ â†’ ì¸ë²¤ (í•´ì œ)
         if (src is EquipmentSlotUI eqSrc && dst is InventorySlotUI invDst)
         {
             UnequipToInventory(eqSrc, invDst);
@@ -132,91 +132,92 @@ public class ItemDragController : MonoBehaviour
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸® ¹× Äü½½·Ô »óÈ£ ½º¿Ò Ã³¸®
+    /// ì¸ë²¤í† ë¦¬ ë° í€µìŠ¬ë¡¯ ìƒí˜¸ ìŠ¤ì™‘ ì²˜ë¦¬
     /// </summary>
     private void SwapInventory(InventorySlotUI invA, InventorySlotUI invB)
     {
-        // 1. °¢ ½½·ÔÀÌ Äü½½·ÔÀÎÁö ¸ŞÀÎ ÀÎº¥Åä¸®ÀÎÁö¿¡ µû¶ó ÂüÁ¶ÇÒ ¹è¿­À» ´Ù¸£°Ô °¡Á®¿É´Ï´Ù.
+        // 1. ê° ìŠ¬ë¡¯ì´ í€µìŠ¬ë¡¯ì¸ì§€ ë©”ì¸ ì¸ë²¤í† ë¦¬ì¸ì§€ì— ë”°ë¼ ì°¸ì¡°í•  ë°°ì—´ì„ ë‹¤ë¥´ê²Œ ê°€ì ¸ì˜µë‹ˆë‹¤.
         Item[] arrA = invA.isQuickSlot ? Inventory.instance.quickSlots : Inventory.instance.items;
         Item[] arrB = invB.isQuickSlot ? Inventory.instance.quickSlots : Inventory.instance.items;
 
-        // 2. ¿¹¿Ü Ã³¸® (¹è¿­ÀÌ ¾ø°Å³ª, ÀÎµ¦½º°¡ ¹üÀ§¸¦ ¹ş¾î³ª¸é Áß´Ü)
+        // 2. ì˜ˆì™¸ ì²˜ë¦¬ (ë°°ì—´ì´ ì—†ê±°ë‚˜, ì¸ë±ìŠ¤ê°€ ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ë©´ ì¤‘ë‹¨)
         if (arrA == null || arrB == null) return;
         if (invA.slotIndex < 0 || invA.slotIndex >= arrA.Length) return;
         if (invB.slotIndex < 0 || invB.slotIndex >= arrB.Length) return;
 
-        // 3. ½ÇÁ¦ µ¥ÀÌÅÍ ±³È¯ (ºóÄ­ null Æ÷ÇÔ)
+        // 3. ì‹¤ì œ ë°ì´í„° êµí™˜ (ë¹ˆì¹¸ null í¬í•¨)
         var tmp = arrA[invA.slotIndex];
         arrA[invA.slotIndex] = arrB[invB.slotIndex];
         arrB[invB.slotIndex] = tmp;
 
-        // 4. UI °»½Å ¾Ë¸²
+        // 4. UI ê°±ì‹  ì•Œë¦¼
         Inventory.instance.RefreshUI();
     }
 
     private void EquipFromInventory(InventorySlotUI invSrc, EquipmentSlotUI eqDst)
     {
-        // 1. ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛ ²¨³»±â (¹è¿­ ÀÎµ¦½º »ç¿ë)
-        if (!Inventory.instance.TryTakeOneAt(invSrc.slotIndex, out var taken))
+        // 1. ì¸ë²¤í† ë¦¬(ë˜ëŠ” í€µìŠ¬ë¡¯)ì—ì„œ ì•„ì´í…œ êº¼ë‚´ê¸° (ë°°ì—´ ì¸ë±ìŠ¤ ì‚¬ìš©)
+        if (!Inventory.instance.TryTakeOneAt(invSrc.slotIndex, invSrc.isQuickSlot, out var taken))
             return;
 
-        // 2. ÀåÂø ½Ãµµ (¸Å´ÏÀú°¡ ½½·Ô Å¸ÀÔ ÀÏÄ¡ ¿©ºÎ È®ÀÎ)
-        // ±âÁ¸ ÀåÂøµÈ ¾ÆÀÌÅÛÀÌ ÀÖ´Ù¸é replaced·Î ¹İÈ¯µÊ
+        // 2. ì¥ì°© ì‹œë„ (ë§¤ë‹ˆì €ê°€ ìŠ¬ë¡¯ íƒ€ì… ì¼ì¹˜ ì—¬ë¶€ í™•ì¸)
+        // ê¸°ì¡´ ì¥ì°©ëœ ì•„ì´í…œì´ ìˆë‹¤ë©´ replacedë¡œ ë°˜í™˜ë¨
         var replaced = EquipmentManager.instance.Equip(eqDst.slotType, taken);
 
-        // 3. ±³Ã¼µÈ ¾ÆÀÌÅÛ(±âÁ¸ Àåºñ) Ã³¸®
+        // 3. êµì²´ëœ ì•„ì´í…œ(ê¸°ì¡´ ì¥ë¹„) ì²˜ë¦¬
         if (replaced != null)
         {
-            // A. ¿ø·¡ ÀÖ´ø ÀÎº¥Åä¸® ÀÚ¸®(invSrc.slotIndex)°¡ ºñ¾îÀÖÀ¸¸é °Å±â·Î ³ÖÀ½ (½º¿Ò ´À³¦)
-            if (Inventory.instance.items[invSrc.slotIndex] == null)
+            // A. ì›ë˜ ìˆë˜ ìë¦¬(invSrc.slotIndex)ê°€ ë¹„ì–´ìˆìœ¼ë©´ ê±°ê¸°ë¡œ ë„£ìŒ (ìŠ¤ì™‘ ëŠë‚Œ)
+            var srcArr = Inventory.instance.GetArray(invSrc.isQuickSlot);
+            if (srcArr[invSrc.slotIndex] == null)
             {
-                Inventory.instance.items[invSrc.slotIndex] = replaced;
-                Inventory.instance.RefreshUI(); // UI °»½Å ÇÊ¼ö
+                srcArr[invSrc.slotIndex] = replaced;
+                Inventory.instance.RefreshUI(); // UI ê°±ì‹  í•„ìˆ˜
             }
-            // B. ¿ø·¡ ÀÚ¸®°¡ ¾È ºñ¾úÀ¸¸é(½ºÅÃ ºĞ¸® µî Èñ±Í ÄÉÀÌ½º) ºóÄ­ Ã£¾Æ ³Ö±â
+            // B. ì›ë˜ ìë¦¬ê°€ ì•ˆ ë¹„ì—ˆìœ¼ë©´(ìŠ¤íƒ ë¶„ë¦¬ ë“± í¬ê·€ ì¼€ì´ìŠ¤) ë¹ˆì¹¸ ì°¾ì•„ ë„£ê¸°
             else
             {
                 bool ok = Inventory.instance.AddItem(replaced);
                 if (!ok)
                 {
-                    // ÀÎº¥ ²Ë Âü -> ÀåÂø Ãë¼Ò(¿øº¹)
-                    Debug.Log("ÀÎº¥Åä¸®°¡ ²Ë Â÷¼­ Àåºñ¸¦ ±³Ã¼ÇÒ ¼ö ¾ø½À´Ï´Ù.");
-                    EquipmentManager.instance.Equip(eqDst.slotType, replaced); // ´Ù½Ã ¿ø·¡ Àåºñ ÀåÂø
-                    Inventory.instance.AddItem(taken); // »©³½ ¾ÆÀÌÅÛ ´Ù½Ã ÀÎº¥À¸·Î
+                    // ì¸ë²¤ ê½‰ ì°¸ -> ì¥ì°© ì·¨ì†Œ(ì›ë³µ)
+                    Debug.Log("ì¸ë²¤í† ë¦¬ê°€ ê½‰ ì°¨ì„œ ì¥ë¹„ë¥¼ êµì²´í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+                    EquipmentManager.instance.Equip(eqDst.slotType, replaced); // ë‹¤ì‹œ ì›ë˜ ì¥ë¹„ ì¥ì°©
+                    Inventory.instance.AddItem(taken); // ë¹¼ë‚¸ ì•„ì´í…œ ë‹¤ì‹œ ì¸ë²¤ìœ¼ë¡œ
                 }
             }
         }
         else
         {
-            // ±³Ã¼µÈ ÅÛÀÌ ¾øÀ¸¸é ±×³É ¼º°ø -> ÀÎº¥Åä¸® UI¸¸ °»½ÅÇÏ¸é µÊ
+            // êµì²´ëœ í…œì´ ì—†ìœ¼ë©´ ê·¸ëƒ¥ ì„±ê³µ -> ì¸ë²¤í† ë¦¬ UIë§Œ ê°±ì‹ í•˜ë©´ ë¨
             Inventory.instance.RefreshUI();
         }
     }
 
     private void UnequipToInventory(EquipmentSlotUI eqSrc, InventorySlotUI invDst)
     {
-        // ¸ñÀûÁö ½½·Ô(invDst)¿¡ ¾ÆÀÌÅÛÀÌ ÀÖÀ¸¸é ½º¿Ò ºÒ°¡ (Àåºñ ÇØÁ¦´Â º¸Åë ºóÄ­¿¡¸¸ Çã¿ë)
-        // ±âÈ¹¿¡ µû¶ó Àåºñ<->ÀÎº¥¾ÆÀÌÅÛ ½º¿ÒÀ» Çã¿ëÇÒ ¼öµµ ÀÖÁö¸¸, º¹ÀâÇÏ¹Ç·Î ¿©±â¼± ºóÄ­ÀÏ ¶§¸¸.
+        // ëª©ì ì§€ ìŠ¬ë¡¯(invDst)ì— ì•„ì´í…œì´ ìˆìœ¼ë©´ ìŠ¤ì™‘ ë¶ˆê°€ (ì¥ë¹„ í•´ì œëŠ” ë³´í†µ ë¹ˆì¹¸ì—ë§Œ í—ˆìš©)
+        // ê¸°íšì— ë”°ë¼ ì¥ë¹„<->ì¸ë²¤ì•„ì´í…œ ìŠ¤ì™‘ì„ í—ˆìš©í•  ìˆ˜ë„ ìˆì§€ë§Œ, ë³µì¡í•˜ë¯€ë¡œ ì—¬ê¸°ì„  ë¹ˆì¹¸ì¼ ë•Œë§Œ.
         if (invDst.CurrentItem != null)
         {
-            Debug.Log("Àåºñ ÇØÁ¦´Â ºó ½½·ÔÀ¸·Î¸¸ °¡´ÉÇÕ´Ï´Ù.");
-            // (ÇÊ¿äÇÏ¸é ¿©±â¼­ Swap ·ÎÁ÷À» ±¸ÇöÇÒ ¼öµµ ÀÖ½À´Ï´Ù)
+            Debug.Log("ì¥ë¹„ í•´ì œëŠ” ë¹ˆ ìŠ¬ë¡¯ìœ¼ë¡œë§Œ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
+            // (í•„ìš”í•˜ë©´ ì—¬ê¸°ì„œ Swap ë¡œì§ì„ êµ¬í˜„í•  ìˆ˜ë„ ìˆìŠµë‹ˆë‹¤)
             return;
         }
 
         var removed = EquipmentManager.instance.Unequip(eqSrc.slotType);
         if (removed == null) return;
 
-        // µå·ÓÇÑ Æ¯Á¤ ½½·Ô(invDst.slotIndex)¿¡ ³Ö±â
-        var items = Inventory.instance.items;
-        if (invDst.slotIndex >= 0 && invDst.slotIndex < items.Length)
+        // ë“œë¡­í•œ íŠ¹ì • ìŠ¬ë¡¯(invDst.slotIndex)ì— ë„£ê¸° (í€µìŠ¬ë¡¯/ë©”ì¸ ì¸ë²¤ êµ¬ë¶„)
+        var dstArr = Inventory.instance.GetArray(invDst.isQuickSlot);
+        if (invDst.slotIndex >= 0 && invDst.slotIndex < dstArr.Length)
         {
-            items[invDst.slotIndex] = removed;
+            dstArr[invDst.slotIndex] = removed;
             Inventory.instance.RefreshUI();
         }
         else
         {
-            // ÀÎµ¦½º ¿À·ù ½Ã ±×³É ÀÚµ¿ Ãß°¡
+            // ì¸ë±ìŠ¤ ì˜¤ë¥˜ ì‹œ ê·¸ëƒ¥ ìë™ ì¶”ê°€
             Inventory.instance.AddItem(removed);
         }
     }
@@ -225,9 +226,9 @@ public class ItemDragController : MonoBehaviour
     {
         if (canvas == null) return;
 
-        // CanvasÀÇ RenderMode¿¡ µû¶ó ÁÂÇ¥ º¯È¯ ¹æ½ÄÀÌ ´Ù¸¦ ¼ö ÀÖÀ½
-        // ScreenSpace-OverlayÀÏ °æ¿ì ±×³É position ´ëÀÔÇØµµ µÇÁö¸¸, 
-        // ScreenSpace-Camera³ª WorldSpaceÀÏ °æ¿ì ¾Æ·¡ ¹æ½ÄÀÌ ¾ÈÀüÇÔ.
+        // Canvasì˜ RenderModeì— ë”°ë¼ ì¢Œí‘œ ë³€í™˜ ë°©ì‹ì´ ë‹¤ë¥¼ ìˆ˜ ìˆìŒ
+        // ScreenSpace-Overlayì¼ ê²½ìš° ê·¸ëƒ¥ position ëŒ€ì…í•´ë„ ë˜ì§€ë§Œ, 
+        // ScreenSpace-Cameraë‚˜ WorldSpaceì¼ ê²½ìš° ì•„ë˜ ë°©ì‹ì´ ì•ˆì „í•¨.
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvas.transform as RectTransform,
             screenPos,

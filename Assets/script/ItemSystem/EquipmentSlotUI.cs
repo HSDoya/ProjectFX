@@ -1,10 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     [Header("Slot Rule")]
-    public EquipmentSlotType slotType;   // ¡Ú ¹Ýµå½Ã ÇÊ¿ä
+    public EquipmentSlotType slotType;   // â˜… ë°˜ë“œì‹œ í•„ìš”
 
     [Header("UI")]
     public ItemUI itemUI;

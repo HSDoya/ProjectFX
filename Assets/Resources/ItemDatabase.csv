@@ -1,21 +1,21 @@
 itemID,ItemType,Name,Description,canStack,MaxStack,type,isConsumable,equipSlot,atk,def
-fish,Consumable,°íµî¾î ,À½½Ä,TRUE,99,food,TRUE,None,None,None
-fish,Consumable,ÂüÄ¡,À½½Ä,TRUE,99,food,TRUE,None,None,None
-Wood,Material,³ª¹«ÆÇÀÚ,Àç·á ,TRUE,99,Material,TRUE,None,None,None
-Meat,Consumable,¼Ò°í±â ,À½½Ä,TRUE,99,food,TRUE,None,None,None
-Chicken,Consumable,Ä¡Å²,À½½Ä,TRUE,99,food,TRUE,None,None,None
-Sword_iron,Equipment ,Ã¶°Ë,¹«±â,TRUE,1,Sword,TRUE,Weapon,10,None
-Sword_stone,Equipment ,µ¹°Ë,¹«±â,TRUE,1,Sword,TRUE,Weapon,10,None
-Sword_wood,Equipment ,³ª¹«°Ë,¹«±â,TRUE,1,Sword,TRUE,Weapon,10,None
-Breastplate,Equipment ,Èä°©,°©¿Ê,TRUE,1,Equipment,TRUE,Armor,None,10
-Ax_iron,Equipment ,Ã¶µµ³¢,¹«±â,TRUE,1,Axe,TRUE,Weapon,5,None
-Ax_stone,Equipment ,µ¹µµ³¢,¹«±â,TRUE,1,Axe,TRUE,Weapon,3,None
-Ax_wood,Equipment ,³ª¹«µµ³¢,¹«±â,TRUE,1,Axe,TRUE,Weapon,1,None
-GreenSlime_item,Material,ÃÊ·Ïº¸¼®,Àç·á ,TRUE,99,Material,TRUE,None,None,None
-BlueSlime_item,Material,ÆÄ¶ûº¸¼®,Àç·á ,TRUE,99,Material,TRUE,None,None,None
-RedSlime_item,Material,»¡°£º¸¼®,Àç·á ,TRUE,99,Material,TRUE,None,None,None
-Hoe,Equipment ,±ªÀÌ,³ó±â±¸,TRUE,1,Hoe,TRUE,Tool,1,None
-Pick,Equipment ,°î±ªÀÌ,¹«±â,TRUE,1,Pick,TRUE,Weapon,2,None
-WateringCan,Equipment ,¹°»Ñ¸®°³,¹°»Ñ¸®°³,TRUE,1,WateringCan,TRUE,Tool,0,None
-CutRock,Material,Á¶¾àµ¹,Àç·á ,TRUE,99,Material,TRUE,None,None,None
-Gold,Material,±İ±«,Àç·á ,TRUE,99,Material,TRUE,None,None,None
+fish,Consumable,ê³ ë“±ì–´ ,ìŒì‹,TRUE,99,food,TRUE,None,0,0
+Tuna,Consumable,ì°¸ì¹˜,ìŒì‹,TRUE,99,food,TRUE,None,0,0
+Wood,Material,ë‚˜ë¬´íŒì,ì¬ë£Œ ,TRUE,99,Material,FALSE,None,0,0
+Meat,Consumable,ì†Œê³ ê¸° ,ìŒì‹,TRUE,99,food,TRUE,None,0,0
+Chicken,Consumable,ì¹˜í‚¨,ìŒì‹,TRUE,99,food,TRUE,None,0,0
+Sword_iron,Equipment ,ì² ê²€,ë¬´ê¸°,FALSE,1,Sword,FALSE,Weapon,10,0
+Sword_stone,Equipment ,ëŒê²€,ë¬´ê¸°,FALSE,1,Sword,FALSE,Weapon,10,0
+Sword_wood,Equipment ,ë‚˜ë¬´ê²€,ë¬´ê¸°,FALSE,1,Sword,FALSE,Weapon,10,0
+Breastplate,Equipment ,í‰ê°‘,ê°‘ì˜·,FALSE,1,Equipment,FALSE,Armor,0,10
+Ax_iron,Equipment ,ì² ë„ë¼,ë¬´ê¸°,FALSE,1,Axe,FALSE,Weapon,5,0
+Ax_stone,Equipment ,ëŒë„ë¼,ë¬´ê¸°,FALSE,1,Axe,FALSE,Weapon,3,0
+Ax_wood,Equipment ,ë‚˜ë¬´ë„ë¼,ë¬´ê¸°,FALSE,1,Axe,FALSE,Weapon,1,0
+GreenSlime_item,Material,ì´ˆë¡ë³´ì„,ì¬ë£Œ ,TRUE,99,Material,FALSE,None,0,0
+BlueSlime_item,Material,íŒŒë‘ë³´ì„,ì¬ë£Œ ,TRUE,99,Material,FALSE,None,0,0
+RedSlime_item,Material,ë¹¨ê°„ë³´ì„,ì¬ë£Œ ,TRUE,99,Material,FALSE,None,0,0
+Hoe,Equipment ,ê´­ì´,ë†ê¸°êµ¬,FALSE,1,Hoe,FALSE,Tool,1,0
+Pick,Equipment ,ê³¡ê´­ì´,ë¬´ê¸°,FALSE,1,Pick,FALSE,Weapon,2,0
+WateringCan,Equipment ,ë¬¼ë¿Œë¦¬ê°œ,ë¬¼ë¿Œë¦¬ê°œ,FALSE,1,WateringCan,FALSE,Tool,0,0
+CutRock,Material,ì¡°ì•½ëŒ,ì¬ë£Œ ,TRUE,99,Material,FALSE,None,0,0
+Gold,Material,ê¸ˆê´´,ì¬ë£Œ ,TRUE,99,Material,FALSE,None,0,0

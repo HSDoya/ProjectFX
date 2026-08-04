@@ -27,11 +27,8 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private Inventory inventory;
     [SerializeField] private ObjectSpawner objectSpawner;
 
-    // ★ 수정: 게임 시작 시 빈손(-1)으로 시작하도록 초기값 설정
-    public int selectedQuickSlotIndex = -1;
-
-    private string currentEquipment = "";
-    private ItemData currentEquippedItemData = null;
+    // 퀵슬롯 선택/장착 아이템 상태는 PlayerQuickSlot이 단일 소유자로 관리한다.
+    private PlayerQuickSlot playerQuickSlot;
 
     [Header("UI & Effect")]
     public GameObject attackRangeIndicator;
@@ -40,48 +37,43 @@ public class PlayerMove : MonoBehaviour
     // [회피 시스템 추가] 변수 선언
     // --------------------------------------------------------
     [Header("Dodge System")]
-    public float dodgeSpeedMultiplier = 2.0f; // 평소보다 이동할 배수 (원하는 거리만큼 조정)
+    public float dodgeSpeedMultiplier = 1.5f; // 평소보다 이동할 배수 (원하는 거리만큼 조정)
     public float dodgeDuration = 0.4f;        // 회피 지속 시간
+    public float dodgeCooldown = 0.8f;        // 회피 종료 후 재사용까지 대기 시간
     public bool isDodging = false;            // 현재 회피 중인지 (무적 상태 판별)
+
+    private float dodgeCooldownTimer = 0f;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        playerQuickSlot = GetComponent<PlayerQuickSlot>();
         event_time = false;
     }
 
     private void Start()
     {
-        if (inventory != null)
-        {
-            inventory.onItemChangedCallback += UpdateCurrentEquipment;
-        }
-
         currentHealth = maxHealth;
 
-        // ★ 수정: 시작 시 확실하게 빈손 처리 및 사거리 UI 끄기
-        selectedQuickSlotIndex = -1;
-        if (attackRangeIndicator != null)
+        if (playerQuickSlot != null)
         {
-            attackRangeIndicator.SetActive(false);
+            playerQuickSlot.OnEquippedChanged += UpdateAttackRangeIndicator;
         }
-        UpdateCurrentEquipment();
+        UpdateAttackRangeIndicator();
     }
 
     private void OnDestroy()
     {
-        if (inventory != null)
+        if (playerQuickSlot != null)
         {
-            inventory.onItemChangedCallback -= UpdateCurrentEquipment;
+            playerQuickSlot.OnEquippedChanged -= UpdateAttackRangeIndicator;
         }
     }
 
     private void Update()
     {
-        Quickslot();
-
         if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging)
         {
             OnMouseClick();
@@ -93,11 +85,17 @@ public class PlayerMove : MonoBehaviour
         }
 
         // --------------------------------------------------------
-        // [회피 시스템 추가] 스페이스바 입력 감지
+        // [회피 시스템 추가] 스페이스바 입력 감지 (쿨타임 중에는 재발동 불가)
         // (Input System의 Action Map을 사용 중이시라면 OnDodge 등의 함수로 분리하셔도 좋습니다.)
         // --------------------------------------------------------
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && !isDodging && !event_time)
+        if (dodgeCooldownTimer > 0f)
         {
+            dodgeCooldownTimer -= Time.deltaTime;
+        }
+
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && !isDodging && !event_time && dodgeCooldownTimer <= 0f)
+        {
+            dodgeCooldownTimer = dodgeCooldown;
             StartCoroutine(DodgeRoutine());
         }
     }
@@ -185,7 +183,9 @@ public class PlayerMove : MonoBehaviour
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mouseWorldPos.z = 0;
 
-        if (currentEquippedItemData != null && currentEquippedItemData.equipSlot == EquipmentSlotType.Weapon)
+        ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
+
+        if (equipped != null && equipped.equipSlot == EquipmentSlotType.Weapon)
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, 0.3f);
 
@@ -194,13 +194,13 @@ public class PlayerMove : MonoBehaviour
                 float dist = Vector2.Distance(transform.position, hit.transform.position);
                 if (dist > 1.5f) continue;
 
-                int damage = currentEquippedItemData.atk;
+                int damage = equipped.atk;
                 if (damage <= 0) damage = 1;
 
                 TreeHealth tree = hit.GetComponent<TreeHealth>();
                 if (tree != null)
                 {
-                    if (currentEquippedItemData.type == "Axe")
+                    if (equipped.type == "Axe")
                     {
                         tree.TakeDamage(damage);
                         break;
@@ -213,7 +213,7 @@ public class PlayerMove : MonoBehaviour
                 StoneHealth stone = hit.GetComponent<StoneHealth>();
                 if (stone != null)
                 {
-                    if (currentEquippedItemData.type == "Pick") // CSV에서 곡괭이의 type은 "Pick"
+                    if (equipped.type == "Pick") // CSV에서 곡괭이의 type은 "Pick"
                     {
                         stone.TakeDamage(damage);
                         break; // 한 번에 하나의 돌만 타격
@@ -245,11 +245,13 @@ public class PlayerMove : MonoBehaviour
 
     private void HandleFarmAction(Vector3Int tilePosition)
     {
+        ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
+
         // 장착된 아이템 데이터가 없으면 무시
-        if (currentEquippedItemData == null) return;
+        if (equipped == null) return;
 
         // 아이템 DB(CSV)의 'type' 컬럼 데이터를 기준으로 분기
-        string toolType = currentEquippedItemData.type;
+        string toolType = equipped.type;
 
         if (toolType == "Hoe")
         {
@@ -278,94 +280,14 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    private void Quickslot()
+    // PlayerQuickSlot이 관리하는 장착 아이템이 바뀔 때마다 호출되어 사거리 표시 UI를 갱신
+    private void UpdateAttackRangeIndicator()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) ToggleQuickSlot(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleQuickSlot(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleQuickSlot(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4)) ToggleQuickSlot(3);
-        else if (Input.GetKeyDown(KeyCode.Alpha5)) ToggleQuickSlot(4);
+        if (attackRangeIndicator == null) return;
 
-        float scroll = Mouse.current.scroll.ReadValue().y;
-        if (scroll > 0)
-        {
-            int newIndex = selectedQuickSlotIndex - 1;
-            if (newIndex < 0 && Inventory.instance != null && Inventory.instance.quickSlots != null)
-                newIndex = Inventory.instance.quickSlots.Length - 1;
-            SelectQuickSlot(newIndex);
-        }
-        else if (scroll < 0)
-        {
-            int newIndex = selectedQuickSlotIndex + 1;
-            if (Inventory.instance != null && Inventory.instance.quickSlots != null && newIndex >= Inventory.instance.quickSlots.Length)
-                newIndex = 0;
-            SelectQuickSlot(newIndex);
-        }
-    }
-
-    private void ToggleQuickSlot(int index)
-    {
-        if (selectedQuickSlotIndex == index)
-        {
-            selectedQuickSlotIndex = -1;
-        }
-        else
-        {
-            selectedQuickSlotIndex = index;
-        }
-        event_time = false;
-        UpdateCurrentEquipment();
-    }
-
-    private void SelectQuickSlot(int index)
-    {
-        if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
-        if (index < 0 || index >= Inventory.instance.quickSlots.Length) return;
-
-        selectedQuickSlotIndex = index;
-        event_time = false;
-        UpdateCurrentEquipment();
-    }
-
-    private void UpdateCurrentEquipment()
-    {
-        if (Inventory.instance == null || Inventory.instance.quickSlots == null) return;
-
-        if (selectedQuickSlotIndex < 0 || selectedQuickSlotIndex >= Inventory.instance.quickSlots.Length)
-        {
-            currentEquipment = "";
-            currentEquippedItemData = null;
-            if (attackRangeIndicator != null)
-            {
-                attackRangeIndicator.SetActive(false);
-            }
-            return;
-        }
-
-        Item selectedItem = Inventory.instance.quickSlots[selectedQuickSlotIndex];
-
-        if (selectedItem != null && selectedItem.data != null)
-        {
-            currentEquipment = selectedItem.data.itemID;
-            currentEquippedItemData = selectedItem.data;
-
-            if (attackRangeIndicator != null)
-            {
-                bool isWeapon = (currentEquippedItemData.equipSlot == EquipmentSlotType.Weapon);
-                attackRangeIndicator.SetActive(isWeapon);
-            }
-            Debug.Log($"[퀵슬롯 {selectedQuickSlotIndex + 1}번] 장착됨: {currentEquipment}");
-        }
-        else
-        {
-            currentEquipment = "";
-            currentEquippedItemData = null;
-
-            if (attackRangeIndicator != null)
-            {
-                attackRangeIndicator.SetActive(false);
-            }
-        }
+        ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
+        bool isWeapon = equipped != null && equipped.equipSlot == EquipmentSlotType.Weapon;
+        attackRangeIndicator.SetActive(isWeapon);
     }
 
     private void TryDestroyNearestSpawnedObject()
@@ -422,6 +344,9 @@ public class PlayerMove : MonoBehaviour
         // --------------------------------------------------------
         if (isDead || event_time || isDodging) return;
 
+        // 장비창(Armor/Hat/Shoes/Accessory)에 장착된 방어구 def 합계만큼 피해 경감
+        float defense = EquipmentManager.instance != null ? EquipmentManager.instance.GetTotalDefense() : 0f;
+        damage = Mathf.Max(damage - defense, 0f);
         currentHealth -= damage;
 
         if (flashCoroutine != null)

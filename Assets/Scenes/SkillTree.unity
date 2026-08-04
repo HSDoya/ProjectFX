@@ -426,7 +426,7 @@ MonoBehaviour:
   m_CellSize: {x: 80, y: 80}
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 1
-  m_ConstraintCount: 7
+  m_ConstraintCount: 8
 --- !u!1 &879747679
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,7 +560,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodePrefab: {fileID: 743410353149712119, guid: b7a78a8c25bf2b140b8424d997534f95, type: 3}
   gridContainer: {fileID: 662266567}
-  skillPoints: 5
+  gridWidth: 8
+  gridHeight: 8
+  skillPoints: 64
 --- !u!4 &2028500340
 Transform:
   m_ObjectHideFlags: 0

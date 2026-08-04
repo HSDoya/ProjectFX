@@ -1,15 +1,15 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public enum ItemType
 {
     None,
-    Consumable,   // ¼Òºñ ¾ÆÀÌÅÛ
-    Equipment,    // Àåºñ
-    Material,     // Àç·á
-    Etc           // ±âÅ¸
+    Consumable,   // ì†Œë¹„ ì•„ì´í…œ
+    Equipment,    // ì¥ë¹„
+    Material,     // ì¬ë£Œ
+    Etc           // ê¸°íƒ€
 }
 
-// CSVÀÇ equipSlot ÄÃ·³°ú 1:1 ¸ÅÇÎ
+// CSVì˜ equipSlot ì»¬ëŸ¼ê³¼ 1:1 ë§¤í•‘
 public enum EquipmentSlotType
 {
     None,
@@ -21,13 +21,13 @@ public enum EquipmentSlotType
     Accessory
 }
 
-// À¯´ÏÆ¼ ¸Ş´º¿¡¼­ ¿ìÅ¬¸¯À¸·Î »ı¼ºÇÒ ¼ö ÀÖµµ·Ï ¼Ó¼º Ãß°¡
+// ìœ ë‹ˆí‹° ë©”ë‰´ì—ì„œ ìš°í´ë¦­ìœ¼ë¡œ ìƒì„±í•  ìˆ˜ ìˆë„ë¡ ì†ì„± ì¶”ê°€
 [CreateAssetMenu(fileName = "NewItemData", menuName = "Inventory/Item Data")]
-public class ItemData : ScriptableObject // ScriptableObject »ó¼ÓÀ¸·Î º¯°æ
+public class ItemData : ScriptableObject // ScriptableObject ìƒì†ìœ¼ë¡œ ë³€ê²½
 {
     public string itemID;
     public string displayName;
-    [TextArea] // ÀÎ½ºÆåÅÍ¿¡¼­ º¸±â ÆíÇÏ°Ô ¼Ó¼º Ãß°¡
+    [TextArea] // ì¸ìŠ¤í™í„°ì—ì„œ ë³´ê¸° í¸í•˜ê²Œ ì†ì„± ì¶”ê°€
     public string description;
     public Sprite icon;
 

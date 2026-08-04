@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ public class EquipmentManager : MonoBehaviour
 {
     public static EquipmentManager instance;
 
-    // slotTypeº° Âø¿ë ¾ÆÀÌÅÛ
+    // slotTypeë³„ ì°©ìš© ì•„ì´í…œ
     private readonly Dictionary<EquipmentSlotType, Item> equipped = new();
 
     public event Action OnEquipmentChanged;
@@ -29,25 +29,25 @@ public class EquipmentManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇØ´ç ½½·Ô¿¡ ÀåÂø(±³Ã¼ Æ÷ÇÔ). ±âÁ¸ Àåºñ´Â ¹İÈ¯.
+    /// í•´ë‹¹ ìŠ¬ë¡¯ì— ì¥ì°©(êµì²´ í¬í•¨). ê¸°ì¡´ ì¥ë¹„ëŠ” ë°˜í™˜.
     /// </summary>
     public Item Equip(EquipmentSlotType slotType, Item newItem)
     {
         if (newItem == null || newItem.data == null) return null;
-        if (newItem.data.equipSlot != slotType) return newItem; // ½½·Ô Å¸ÀÔ ¾È ¸ÂÀ¸¸é ¾ÆÀÌÅÛ ¹İÈ¯
+        if (newItem.data.equipSlot != slotType) return newItem; // ìŠ¬ë¡¯ íƒ€ì… ì•ˆ ë§ìœ¼ë©´ ì•„ì´í…œ ë°˜í™˜
 
         Item previous = null;
 
-        // ÀÌ¹Ì ÀåÂøÁßÀÎ ¾ÆÀÌÅÛÀÌ ÀÖÀ¸¸é »­
+        // ì´ë¯¸ ì¥ì°©ì¤‘ì¸ ì•„ì´í…œì´ ìˆìœ¼ë©´ ëºŒ
         if (equipped.TryGetValue(slotType, out var old))
         {
             previous = old;
         }
 
-        // »õ ¾ÆÀÌÅÛ ÀåÂø
+        // ìƒˆ ì•„ì´í…œ ì¥ì°©
         equipped[slotType] = newItem;
 
-        // ¡Ú ÀÌº¥Æ® È£Ãâ ÇÊ¼ö (ÀÌ°Ô ¾øÀ¸¸é UI ¾È ¹Ù²ñ)
+        // â˜… ì´ë²¤íŠ¸ í˜¸ì¶œ í•„ìˆ˜ (ì´ê²Œ ì—†ìœ¼ë©´ UI ì•ˆ ë°”ë€œ)
         OnEquipmentChanged?.Invoke();
 
         return previous;
@@ -65,4 +65,27 @@ public class EquipmentManager : MonoBehaviour
 
     public bool HasEquipped(EquipmentSlotType slotType)
         => equipped.ContainsKey(slotType);
+
+    // ë°©ì–´êµ¬ë¡œ ì·¨ê¸‰í•˜ëŠ” ìŠ¬ë¡¯ë“¤ (ì—¬ê¸°ì— ìƒˆ ìŠ¬ë¡¯ì„ ì¶”ê°€í•˜ë©´ GetTotalDefense()ê°€ ìë™ìœ¼ë¡œ í•©ì‚°)
+    private static readonly EquipmentSlotType[] ArmorSlots =
+    {
+        EquipmentSlotType.Armor,
+        EquipmentSlotType.Hat,
+        EquipmentSlotType.Shoes,
+        EquipmentSlotType.Accessory,
+    };
+
+    /// <summary>
+    /// ë°©ì–´êµ¬ ìŠ¬ë¡¯(Armor/Hat/Shoes/Accessory)ì— ì¥ì°©ëœ ì•„ì´í…œì˜ def í•©ê³„
+    /// </summary>
+    public int GetTotalDefense()
+    {
+        int total = 0;
+        foreach (var slot in ArmorSlots)
+        {
+            if (equipped.TryGetValue(slot, out var item) && item?.data != null)
+                total += item.data.def;
+        }
+        return total;
+    }
 }

@@ -22189,8 +22189,9 @@ MonoBehaviour:
   objectSpawner: {fileID: 1365982339}
   selectedQuickSlotIndex: 0
   attackRangeIndicator: {fileID: 215378571}
-  dodgeSpeedMultiplier: 2
+  dodgeSpeedMultiplier: 1.5
   dodgeDuration: 0.4
+  dodgeCooldown: 0.8
   isDodging: 0
 --- !u!212 &2009538620054372083
 SpriteRenderer:
