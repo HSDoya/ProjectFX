@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Hoe
   m_EditorClassIdentifier: 
   itemID: Hoe
-  displayName: "\uFFFD\uFFFD\uFFFD\uFFFD"
-  description: "\uFFFD\uFFFD\u2C78"
+  displayName: "\uAD2D\uC774"
+  description: "\uB18D\uAE30\uAD6C"
   icon: {fileID: 6595694307079570288, guid: d5aa17d5b4c7e3f4596982177fa05dba, type: 3}
-  canStack: 1
+  canStack: 0
   maxStackAmount: 1
   itemType: 2
   type: Hoe
-  isConsumable: 1
+  isConsumable: 0
   equipSlot: 5
   atk: 1
   def: 0

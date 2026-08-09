@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: RedSlime_item
   m_EditorClassIdentifier: 
   itemID: RedSlime_item
-  displayName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"
-  description: "\uFFFD\uFFFD\uFFFD"
+  displayName: "\uBE68\uAC04\uBCF4\uC11D"
+  description: "\uC7AC\uB8CC"
   icon: {fileID: 7765424975792791590, guid: cc564aa1bcab45a44b98bd28c9b8846b, type: 3}
   canStack: 1
   maxStackAmount: 99
   itemType: 3
   type: Material
-  isConsumable: 1
+  isConsumable: 0
   equipSlot: 0
   atk: 0
   def: 0

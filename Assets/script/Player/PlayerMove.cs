@@ -33,6 +33,9 @@ public class PlayerMove : MonoBehaviour
     [Header("UI & Effect")]
     public GameObject attackRangeIndicator;
 
+    // 마우스가 가리키는 밭 타일을 테두리로 표시해주는 커서. 별도 스프라이트 에셋 없이 코드로 생성한다.
+    private SpriteRenderer tileHighlight;
+
     // --------------------------------------------------------
     // [회피 시스템 추가] 변수 선언
     // --------------------------------------------------------
@@ -51,6 +54,7 @@ public class PlayerMove : MonoBehaviour
         anim = GetComponent<Animator>();
         playerQuickSlot = GetComponent<PlayerQuickSlot>();
         event_time = false;
+        CreateTileHighlight();
     }
 
     private void Start()
@@ -74,6 +78,8 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
+        UpdateTileHighlight();
+
         if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging)
         {
             OnMouseClick();
@@ -234,13 +240,76 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        Vector3Int tilePos = farmTilemap.WorldToCell(mouseWorldPos);
-        tilePos.z = 0;
-
-        if (Vector3.Distance(transform.position, farmTilemap.CellToWorld(tilePos)) <= 1.5f)
+        if (TryGetTargetedTile(out Vector3Int tilePos))
         {
             HandleFarmAction(tilePos);
         }
+    }
+
+    // 마우스가 가리키는 칸과, 그 칸 중심까지 플레이어가 상호작용 가능한 거리 안에 있는지를 함께 반환.
+    // CellToWorld는 칸의 중심이 아니라 모서리 좌표를 반환하므로, 반드시 GetCellCenterWorld로 거리를 재야
+    // 어느 방향에서 접근하든 판정 거리가 일관된다(모서리 기준이면 접근 방향에 따라 들쭉날쭉해짐).
+    private bool TryGetTargetedTile(out Vector3Int tilePos)
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mouseWorldPos.z = 0;
+
+        tilePos = farmTilemap.WorldToCell(mouseWorldPos);
+        tilePos.z = 0;
+
+        return Vector3.Distance(transform.position, farmTilemap.GetCellCenterWorld(tilePos)) <= 1.5f;
+    }
+
+    // 마우스가 가리키는 칸에 밭 타일이 있고 상호작용 범위 안이면, 그 칸 중심에 테두리 커서를 띄운다.
+    private void UpdateTileHighlight()
+    {
+        if (tileHighlight == null || farmTilemap == null || landTileManager == null) return;
+
+        if (TryGetTargetedTile(out Vector3Int tilePos) && landTileManager.HasFarmTile(tilePos))
+        {
+            tileHighlight.transform.position = farmTilemap.GetCellCenterWorld(tilePos);
+            tileHighlight.enabled = true;
+        }
+        else
+        {
+            tileHighlight.enabled = false;
+        }
+    }
+
+    // 별도 스프라이트 에셋 없이, 코드로 정사각형 테두리 스프라이트를 생성해 커서로 사용한다.
+    private void CreateTileHighlight()
+    {
+        GameObject go = new GameObject("TileHighlight");
+        tileHighlight = go.AddComponent<SpriteRenderer>();
+        tileHighlight.sprite = CreateHighlightSprite();
+        tileHighlight.sortingOrder = 10; // farmTilemap/cropTilemap보다 위에 그려지도록
+        tileHighlight.enabled = false;
+
+        Vector3 cellSize = farmTilemap != null ? farmTilemap.cellSize : Vector3.one;
+        go.transform.localScale = cellSize;
+    }
+
+    private Sprite CreateHighlightSprite()
+    {
+        const int size = 32;
+        const int border = 3;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Point;
+
+        Color clear = new Color(0f, 0f, 0f, 0f);
+        Color line = new Color(1f, 1f, 0.2f, 0.9f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                bool isBorder = x < border || x >= size - border || y < border || y >= size - border;
+                tex.SetPixel(x, y, isBorder ? line : clear);
+            }
+        }
+        tex.Apply();
+
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
     }
 
     private void HandleFarmAction(Vector3Int tilePosition)
@@ -255,17 +324,27 @@ public class PlayerMove : MonoBehaviour
 
         if (toolType == "Hoe")
         {
-            landTileManager.PlowSoil(tilePosition);
+            // TODO(임시): 아직 낫(Sickle) 아이템이 없어서 호미가 갈기/수확을 겸함.
+            // 낫 아이템을 DB에 type="Harvest"로 추가하면, 아래 IsHarvestable 분기를 지우고
+            // 이 아래 else if (toolType == "Harvest") 분기로 수확을 옮길 것.
+            if (landTileManager.IsHarvestable(tilePosition))
+                landTileManager.HarvestCrop(tilePosition);
+            else
+                landTileManager.PlowSoil(tilePosition);
         }
         else if (toolType == "WateringCan") // 기존 "Water"에서 CSV 데이터와 동일하게 수정
         {
             landTileManager.WaterTile(tilePosition);
         }
-        else if (toolType == "Seed") // 추후 씨앗 아이템을 DB에 추가할 때 type을 "Seed"로 설정하세요
+        else if (toolType == "Seed") // 씨앗 아이템의 type은 "Seed"로 설정
         {
-            landTileManager.PlantSeed(tilePosition);
+            // 심기에 성공했을 때만 인벤토리에서 씨앗 1개를 소모한다.
+            if (landTileManager.PlantSeed(tilePosition, equipped) && Inventory.instance != null)
+            {
+                Inventory.instance.TryTakeOneAt(playerQuickSlot.selectedQuickSlotIndex, true, out _);
+            }
         }
-        // 수확의 경우, 빈손(도구 없음)일 때 동작하게 하려면 별도의 조건 처리가 필요할 수 있습니다.
+        // 낫 등 수확 전용 도구가 추가되면 여기서 처리 (현재는 위 Hoe 분기가 임시로 대신함)
         else if (toolType == "Harvest")
         {
             landTileManager.HarvestCrop(tilePosition);

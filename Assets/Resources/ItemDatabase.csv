@@ -19,3 +19,5 @@ Pick,Equipment ,곡괭이,무기,FALSE,1,Pick,FALSE,Weapon,2,0
 WateringCan,Equipment ,물뿌리개,물뿌리개,FALSE,1,WateringCan,FALSE,Tool,0,0
 CutRock,Material,조약돌,재료 ,TRUE,99,Material,FALSE,None,0,0
 Gold,Material,금괴,재료 ,TRUE,99,Material,FALSE,None,0,0
+Potato_Seed,Material,감자씨앗,씨앗,TRUE,99,Seed,TRUE,None,0,0
+Potato,Consumable,감자,음식,TRUE,99,food,TRUE,None,0,0

@@ -74,6 +74,8 @@ public class Inventory : MonoBehaviour
             // 농기구 테스트용 데이터 불러오기 추가
             var hoe = ItemDataManager.instance.GetItemDataByID("Hoe");
             var wateringCan = ItemDataManager.instance.GetItemDataByID("WateringCan");
+            // 농사 테스트용 씨앗 데이터 불러오기 추가
+            var potatoSeed = ItemDataManager.instance.GetItemDataByID("Potato_Seed");
 
             if (wood != null) AddItem(new Item(wood, 99));
             if (armor != null) AddItem(new Item(armor, 1));
@@ -83,6 +85,8 @@ public class Inventory : MonoBehaviour
             // 농기구 테스트 지급 추가
             if (hoe != null) AddItem(new Item(hoe, 1));
             if (wateringCan != null) AddItem(new Item(wateringCan, 1));
+            // 감자씨앗 테스트 지급 추가
+            if (potatoSeed != null) AddItem(new Item(potatoSeed, 10));
 
             Debug.Log("아이템지급완료");
         }

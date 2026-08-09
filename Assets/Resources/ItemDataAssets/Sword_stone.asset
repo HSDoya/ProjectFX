@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Sword_stone
   m_EditorClassIdentifier: 
   itemID: Sword_stone
-  displayName: "\uFFFD\uFFFD\uFFFD\uFFFD"
-  description: "\uFFFD\uFFFD\uFFFD\uFFFD"
+  displayName: "\uB3CC\uAC80"
+  description: "\uBB34\uAE30"
   icon: {fileID: 2890931000574649570, guid: 170d9d53f2e561e4aa0405854d539eba, type: 3}
-  canStack: 1
+  canStack: 0
   maxStackAmount: 1
   itemType: 2
   type: Sword
-  isConsumable: 1
+  isConsumable: 0
   equipSlot: 1
   atk: 10
   def: 0

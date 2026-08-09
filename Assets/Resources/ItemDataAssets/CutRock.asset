@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: CutRock
   m_EditorClassIdentifier: 
   itemID: CutRock
-  displayName: "\uFFFD\uFFFD\uFFFD\u0D79"
-  description: "\uFFFD\uFFFD\uFFFD"
+  displayName: "\uC870\uC57D\uB3CC"
+  description: "\uC7AC\uB8CC"
   icon: {fileID: 8331997286248861657, guid: 0250fa6d2d881224486647ae14347ab3, type: 3}
   canStack: 1
   maxStackAmount: 99
   itemType: 3
   type: Material
-  isConsumable: 1
+  isConsumable: 0
   equipSlot: 0
   atk: 0
   def: 0
