@@ -4,16 +4,18 @@ public class SkillTreeManager : MonoBehaviour
 {
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private Transform gridContainer;
+    [SerializeField] private SkillDatabaseSO skillDatabase;
 
     [Header("Grid Settings")]
     [SerializeField] private int gridWidth = 8;
     [SerializeField] private int gridHeight = 8;
+    [SerializeField] private float cellPitch = 90f; // 칸 크기(80) + 여백(10). 좌표 -> 픽셀 위치 변환에 사용
 
     private SkillNode[,] skillGrid;
 
-    // 전체 트리를 다 열어볼 수 있는 테스트용 포인트 (기본값 = gridWidth * gridHeight).
-    // 그리드 크기를 바꾸면 이 값도 노드 총 개수에 맞춰 함께 조정해줘야 전체 트리를 다 열 수 있다.
-    public int skillPoints = 64;
+    // 사분면 시작 스킬 4개는 무료로 자동 해금되므로, 나머지(20 - 4 = 16)를 여는 데 필요한 포인트.
+    // skillDatabase의 스킬 수/시작 스킬 수가 바뀌면 이 값도 함께 조정해야 전체 트리를 다 열 수 있다.
+    public int skillPoints = 16;
 
     void Start()
     {
@@ -21,22 +23,59 @@ public class SkillTreeManager : MonoBehaviour
         GenerateGrid();
     }
 
-    // gridWidth x gridHeight 그리드 생성
     void GenerateGrid()
     {
-        for (int y = 0; y < gridHeight; y++)
+        if (skillDatabase == null)
         {
-            for (int x = 0; x < gridWidth; x++)
-            {
-                GameObject go = Instantiate(nodePrefab, gridContainer);
-                SkillNode node = go.GetComponent<SkillNode>();
-                node.Initialize(x, y, this);
-                skillGrid[x, y] = node;
-            }
+            Debug.LogWarning("[SkillTreeManager] skillDatabase가 연결되지 않았습니다.");
+            return;
         }
 
-        // 중앙에 가장 가까운 시작 노드를 해금 상태로 시작
-        UnlockNodeData(gridWidth / 2, gridHeight / 2);
+        // 스킬 데이터가 있는 좌표에만 노드 생성 (64칸을 다 채우지 않음)
+        foreach (var skill in skillDatabase.allSkills)
+        {
+            if (skill == null) continue;
+            CreateNode(skill.gridX, skill.gridY, skill);
+        }
+
+        // 사분면(카테고리)별 시작 스킬을 무료로 해금
+        foreach (var skill in skillDatabase.allSkills)
+        {
+            if (skill != null && skill.unlockedByDefault)
+            {
+                UnlockNodeData(skill.gridX, skill.gridY);
+            }
+        }
+    }
+
+    private void CreateNode(int x, int y, SkillData data)
+    {
+        if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight)
+        {
+            Debug.LogWarning($"[SkillTreeManager] 그리드 범위를 벗어난 좌표 ({x},{y}) - '{data?.displayName}'를 건너뜁니다.");
+            return;
+        }
+        if (skillGrid[x, y] != null)
+        {
+            Debug.LogWarning($"[SkillTreeManager] 좌표 ({x},{y})에 이미 노드가 있습니다 - '{data?.displayName}'를 건너뜁니다.");
+            return;
+        }
+
+        GameObject go = Instantiate(nodePrefab, gridContainer);
+        SkillNode node = go.GetComponent<SkillNode>();
+        node.Initialize(x, y, this, data);
+        skillGrid[x, y] = node;
+
+        // GridLayoutGroup이 아니라 좌표를 기준으로 직접 위치를 지정 (왼쪽 위 기준, x는 오른쪽, y는 아래로 증가)
+        RectTransform rt = go.GetComponent<RectTransform>();
+        if (rt != null)
+        {
+            rt.anchorMin = new Vector2(0, 1);
+            rt.anchorMax = new Vector2(0, 1);
+            rt.pivot = new Vector2(0, 1);
+            rt.sizeDelta = new Vector2(80, 80);
+            rt.anchoredPosition = new Vector2(x * cellPitch, -y * cellPitch);
+        }
     }
 
     public void TryUnlockNode(SkillNode node)
@@ -50,7 +89,14 @@ public class SkillTreeManager : MonoBehaviour
 
     private void UnlockNodeData(int x, int y)
     {
-        skillGrid[x, y].SetState(NodeState.Unlocked);
+        var node = skillGrid[x, y];
+        if (node == null) return;
+
+        node.SetState(NodeState.Unlocked);
+
+        if (node.Data != null)
+            Debug.Log($"[SkillTree] '{node.Data.displayName}' 스킬 언락됨");
+
         ActivateNeighbors(x, y);
     }
 
@@ -65,27 +111,30 @@ public class SkillTreeManager : MonoBehaviour
             int nx = x + dx[i];
             int ny = y + dy[i];
 
-            // 그리드 범위를 벗어나지 않고, 잠겨있는 노드만 해금 가능 상태로 전환
+            // 그리드 범위를 벗어나지 않고, 실제 노드가 존재하며, 잠겨있는 노드만 해금 가능 상태로 전환
             if (nx >= 0 && nx < gridWidth && ny >= 0 && ny < gridHeight)
             {
-                if (skillGrid[nx, ny].State == NodeState.Locked)
+                var neighbor = skillGrid[nx, ny];
+                if (neighbor != null && neighbor.State == NodeState.Locked)
                 {
-                    skillGrid[nx, ny].SetState(NodeState.ReadyToUnlock);
+                    neighbor.SetState(NodeState.ReadyToUnlock);
                 }
             }
         }
     }
 
-    // 이미지 구역에 따른 색상 반환 함수 (UI 연출용, 실제 스킬 데이터가 들어오기 전까지의 임시 표시)
-    public Color GetZoneColor(int x, int y)
+    // 스킬 카테고리에 따른 색상 반환 (UI 연출용)
+    public Color GetNodeColor(SkillData data)
     {
-        int startX = gridWidth / 2;
-        int startY = gridHeight / 2;
+        if (data == null) return Color.white;
 
-        if (x == startX && y == startY) return Color.green; // START
-        if (y < gridHeight / 3) return Color.blue;             // 상단 마법
-        if (y >= gridHeight - gridHeight / 3) return Color.red; // 하단 물리
-        if (x < gridWidth / 3) return Color.magenta;           // 좌측 유틸
-        return new Color(1f, 0.6f, 0f);                        // 우측 방어 (오렌지)
+        switch (data.category)
+        {
+            case SkillCategory.Experience: return Color.blue;
+            case SkillCategory.Combat: return Color.red;
+            case SkillCategory.Farming: return new Color(0.4f, 0.8f, 0.2f);
+            case SkillCategory.Development: return new Color(1f, 0.6f, 0f);
+            default: return Color.white;
+        }
     }
 }

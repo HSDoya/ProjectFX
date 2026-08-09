@@ -410,7 +410,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 662266566}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
   m_Name: 
@@ -560,9 +560,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodePrefab: {fileID: 743410353149712119, guid: b7a78a8c25bf2b140b8424d997534f95, type: 3}
   gridContainer: {fileID: 662266567}
+  skillDatabase: {fileID: 11400000, guid: 21c6b5292e4a44c4bbda07203b629ed2, type: 2}
   gridWidth: 8
   gridHeight: 8
-  skillPoints: 64
+  cellPitch: 90
+  skillPoints: 16
 --- !u!4 &2028500340
 Transform:
   m_ObjectHideFlags: 0

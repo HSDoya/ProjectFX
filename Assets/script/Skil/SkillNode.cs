@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public enum NodeState { Locked, ReadyToUnlock, Unlocked }
 
@@ -8,23 +9,31 @@ public class SkillNode : MonoBehaviour
     public int X { get; private set; }
     public int Y { get; private set; }
     public NodeState State { get; private set; }
+    public SkillData Data { get; private set; }
 
     [SerializeField] private Image nodeImage;
     [SerializeField] private Button nodeButton;
+    // í”„ë¦¬íŒ¹ì— ì•„ì§ ì´ë¦„ í‘œì‹œìš© í…ìŠ¤íŠ¸ ìì‹ì´ ì—†ë‹¤ë©´ ë¹„ì›Œë‘¬ë„ ì •ìƒ ë™ì‘í•¨(ì´ë¦„ë§Œ ì•ˆ ë³´ì„)
+    [SerializeField] private TextMeshProUGUI nameLabel;
 
     private SkillTreeManager manager;
 
-    // ³ëµå ÃÊ±âÈ­
-    public void Initialize(int x, int y, SkillTreeManager treeManager)
+    // ë…¸ë“œ ì´ˆê¸°í™” (dataê°€ nullì´ë©´ ìŠ¤í‚¬ ì—†ëŠ” í—ˆë¸Œ/ì‹œì‘ ë…¸ë“œë¡œ ì·¨ê¸‰)
+    public void Initialize(int x, int y, SkillTreeManager treeManager, SkillData data)
     {
         X = x;
         Y = y;
         manager = treeManager;
+        Data = data;
         nodeButton.onClick.AddListener(OnNodeClicked);
+
+        if (nameLabel != null)
+            nameLabel.text = data != null ? data.displayName : "";
+
         SetState(NodeState.Locked);
     }
 
-    // »óÅÂ º¯°æ ¹× UI ¾÷µ¥ÀÌÆ®
+    // ìƒíƒœ ë³€ê²½ ë° UI ì—…ë°ì´íŠ¸
     public void SetState(NodeState newState)
     {
         State = newState;
@@ -36,15 +45,15 @@ public class SkillNode : MonoBehaviour
         switch (State)
         {
             case NodeState.Locked:
-                nodeImage.color = new Color(0.3f, 0.3f, 0.3f, 0.5f); // ¾îµÎ¿î ¹İÅõ¸í
+                nodeImage.color = new Color(0.3f, 0.3f, 0.3f, 0.5f); // ì–´ë‘ìš´ ë°˜íˆ¬ëª…
                 nodeButton.interactable = false;
                 break;
             case NodeState.ReadyToUnlock:
-                nodeImage.color = new Color(1f, 1f, 1f, 0.8f); // ¹àÀ½ (Å¬¸¯ °¡´É)
+                nodeImage.color = new Color(1f, 1f, 1f, 0.8f); // ë°ìŒ (í´ë¦­ ê°€ëŠ¥)
                 nodeButton.interactable = true;
                 break;
             case NodeState.Unlocked:
-                nodeImage.color = manager.GetZoneColor(X, Y); // ±¸¿ª °íÀ¯ »ö»ó
+                nodeImage.color = manager.GetNodeColor(Data); // ì¹´í…Œê³ ë¦¬ ìƒ‰ìƒ
                 nodeButton.interactable = false;
                 break;
         }
