@@ -17898,6 +17898,7 @@ GameObject:
   - component: {fileID: 1365982337}
   - component: {fileID: 1365982339}
   - component: {fileID: 1365982340}
+  - component: {fileID: 1365982341}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -18002,6 +18003,49 @@ MonoBehaviour:
   unlockSignPrefab: {fileID: 6791045825572003945, guid: e1d59d45618f15140bf54bed985d0e85, type: 3}
   baseUnlockCost: 261
   maxGridRadius: 2
+--- !u!114 &1365982341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365982336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d3fc326bdfcebb4db69a311b4bf1371, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkableTilemaps:
+  - {fileID: 1051139131}
+  blockedTilemaps:
+  - {fileID: 1214443929}
+  livingEntityLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  spawnCheckRadius: 0.5
+  playerTransform: {fileID: 6234071091465051156}
+  minDistanceFromPlayer: 12
+  viewportMargin: 0.15
+  spawnRules:
+  - entityName: COW
+    prefab: {fileID: 4421147239190456030}
+    targetCount: 3
+  - entityName: Chicken
+    prefab: {fileID: 243217321}
+    targetCount: 4
+  - entityName: Slime(green)
+    prefab: {fileID: 1538345137379261383}
+    targetCount: 3
+  - entityName: Slime(red)
+    prefab: {fileID: 829140555}
+    targetCount: 2
+  - entityName: Slime(blue)
+    prefab: {fileID: 710200636}
+    targetCount: 2
+  minCheckInterval: 1
+  maxCheckInterval: 10
+  maxSpawnPerBatch: 3
+  spawnImmediatelyOnStart: 1
 --- !u!1 &1397002792
 GameObject:
   m_ObjectHideFlags: 0
@@ -21531,23 +21575,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d3fc326bdfcebb4db69a311b4bf1371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundTilemap: {fileID: 1051139131}
-  waterTilemap: {fileID: 1214443929}
-  animalLayer:
+  walkableTilemaps: []
+  blockedTilemaps: []
+  livingEntityLayer:
     serializedVersion: 2
     m_Bits: 0
   spawnCheckRadius: 0.3
-  minDistanceFromPlayer: 10
   playerTransform: {fileID: 1721243586}
-  animalRules:
-  - animalName: COW
-    prefab: {fileID: 4421147239190456030}
-    targetCount: 0
-  - animalName: Chicken
-    prefab: {fileID: 243217321}
-    targetCount: 0
+  minDistanceFromPlayer: 10
+  viewportMargin: 0.15
+  spawnRules: []
   minCheckInterval: 1
   maxCheckInterval: 2
+  maxSpawnPerBatch: 1
   spawnImmediatelyOnStart: 0
 --- !u!1 &2067512217
 GameObject:
