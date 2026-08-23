@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
 public class StoneHealth : MonoBehaviour
 {
-    public int hp = 20; // µ¹ Ã¼·Â (°î±ªÀÌ µ¥¹ÌÁö¿¡ ¸ÂÃç À¯´ÏÆ¼ ÀÎ½ºÆåÅÍ¿¡¼­ Á¶ÀıÇÏ¼¼¿ä)
+    public int hp = 20; // ëŒ ì²´ë ¥ (ê³¡ê´­ì´ ë°ë¯¸ì§€ì— ë§ì¶° ìœ ë‹ˆí‹° ì¸ìŠ¤í™í„°ì—ì„œ ì¡°ì ˆí•˜ì„¸ìš”)
 
-    [Header("µå¶ø ¼³Á¤")]
+    [Header("ë“œë ì„¤ì •")]
     public GameObject fieldItemPrefab;
 
     [System.Serializable]
@@ -23,10 +23,13 @@ public class StoneHealth : MonoBehaviour
 
     private bool isDestroyed = false;
     private SpriteRenderer spriteRenderer;
+    private Color baseColor; // í•­ìƒ ì—¬ê¸°ë¡œ ë³µêµ¬í•œë‹¤ - ì—°íƒ€ ì¤‘ ìƒ‰ì´ ë°”ë€ ì±„ë¡œ ìº¡ì²˜ë˜ëŠ” ê±¸ ë°©ì§€
+    private Coroutine hitEffectCoroutine;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) baseColor = spriteRenderer.color;
     }
 
     public void TakeDamage(int damage)
@@ -34,11 +37,13 @@ public class StoneHealth : MonoBehaviour
         if (isDestroyed) return;
 
         hp -= damage;
-        Debug.Log($"µ¹ Å¸°İ! µ¥¹ÌÁö: {damage}, ³²Àº HP: {hp}");
+        Debug.Log($"ëŒ íƒ€ê²©! ë°ë¯¸ì§€: {damage}, ë‚¨ì€ HP: {hp}");
 
         if (spriteRenderer != null)
         {
-            StartCoroutine(HitEffectCoroutine());
+            // ì—°íƒ€ë¡œ ì½”ë£¨í‹´ì´ ê²¹ì¹˜ë©´ ìƒ‰ì´ ì•ˆ ëŒì•„ì˜¤ëŠ” ë¬¸ì œê°€ ìˆì–´ì„œ, ìƒˆë¡œ ì‹œì‘í•˜ê¸° ì „ì— ì´ì „ ê±¸ ëŠëŠ”ë‹¤.
+            if (hitEffectCoroutine != null) StopCoroutine(hitEffectCoroutine);
+            hitEffectCoroutine = StartCoroutine(HitEffectCoroutine());
         }
 
         if (hp <= 0)
@@ -49,11 +54,11 @@ public class StoneHealth : MonoBehaviour
 
     private IEnumerator HitEffectCoroutine()
     {
-        Color originalColor = spriteRenderer.color;
-        // µ¹Àº ¸Â¾ÒÀ» ¶§ ³ª¹«¿Í ´Ù¸£°Ô ¹àÀº È¸»ö/Èò»ö ´À³¦À¸·Î ±ôºıÀÌ°Ô ¿¬Ãâ
+        // ëŒì€ ë§ì•˜ì„ ë•Œ ë‚˜ë¬´ì™€ ë‹¤ë¥´ê²Œ ë°ì€ íšŒìƒ‰/í°ìƒ‰ ëŠë‚Œìœ¼ë¡œ ê¹œë¹¡ì´ê²Œ ì—°ì¶œ
         spriteRenderer.color = new Color(0.8f, 0.8f, 0.8f);
         yield return new WaitForSeconds(0.1f);
-        spriteRenderer.color = originalColor;
+        spriteRenderer.color = baseColor;
+        hitEffectCoroutine = null;
     }
 
     private void BreakStone()
@@ -62,7 +67,7 @@ public class StoneHealth : MonoBehaviour
         isDestroyed = true;
 
         DropItems();
-        Destroy(gameObject); // µ¹Àº ÆÄ±«µÇ¸é ¿ÏÀüÈ÷ »ç¶óÁı´Ï´Ù.
+        Destroy(gameObject); // ëŒì€ íŒŒê´´ë˜ë©´ ì™„ì „íˆ ì‚¬ë¼ì§‘ë‹ˆë‹¤.
     }
 
     private void DropItems()
@@ -79,7 +84,7 @@ public class StoneHealth : MonoBehaviour
                 ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
                 if (data != null)
                 {
-                    // µ¹ ÁÖº¯À¸·Î ¾ÆÀÌÅÛ Èğ»Ñ¸®±â
+                    // ëŒ ì£¼ë³€ìœ¼ë¡œ ì•„ì´í…œ í©ë¿Œë¦¬ê¸°
                     Vector3 dropPos = transform.position + (Vector3)Random.insideUnitCircle * 0.8f;
                     GameObject droppedObj = Instantiate(fieldItemPrefab, dropPos, Quaternion.identity);
 

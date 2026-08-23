@@ -19,10 +19,14 @@ public class Tile_Fishing : MonoBehaviour
         testUI.SetActive(true);
     }
 
+    private bool isFishing = false;
+
     public void Fishing()
     {
         if (!playermove_manger.event_time) return;
+        if (isFishing) return; // 이미 낚시 진행 중이면 중복 시작 방지 (물고기 중복 지급 방지)
 
+        isFishing = true;
         Debug.Log("낚시중...");
         StartCoroutine(FishingProcess());
     }
@@ -30,6 +34,7 @@ public class Tile_Fishing : MonoBehaviour
     private IEnumerator FishingProcess()
     {
         yield return new WaitForSeconds(2f);
+        isFishing = false;
         playermove_manger.event_time = false;
         //playermove_manger.StopFishingAnimation();
 

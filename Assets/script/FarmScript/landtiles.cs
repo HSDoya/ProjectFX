@@ -21,6 +21,7 @@ public class landtiles : MonoBehaviour
     {
         public CropData crop;   // null이면 갈아둔 빈 땅(아직 안 심음)
         public int stageIndex;  // crop.growStages의 인덱스
+        public bool isGrowing;  // GrowCrop 코루틴이 이미 실행 중인지 (중복 시작 방지용)
     }
 
     private readonly Dictionary<Vector3Int, FarmTileState> farmTiles = new Dictionary<Vector3Int, FarmTileState>();
@@ -63,6 +64,7 @@ public class landtiles : MonoBehaviour
 
         state.crop = crop;
         state.stageIndex = 0;
+        state.isGrowing = false; // 수확 후 같은 칸을 재사용하는 경우를 대비해 깨끗한 상태로 초기화
         cropTilemap.SetTile(tilePosition, crop.growStages[0]);
         Debug.Log($"{crop.cropID} 씨앗을 심었습니다.");
         return true;
@@ -70,9 +72,13 @@ public class landtiles : MonoBehaviour
 
     public void WaterTile(Vector3Int tilePosition)
     {
-        // 심은 직후(0단계)에만 물을 줄 수 있고, 물을 주면 자동 성장이 시작된다.
-        if (farmTiles.TryGetValue(tilePosition, out var state) && state.crop != null && state.stageIndex == 0)
+        // 심은 직후(0단계)에만, 그리고 이미 성장 코루틴이 도는 중이 아닐 때만 물을 줄 수 있다.
+        // isGrowing 체크가 없으면 물뿌리개를 연타했을 때 같은 칸에 GrowCrop 코루틴이 여러 개
+        // 동시에 돌면서 stageIndex가 배열 범위를 넘어 IndexOutOfRangeException이 발생한다.
+        if (farmTiles.TryGetValue(tilePosition, out var state) && state.crop != null
+            && state.stageIndex == 0 && !state.isGrowing)
         {
+            state.isGrowing = true;
             Debug.Log("물을 주었습니다! 작물이 자라기 시작합니다.");
             StartCoroutine(GrowCrop(tilePosition));
         }
@@ -89,8 +95,10 @@ public class landtiles : MonoBehaviour
         {
             yield return new WaitForSeconds(state.crop.growTimePerStage);
 
-            // 성장 도중에 플레이어가 밭을 갈아엎었거나 다른 작물로 바뀌었는지 안전 검사
-            if (!farmTiles.TryGetValue(tilePosition, out state) || state.crop == null) yield break;
+            // 성장 도중에 플레이어가 밭을 갈아엎었거나, 이미 마지막 단계까지 자란 뒤인지 안전 검사
+            // (stageIndex 상한까지 다시 확인하는 건 위 isGrowing 가드를 뚫는 예외 상황에 대비한 안전장치)
+            if (!farmTiles.TryGetValue(tilePosition, out state) || state.crop == null
+                || state.stageIndex >= state.crop.growStages.Length - 1) yield break;
 
             state.stageIndex++;
             cropTilemap.SetTile(tilePosition, state.crop.growStages[state.stageIndex]);
@@ -98,6 +106,9 @@ public class landtiles : MonoBehaviour
             if (state.stageIndex == state.crop.growStages.Length - 1)
                 Debug.Log($"{state.crop.cropID}이(가) 완전히 자랐습니다! 수확이 가능합니다.");
         }
+
+        if (farmTiles.TryGetValue(tilePosition, out var finished) && finished.crop != null)
+            finished.isGrowing = false;
     }
 
     public bool IsHarvestable(Vector3Int tilePosition)

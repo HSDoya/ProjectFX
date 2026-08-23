@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
 public class TreeHealth : MonoBehaviour
 {
-    public int hp = 20; // ³ª¹« Ã¼·Â
+    public int hp = 20; // ë‚˜ë¬´ ì²´ë ¥
 
-    [Header("µå¶ø ¼³Á¤")]
+    [Header("ë“œë ì„¤ì •")]
     public GameObject fieldItemPrefab;
 
     [System.Serializable]
@@ -23,10 +23,13 @@ public class TreeHealth : MonoBehaviour
 
     private bool isDestroyed = false;
     private SpriteRenderer spriteRenderer;
+    private Color baseColor; // í•­ìƒ ì—¬ê¸°ë¡œ ë³µêµ¬í•œë‹¤ - ì—°íƒ€ ì¤‘ ìƒ‰ì´ ë°”ë€ ì±„ë¡œ ìº¡ì²˜ë˜ëŠ” ê±¸ ë°©ì§€
+    private Coroutine hitEffectCoroutine;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null) baseColor = spriteRenderer.color;
     }
 
     public void TakeDamage(int damage)
@@ -34,11 +37,13 @@ public class TreeHealth : MonoBehaviour
         if (isDestroyed) return;
 
         hp -= damage;
-        Debug.Log($"³ª¹« Å¸°İ! µ¥¹ÌÁö: {damage}, ³²Àº HP: {hp}");
+        Debug.Log($"ë‚˜ë¬´ íƒ€ê²©! ë°ë¯¸ì§€: {damage}, ë‚¨ì€ HP: {hp}");
 
         if (spriteRenderer != null)
         {
-            StartCoroutine(HitEffectCoroutine());
+            // ì—°íƒ€ë¡œ ì½”ë£¨í‹´ì´ ê²¹ì¹˜ë©´ ìƒ‰ì´ ì•ˆ ëŒì•„ì˜¤ëŠ” ë¬¸ì œê°€ ìˆì–´ì„œ, ìƒˆë¡œ ì‹œì‘í•˜ê¸° ì „ì— ì´ì „ ê±¸ ëŠëŠ”ë‹¤.
+            if (hitEffectCoroutine != null) StopCoroutine(hitEffectCoroutine);
+            hitEffectCoroutine = StartCoroutine(HitEffectCoroutine());
         }
 
         if (hp <= 0)
@@ -49,11 +54,11 @@ public class TreeHealth : MonoBehaviour
 
     private IEnumerator HitEffectCoroutine()
     {
-        Color originalColor = spriteRenderer.color;
-        // ³ª¹«´Â ¸Â¾ÒÀ» ¶§ »ìÂ¦ ¾îµÎ¿î »¡°£»ö/°¥»ö ´À³¦À¸·Î ±ôºıÀÌ°Ô ¿¬Ãâ
+        // ë‚˜ë¬´ëŠ” ë§ì•˜ì„ ë•Œ ì‚´ì§ ì–´ë‘ìš´ ë¹¨ê°„ìƒ‰/ê°ˆìƒ‰ ëŠë‚Œìœ¼ë¡œ ê¹œë¹¡ì´ê²Œ ì—°ì¶œ
         spriteRenderer.color = new Color(1f, 0.6f, 0.6f);
         yield return new WaitForSeconds(0.1f);
-        spriteRenderer.color = originalColor;
+        spriteRenderer.color = baseColor;
+        hitEffectCoroutine = null;
     }
 
     private void ChopDown()
@@ -62,7 +67,7 @@ public class TreeHealth : MonoBehaviour
         isDestroyed = true;
 
         DropItems();
-        Destroy(gameObject); // ³ªÁß¿¡ ¿©±â¸¦ '¹Øµ¿(Stump)À¸·Î ÀÌ¹ÌÁö º¯°æ' µîÀ¸·Î ¾÷±×·¹ÀÌµåÇÒ ¼ö ÀÖ½À´Ï´Ù.
+        Destroy(gameObject); // ë‚˜ì¤‘ì— ì—¬ê¸°ë¥¼ 'ë°‘ë™(Stump)ìœ¼ë¡œ ì´ë¯¸ì§€ ë³€ê²½' ë“±ìœ¼ë¡œ ì—…ê·¸ë ˆì´ë“œí•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     }
 
     private void DropItems()
@@ -79,7 +84,7 @@ public class TreeHealth : MonoBehaviour
                 ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
                 if (data != null)
                 {
-                    // ³ª¹« ÁÖº¯À¸·Î ¾ÆÀÌÅÛ Èğ»Ñ¸®±â
+                    // ë‚˜ë¬´ ì£¼ë³€ìœ¼ë¡œ ì•„ì´í…œ í©ë¿Œë¦¬ê¸°
                     Vector3 dropPos = transform.position + (Vector3)Random.insideUnitCircle * 0.8f;
                     GameObject droppedObj = Instantiate(fieldItemPrefab, dropPos, Quaternion.identity);
 
