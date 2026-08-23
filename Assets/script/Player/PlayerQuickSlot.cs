@@ -109,10 +109,10 @@ public class PlayerQuickSlot : MonoBehaviour
     // 무기 위치 및 방향 업데이트 함수
     private void UpdateItemDirection()
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-
-        if (moveX > 0) isFacingRight = true;
-        else if (moveX < 0) isFacingRight = false;
+        // 시점 기준은 PlayerMove가 마우스 포인터로 계산한 값 하나만 사용한다.
+        // (예전엔 여기서 구식 Input.GetAxisRaw로 이동 방향을 따로 계산해서, 몸통(PlayerMove)과
+        // 무기(여기)가 서로 다른 기준으로 방향을 정하는 불일치가 있었다.)
+        if (playerMove != null) isFacingRight = playerMove.IsFacingRight;
 
         if (equippedItemRenderer != null)
         {

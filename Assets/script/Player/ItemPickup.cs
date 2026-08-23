@@ -1,15 +1,15 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 // Player ItemPickup Code
 [RequireComponent(typeof(Collider2D))]
 public class ItemPickup : MonoBehaviour
 {
-    [SerializeField] private string itemID;  // CSVÀÇ itemID¿Í µ¿ÀÏ(¿¹: "meat", "feather")
-    [SerializeField] private int amount = 1; // ÇÑ ¹ø¿¡ Áİ´Â ¼ö·®
+    [SerializeField] private string itemID;  // CSVì˜ itemIDì™€ ë™ì¼(ì˜ˆ: "meat", "feather")
+    [SerializeField] private int amount = 1; // í•œ ë²ˆì— ì¤ëŠ” ìˆ˜ëŸ‰
 
     private void Reset()
     {
-        // ÀÚµ¿ ±âº»°ª: Trigger·Î »ç¿ë
+        // ìë™ ê¸°ë³¸ê°’: Triggerë¡œ ì‚¬ìš©
         var col = GetComponent<Collider2D>();
         col.isTrigger = true;
     }
@@ -18,39 +18,39 @@ public class ItemPickup : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        var db = ItemDataManager.instance;  // CSV ·Î´õ ½Ì±ÛÅÏ
+        var db = ItemDataManager.instance;  // CSV ë¡œë” ì‹±ê¸€í„´
         if (db == null)
         {
-            Debug.LogError("[ItemPickup] ItemDataManager.instance°¡ ¾ø½À´Ï´Ù. ¾À¿¡ ¹èÄ¡ÇÏ¼¼¿ä.");
+            Debug.LogError("[ItemPickup] ItemDataManager.instanceê°€ ì—†ìŠµë‹ˆë‹¤. ì”¬ì— ë°°ì¹˜í•˜ì„¸ìš”.");
             return;
         }
 
         var data = db.GetItemDataByID(itemID);
         if (data == null)
         {
-            Debug.LogError($"[ItemPickup] itemID={itemID} ¸¦ CSV¿¡¼­ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError($"[ItemPickup] itemID={itemID} ë¥¼ CSVì—ì„œ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        var inv = Inventory.instance;        // ÀÎº¥Åä¸® ½Ì±ÛÅÏ
+        var inv = Inventory.instance;        // ì¸ë²¤í† ë¦¬ ì‹±ê¸€í„´
         if (inv == null)
         {
-            Debug.LogError("[ItemPickup] Inventory.instance°¡ ¾ø½À´Ï´Ù. ¾À¿¡ ¹èÄ¡ÇÏ¼¼¿ä.");
+            Debug.LogError("[ItemPickup] Inventory.instanceê°€ ì—†ìŠµë‹ˆë‹¤. ì”¬ì— ë°°ì¹˜í•˜ì„¸ìš”.");
             return;
         }
 
         bool ok = false;
-        // amount¸¸Å­ Add Ã³¸® (ÇöÀç Add´Â 1°³¾¿ Ãß°¡ÇÏµµ·Ï ÀÛ¼ºµÇ¾î ÀÖÀ¸´Ï ¹İº¹)
+        // amountë§Œí¼ Add ì²˜ë¦¬ (í˜„ì¬ AddëŠ” 1ê°œì”© ì¶”ê°€í•˜ë„ë¡ ì‘ì„±ë˜ì–´ ìˆìœ¼ë‹ˆ ë°˜ë³µ)
         for (int i = 0; i < Mathf.Max(1, amount); i++)
         {
-            if (!inv.Add(data)) { ok = (i > 0); break; } // °ø°£ ºÎÁ· ½Ã Áß´Ü
+            if (!inv.Add(data)) { ok = (i > 0); break; } // ê³µê°„ ë¶€ì¡± ì‹œ ì¤‘ë‹¨
             ok = true;
         }
 
         if (ok) Destroy(gameObject);
     }
 
-    // ¿¡µğÅÍ¿¡¼­ ÆíÇÏ°Ô ¼Â¾÷ÇÏ·Á°í °ø°³ Getter Á¦°ø(¼±ÅÃ)
+    // ì—ë””í„°ì—ì„œ í¸í•˜ê²Œ ì…‹ì—…í•˜ë ¤ê³  ê³µê°œ Getter ì œê³µ(ì„ íƒ)
     public void SetItem(string id, int qty = 1)
     {
         itemID = id;

@@ -95,20 +95,21 @@ public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler, IBe
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_wasDragging) return;
-        //if (eventData.button != PointerEventData.InputButton.Left)
-        //    return;
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
 
-        //if (EquipmentManager.instance == null)
-        //    return;
+        if (EquipmentManager.instance == null)
+            return;
 
-        //var removed = EquipmentManager.instance.Unequip(slotType);
-        //if (removed == null)
-        //    return;
+        var removed = EquipmentManager.instance.Unequip(slotType);
+        if (removed == null)
+            return;
 
-        //bool ok = Inventory.instance.AddItem(removed);
-        //if (!ok)
-        //{
-        //    EquipmentManager.instance.Equip(slotType, removed);
-        //}
+        bool ok = Inventory.instance.AddItem(removed);
+        if (!ok)
+        {
+            // 인벤토리가 꽉 차서 못 넣었으면 원래 슬롯으로 되돌림
+            EquipmentManager.instance.Equip(slotType, removed);
+        }
     }
 }

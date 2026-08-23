@@ -22350,7 +22350,7 @@ MonoBehaviour:
   inventory: {fileID: 1686479086}
   objectSpawner: {fileID: 1365982339}
   attackRangeIndicator: {fileID: 215378571}
-  dodgeSpeedMultiplier: 1.5
+  dodgeSpeedMultiplier: 1.1
   dodgeDuration: 0.4
   dodgeCooldown: 0.8
   isDodging: 0

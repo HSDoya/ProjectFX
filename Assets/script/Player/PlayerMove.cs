@@ -24,6 +24,9 @@ public class PlayerMove : MonoBehaviour
     Animator anim;
     private GameObject collidedObject = null;
 
+    // 캐릭터/장착 무기가 공통으로 참조하는 시점 기준(마우스 포인터). PlayerQuickSlot은 이 값을 읽기만 한다.
+    public bool IsFacingRight { get; private set; } = true;
+
     [SerializeField] private Inventory inventory;
     [SerializeField] private ObjectSpawner objectSpawner;
 
@@ -40,7 +43,7 @@ public class PlayerMove : MonoBehaviour
     // [회피 시스템 추가] 변수 선언
     // --------------------------------------------------------
     [Header("Dodge System")]
-    public float dodgeSpeedMultiplier = 1.5f; // 평소보다 이동할 배수 (원하는 거리만큼 조정)
+    public float dodgeSpeedMultiplier = 1.1f; // 평소보다 이동할 배수 (원하는 거리만큼 조정)
     public float dodgeDuration = 0.4f;        // 회피 지속 시간
     public float dodgeCooldown = 0.8f;        // 회피 종료 후 재사용까지 대기 시간
     public bool isDodging = false;            // 현재 회피 중인지 (무적 상태 판별)
@@ -104,6 +107,12 @@ public class PlayerMove : MonoBehaviour
             dodgeCooldownTimer = dodgeCooldown;
             StartCoroutine(DodgeRoutine());
         }
+
+        // ESC로 인벤토리 닫기 (열려 있을 때만 ToggleUI 호출 - 안 그러면 닫혀 있을 때 ESC로 오히려 열림)
+        if (Keyboard.current.escapeKey.wasPressedThisFrame && inventory != null && inventory.isInventoryOpen)
+        {
+            inventory.ToggleUI();
+        }
     }
 
     private void LateUpdate()
@@ -111,10 +120,11 @@ public class PlayerMove : MonoBehaviour
         if (isDodging) return; // [회피 시스템 추가] 회피 중에는 애니메이션 속도나 방향 전환 고정
 
         anim.SetFloat("Speed", inputVec.magnitude);
-        if (inputVec.x != 0)
-        {
-            spriteRenderer.flipX = inputVec.x < 0;
-        }
+
+        // 시점은 이동 방향이 아니라 마우스 포인터 기준 (제자리에서도 마우스를 보고 즉시 돌아본다)
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        IsFacingRight = mouseWorldPos.x >= transform.position.x;
+        spriteRenderer.flipX = !IsFacingRight;
     }
 
     private void OnMove(InputValue value)
