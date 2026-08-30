@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7ca28ccc336432438e28bf861da82b4, type: 3}
+  m_Name: Sword_wood
+  m_EditorClassIdentifier: 
+  recipeID: Sword_wood
+  resultItem: {fileID: 11400000, guid: b1896a8101ad5fc4bb9f7e1beb0d334b, type: 2}
+  resultAmount: 1
+  ingredients:
+  - item: {fileID: 11400000, guid: d058162e45d20fa4893ef09d69d419e6, type: 2}
+    amount: 5
+  craftTime: 1.5

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class ItemDataBaker : EditorWindow
 {
+    private const string BakerName = "ItemDataBaker";
+
     // CSV에 반드시 있어야 하는 컬럼들. 순서가 바뀌거나 새 컬럼이 끼어들어도
     // 이름으로 찾기 때문에 안전하다.
     private static readonly string[] RequiredColumns =
@@ -32,21 +34,8 @@ public class ItemDataBaker : EditorWindow
         }
 
         // 헤더 줄을 컬럼 이름 -> 인덱스로 매핑 (위치가 아니라 이름으로 값을 찾기 위함)
-        string[] header = lines[0].Split(',');
-        var colIndex = new Dictionary<string, int>();
-        for (int c = 0; c < header.Length; c++)
-        {
-            colIndex[header[c].Trim()] = c;
-        }
-
-        foreach (var required in RequiredColumns)
-        {
-            if (!colIndex.ContainsKey(required))
-            {
-                Debug.LogError($"[ItemDataBaker] CSV 헤더에 '{required}' 컬럼이 없습니다. 굽기를 중단합니다.");
-                return;
-            }
-        }
+        var colIndex = CsvBakeUtils.ParseHeader(lines[0]);
+        if (!CsvBakeUtils.HasRequiredColumns(colIndex, RequiredColumns, BakerName)) return;
 
         // 2. 에셋을 저장할 폴더 확인 및 생성
         string folderPath = "Assets/Resources/ItemDataAssets";
@@ -65,9 +54,9 @@ public class ItemDataBaker : EditorWindow
             if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
             string[] cols = lines[i].Split(',');
-            if (cols.Length < header.Length)
+            if (cols.Length < colIndex.Count)
             {
-                Debug.LogWarning($"[ItemDataBaker] CSV {i + 1}번째 줄의 컬럼 수가 부족합니다 (필요 {header.Length}개, 실제 {cols.Length}개). 이 줄을 건너뜁니다.");
+                Debug.LogWarning($"[ItemDataBaker] CSV {i + 1}번째 줄의 컬럼 수가 부족합니다 (필요 {colIndex.Count}개, 실제 {cols.Length}개). 이 줄을 건너뜁니다.");
                 continue;
             }
 
@@ -88,28 +77,20 @@ public class ItemDataBaker : EditorWindow
             }
 
             string assetPath = $"{folderPath}/{itemID}.asset";
-
-            // 이미 해당 ID의 에셋이 있는지 확인
-            ItemData itemData = AssetDatabase.LoadAssetAtPath<ItemData>(assetPath);
-            if (itemData == null)
-            {
-                // 없으면 새로 생성
-                itemData = ScriptableObject.CreateInstance<ItemData>();
-                AssetDatabase.CreateAsset(itemData, assetPath);
-            }
+            ItemData itemData = CsvBakeUtils.GetOrCreateAsset<ItemData>(assetPath);
 
             // 데이터 덮어쓰기
             itemData.itemID = itemID;
-            itemData.itemType = ParseEnumOrWarn<ItemType>(Col("ItemType"), itemID, "ItemType", i + 1);
+            itemData.itemType = CsvBakeUtils.ParseEnumOrWarn<ItemType>(Col("ItemType"), itemID, "ItemType", i + 1, BakerName);
             itemData.displayName = Col("Name");
             itemData.description = Col("Description");
             itemData.canStack = Col("canStack").ToLower() == "true";
-            itemData.maxStackAmount = ParseIntOrWarn(Col("MaxStack"), itemID, "MaxStack", i + 1);
+            itemData.maxStackAmount = CsvBakeUtils.ParseIntOrWarn(Col("MaxStack"), itemID, "MaxStack", i + 1, BakerName);
             itemData.type = Col("type");
             itemData.isConsumable = Col("isConsumable").ToLower() == "true";
-            itemData.equipSlot = ParseEnumOrWarn<EquipmentSlotType>(Col("equipSlot"), itemID, "equipSlot", i + 1);
-            itemData.atk = ParseIntOrWarn(Col("atk"), itemID, "atk", i + 1);
-            itemData.def = ParseIntOrWarn(Col("def"), itemID, "def", i + 1);
+            itemData.equipSlot = CsvBakeUtils.ParseEnumOrWarn<EquipmentSlotType>(Col("equipSlot"), itemID, "equipSlot", i + 1, BakerName);
+            itemData.atk = CsvBakeUtils.ParseIntOrWarn(Col("atk"), itemID, "atk", i + 1, BakerName);
+            itemData.def = CsvBakeUtils.ParseIntOrWarn(Col("def"), itemID, "def", i + 1, BakerName);
 
             // 아이콘 연결
             itemData.icon = Resources.Load<Sprite>($"icon/{itemID}");
@@ -121,12 +102,7 @@ public class ItemDataBaker : EditorWindow
 
         // 4. ItemDatabaseSO(통합 DB) 업데이트
         string dbPath = "Assets/Resources/ItemDatabase.asset";
-        ItemDatabaseSO database = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>(dbPath);
-        if (database == null)
-        {
-            database = ScriptableObject.CreateInstance<ItemDatabaseSO>();
-            AssetDatabase.CreateAsset(database, dbPath);
-        }
+        ItemDatabaseSO database = CsvBakeUtils.GetOrCreateAsset<ItemDatabaseSO>(dbPath);
 
         // 구워진 아이템 리스트를 DB에 갱신
         database.allItems = bakedItems;
@@ -137,25 +113,5 @@ public class ItemDataBaker : EditorWindow
         AssetDatabase.Refresh();
 
         Debug.Log($"<color=green>성공!</color> {bakedItems.Count}개의 아이템 데이터가 ScriptableObject로 구워졌습니다.");
-    }
-
-    // 값이 비어 있으면 조용히 0, 값이 있는데 숫자가 아니면 경고 후 0
-    private static int ParseIntOrWarn(string raw, string itemID, string columnName, int lineNumber)
-    {
-        if (string.IsNullOrEmpty(raw)) return 0;
-        if (int.TryParse(raw, out int value)) return value;
-
-        Debug.LogWarning($"[ItemDataBaker] '{itemID}'의 {columnName} 값 '{raw}'이(가) 숫자가 아니어서 0으로 처리됩니다. (CSV {lineNumber}번째 줄)");
-        return 0;
-    }
-
-    // 값이 비어 있으면 조용히 기본값, 값이 있는데 enum 이름과 안 맞으면 경고 후 기본값
-    private static T ParseEnumOrWarn<T>(string raw, string itemID, string columnName, int lineNumber) where T : struct, System.Enum
-    {
-        if (string.IsNullOrEmpty(raw)) return default;
-        if (System.Enum.TryParse<T>(raw, true, out T value)) return value;
-
-        Debug.LogWarning($"[ItemDataBaker] '{itemID}'의 {columnName} 값 '{raw}'을(를) 알 수 없어 {default(T)}(으)로 처리됩니다. (CSV {lineNumber}번째 줄)");
-        return default;
     }
 }

@@ -1,4 +1,4 @@
-itemID,ItemType,Name,Description,canStack,MaxStack,type,isConsumable,equipSlot,atk,def
+﻿itemID,ItemType,Name,Description,canStack,MaxStack,type,isConsumable,equipSlot,atk,def
 fish,Consumable,고등어 ,음식,TRUE,99,food,TRUE,None,0,0
 Tuna,Consumable,참치,음식,TRUE,99,food,TRUE,None,0,0
 Wood,Material,나무판자,재료 ,TRUE,99,Material,FALSE,None,0,0

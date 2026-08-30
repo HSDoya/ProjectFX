@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7ca28ccc336432438e28bf861da82b4, type: 3}
+  m_Name: Pick
+  m_EditorClassIdentifier: 
+  recipeID: Pick
+  resultItem: {fileID: 11400000, guid: c49ceac9c0755b9438d016569610ac5b, type: 2}
+  resultAmount: 1
+  ingredients:
+  - item: {fileID: 11400000, guid: d058162e45d20fa4893ef09d69d419e6, type: 2}
+    amount: 3
+  - item: {fileID: 11400000, guid: 883f664e2496ad9439f818e5e8010f86, type: 2}
+    amount: 2
+  craftTime: 1.5

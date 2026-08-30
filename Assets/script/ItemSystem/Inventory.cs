@@ -249,4 +249,62 @@ public class Inventory : MonoBehaviour
     {
         return AddItem(new Item(data));
     }
+
+    /// <summary>
+    /// 제작(크래프팅) 등에서 사용: 메인 인벤토리 + 퀵슬롯 전체에서 해당 itemID의 총 보유 수량
+    /// </summary>
+    public int GetItemCount(string itemID)
+    {
+        return CountInArray(GetArray(false), itemID) + CountInArray(GetArray(true), itemID);
+    }
+
+    private int CountInArray(Item[] arr, string itemID)
+    {
+        int total = 0;
+        for (int i = 0; i < arr.Length; i++)
+        {
+            if (arr[i] != null && arr[i].data.itemID == itemID)
+                total += arr[i].quantity;
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// 제작(크래프팅) 등에서 사용: itemID 기준으로 amount만큼 차감 (여러 슬롯에 나뉘어 있어도 합산해서 처리).
+    /// 보유 수량이 부족하면 아무것도 차감하지 않고 false를 반환한다 (일부만 차감되는 상황 방지).
+    /// 호출 전에 결과물을 먼저 지급할 수 있는지부터 확인하는 쪽(CraftingManager)에서 순서를 책임진다.
+    /// </summary>
+    public bool TryConsumeItems(string itemID, int amount)
+    {
+        if (amount <= 0) return true;
+        if (GetItemCount(itemID) < amount) return false;
+
+        int remaining = amount;
+        remaining = ConsumeFromArray(GetArray(false), itemID, remaining);
+        remaining = ConsumeFromArray(GetArray(true), itemID, remaining);
+
+        onItemChangedCallback?.Invoke();
+        return remaining <= 0;
+    }
+
+    private int ConsumeFromArray(Item[] arr, string itemID, int remaining)
+    {
+        for (int i = 0; i < arr.Length && remaining > 0; i++)
+        {
+            var item = arr[i];
+            if (item == null || item.data.itemID != itemID) continue;
+
+            if (item.quantity <= remaining)
+            {
+                remaining -= item.quantity;
+                arr[i] = null;
+            }
+            else
+            {
+                item.RemoveQuantity(remaining);
+                remaining = 0;
+            }
+        }
+        return remaining;
+    }
 }

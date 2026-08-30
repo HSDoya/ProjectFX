@@ -29,6 +29,7 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private Inventory inventory;
     [SerializeField] private ObjectSpawner objectSpawner;
+    [SerializeField] private CraftingUI craftingUI;
 
     // 퀵슬롯 선택/장착 아이템 상태는 PlayerQuickSlot이 단일 소유자로 관리한다.
     private PlayerQuickSlot playerQuickSlot;
@@ -108,10 +109,17 @@ public class PlayerMove : MonoBehaviour
             StartCoroutine(DodgeRoutine());
         }
 
-        // ESC로 인벤토리 닫기 (열려 있을 때만 ToggleUI 호출 - 안 그러면 닫혀 있을 때 ESC로 오히려 열림)
-        if (Keyboard.current.escapeKey.wasPressedThisFrame && inventory != null && inventory.isInventoryOpen)
+        // ESC로 인벤토리/제작창 닫기 (열려 있을 때만 호출 - 안 그러면 닫혀 있을 때 ESC로 오히려 열림)
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            inventory.ToggleUI();
+            if (inventory != null && inventory.isInventoryOpen) inventory.ToggleUI();
+            if (craftingUI != null && craftingUI.IsOpen) craftingUI.Close();
+        }
+
+        // E로 제작창 토글 (테스트용 키 바인딩 - Input Actions 에셋에 정식으로 옮겨도 됨)
+        if (Keyboard.current.eKey.wasPressedThisFrame && craftingUI != null)
+        {
+            craftingUI.ToggleUI();
         }
     }
 

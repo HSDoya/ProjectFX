@@ -1,0 +1,8 @@
+﻿recipeID,resultItemID,resultAmount,craftTime,ingredient1ID,ingredient1Amount,ingredient2ID,ingredient2Amount,ingredient3ID,ingredient3Amount
+Sword_wood,Sword_wood,1,1.5,Wood,5,,,,
+Sword_stone,Sword_stone,1,2.0,Wood,3,CutRock,5,,
+Ax_wood,Ax_wood,1,1.5,Wood,5,,,,
+Ax_stone,Ax_stone,1,2.0,Wood,3,CutRock,4,,
+Hoe,Hoe,1,1.0,Wood,3,,,,
+Pick,Pick,1,1.5,Wood,3,CutRock,2,,
+WateringCan,WateringCan,1,1.0,Wood,4,,,,
