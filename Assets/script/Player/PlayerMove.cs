@@ -51,6 +51,26 @@ public class PlayerMove : MonoBehaviour
 
     private float dodgeCooldownTimer = 0f;
 
+    // --------------------------------------------------------
+    // [스태미너 시스템 추가] Shift 달리기 + 회피가 공유하는 스태미너
+    // --------------------------------------------------------
+    [Header("Stamina System")]
+    public float maxStamina = 100f;
+    public float currentStamina;
+    public float runSpeedMultiplier = 1.5f;       // 달리기 시 이동 속도 배율
+    public float runStaminaDrainPerSecond = 15f;  // 달리는 동안 초당 소모량
+    public float dodgeStaminaCost = 20f;          // 회피 1회당 소모량
+    public float staminaRegenPerSecond = 10f;     // 회복 속도(달리기/회피를 안 쓸 때)
+    public float staminaRegenDelay = 1.5f;        // 마지막 소모 후 회복이 시작되기까지 대기 시간
+
+    private bool isRunning = false;
+    private float staminaRegenTimer = 0f;
+
+    // Shift가 "지금 눌려있는지"는 Run 액션의 현재 상태를 매 프레임 직접 조회해서 판단한다.
+    // (OnRun(InputValue) 콜백으로 press/release를 따로 캐싱하는 방식은 이벤트가 씹히면
+    // isRunKeyHeld가 true로 눌러붙어 Shift를 떼도 계속 달리는 버그가 생길 수 있어 제거했다.)
+    private InputAction runAction;
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -59,11 +79,15 @@ public class PlayerMove : MonoBehaviour
         playerQuickSlot = GetComponent<PlayerQuickSlot>();
         event_time = false;
         CreateTileHighlight();
+
+        var playerInput = GetComponent<PlayerInput>();
+        if (playerInput != null) runAction = playerInput.actions["Run"];
     }
 
     private void Start()
     {
         currentHealth = maxHealth;
+        currentStamina = maxStamina;
 
         if (playerQuickSlot != null)
         {
@@ -95,19 +119,14 @@ public class PlayerMove : MonoBehaviour
         }
 
         // --------------------------------------------------------
-        // [회피 시스템 추가] 스페이스바 입력 감지 (쿨타임 중에는 재발동 불가)
-        // (Input System의 Action Map을 사용 중이시라면 OnDodge 등의 함수로 분리하셔도 좋습니다.)
+        // [회피 시스템 추가] 회피 쿨타임 감소 (발동 자체는 Input System의 OnDash로 옮김)
         // --------------------------------------------------------
         if (dodgeCooldownTimer > 0f)
         {
             dodgeCooldownTimer -= Time.deltaTime;
         }
 
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && !isDodging && !event_time && dodgeCooldownTimer <= 0f)
-        {
-            dodgeCooldownTimer = dodgeCooldown;
-            StartCoroutine(DodgeRoutine());
-        }
+        UpdateStamina();
 
         // ESC로 인벤토리/제작창 닫기 (열려 있을 때만 호출 - 안 그러면 닫혀 있을 때 ESC로 오히려 열림)
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -144,6 +163,52 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
+    // [회피 시스템 추가] 회피 발동을 Input System으로 이전. Send Messages 방식은 키를 뗄 때도
+    // 이 콜백을 호출하므로(isPressed=false), 눌리는 순간에만 반응하도록 가드가 반드시 필요하다.
+    private void OnDash(InputValue value)
+    {
+        if (!value.isPressed) return;
+        if (isDodging || event_time || dodgeCooldownTimer > 0f) return;
+        if (currentStamina < dodgeStaminaCost)
+        {
+            Debug.Log("스태미너가 부족해 회피할 수 없습니다.");
+            return;
+        }
+
+        currentStamina -= dodgeStaminaCost;
+        staminaRegenTimer = staminaRegenDelay;
+        dodgeCooldownTimer = dodgeCooldown;
+        StartCoroutine(DodgeRoutine());
+    }
+
+    // [스태미너 시스템 추가] 달리기 상태 판정 + 소모/회복을 한 곳에서 처리.
+    // isRunning에 !isDodging을 포함시켜두면 회피 중엔 자동으로 달리기가 멈추고,
+    // 회피가 끝나면 Shift가 눌려있는 한 별도 처리 없이 다시 달리기로 돌아온다.
+    private void UpdateStamina()
+    {
+        bool isRunKeyHeld = runAction != null && runAction.IsPressed();
+        bool wantsToRun = isRunKeyHeld && inputVec.sqrMagnitude > 0.0001f && !isDodging && !event_time;
+
+        if (wantsToRun && currentStamina > 0f)
+        {
+            isRunning = true;
+            currentStamina = Mathf.Max(0f, currentStamina - runStaminaDrainPerSecond * Time.deltaTime);
+            staminaRegenTimer = staminaRegenDelay;
+        }
+        else
+        {
+            isRunning = false;
+            if (staminaRegenTimer > 0f)
+            {
+                staminaRegenTimer -= Time.deltaTime;
+            }
+            else
+            {
+                currentStamina = Mathf.Min(maxStamina, currentStamina + staminaRegenPerSecond * Time.deltaTime);
+            }
+        }
+    }
+
     private void FixedUpdate()
     {
         if (isDodging) return; // [회피 시스템 추가] 회피 중에는 코루틴에서 속도를 제어함
@@ -151,7 +216,8 @@ public class PlayerMove : MonoBehaviour
         if (!event_time)
         {
             float speedModifier = (WeatherManager.Instance != null) ? WeatherManager.Instance.GetSpeedModifier() : 1.0f;
-            rigid.linearVelocity = inputVec * (speed * speedModifier);
+            float runModifier = isRunning ? runSpeedMultiplier : 1f;
+            rigid.linearVelocity = inputVec * (speed * speedModifier * runModifier);
         }
         else
         {
