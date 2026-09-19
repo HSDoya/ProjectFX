@@ -12,7 +12,7 @@ public class AnimalSpawner : MonoBehaviour
 
     [Header("스폰 대상 레이어 및 중복 방지")]
     public LayerMask livingEntityLayer; // 적/동물 충돌체 레이어
-    public float spawnCheckRadius = 0.5f;
+    public float spawnCheckRadius = 0.6f;
 
     [Header("카메라 밖 및 플레이어 거리 설정")]
     public Transform playerTransform;
@@ -63,7 +63,6 @@ public class AnimalSpawner : MonoBehaviour
 
         while (true)
         {
-            // 파괴되었거나 죽은 오브젝트(null) 정리
             activeEntities.RemoveAll(e => e == null);
 
             int spawnedInThisBatch = 0;
@@ -72,7 +71,6 @@ public class AnimalSpawner : MonoBehaviour
             {
                 if (rule.prefab == null) continue;
 
-                // 현재 필드에 살아있는 해당 프리팹 종류 카운팅
                 int currentCount = 0;
                 foreach (var e in activeEntities)
                 {
@@ -80,7 +78,6 @@ public class AnimalSpawner : MonoBehaviour
                         currentCount++;
                 }
 
-                // 목표 수량보다 적을 경우 스폰 시도
                 while (currentCount < rule.targetCount && spawnedInThisBatch < maxSpawnPerBatch)
                 {
                     if (TrySpawnOneEntity(rule))
@@ -90,7 +87,6 @@ public class AnimalSpawner : MonoBehaviour
                     }
                     else
                     {
-                        // 50회 시도 내에 적합한 좌표를 못 찾으면 다음 주기로 패스
                         break;
                     }
                 }
@@ -103,7 +99,6 @@ public class AnimalSpawner : MonoBehaviour
         }
     }
 
-    // 스폰 가능한 유효 타일 셀 캐싱
     void CacheWalkableCells()
     {
         cachedWalkableCells.Clear();
@@ -117,7 +112,6 @@ public class AnimalSpawner : MonoBehaviour
             {
                 if (!wTilemap.HasTile(pos)) continue;
 
-                // 스폰 불가 타일맵과 겹치는 위치는 제외
                 Vector3 worldPos = wTilemap.GetCellCenterWorld(pos);
                 if (IsBlockedPosition(worldPos)) continue;
 
@@ -126,7 +120,6 @@ public class AnimalSpawner : MonoBehaviour
         }
     }
 
-    // 한 마리 스폰 검증 및 생성
     bool TrySpawnOneEntity(SpawnRule rule)
     {
         if (cachedWalkableCells.Count == 0) return false;
@@ -140,7 +133,7 @@ public class AnimalSpawner : MonoBehaviour
             Vector3 worldPos = refTilemap.GetCellCenterWorld(cell);
             worldPos.z = 0;
 
-            // 1. 카메라 시야각 밖 검증 (화면 + 마진 영역 밖인지 확인)
+            // 1. 카메라 시야각 밖 검증
             if (mainCam != null)
             {
                 Vector3 vp = mainCam.WorldToViewportPoint(worldPos);
@@ -158,22 +151,33 @@ public class AnimalSpawner : MonoBehaviour
                 continue;
             }
 
-            // 3. 충돌체 중복(타 개체 겹침) 검증
-            if (Physics2D.OverlapCircle(worldPos, spawnCheckRadius, livingEntityLayer))
+            // 3. ★ [수정]: 켜져 있는 다른 Collider2D와의 겹침 엄격 판정
+            // Circle 및 Box 검사를 결합하여 주변에 활성화된 충돌체가 있으면 건너뜁니다.
+            if (IsOverlappingAnyActiveCollider(worldPos))
             {
                 continue;
             }
 
-            // 4. 금지 타일맵(물/벽 등) 위치 여부 검증
+            // 4. 금지 타일맵 위치 여부 검증
             if (IsBlockedPosition(worldPos))
             {
                 continue;
             }
 
-            // 5. 조건 통과 시 인스턴스화
+            // 5. 생성
             GameObject go = Instantiate(rule.prefab, worldPos, Quaternion.identity);
 
-            // EnemyBaseAI 타일맵 참조 동기화 보장
+            // ★ [추가]: 스폰 직후 모든 Collider2D를 강제로 활성화 (자식 오브젝트 포함)
+            Collider2D[] allColliders = go.GetComponentsInChildren<Collider2D>(true);
+            foreach (var c in allColliders)
+            {
+                if (c != null)
+                {
+                    c.enabled = true;
+                }
+            }
+
+            // EnemyBaseAI 타일맵 목록 동기화
             EnemyBaseAI ai = go.GetComponent<EnemyBaseAI>();
             if (ai != null)
             {
@@ -186,6 +190,33 @@ public class AnimalSpawner : MonoBehaviour
 
             activeEntities.Add(go);
             return true;
+        }
+
+        return false;
+    }
+
+    // ★ [추가]: 활성화된 콜라이더와 겹치는지 정밀 검사
+    bool IsOverlappingAnyActiveCollider(Vector2 point)
+    {
+        // 1) LayerMask 지정된 것 검사
+        if (livingEntityLayer.value != 0)
+        {
+            Collider2D hit = Physics2D.OverlapCircle(point, spawnCheckRadius, livingEntityLayer);
+            if (hit != null && hit.enabled && !hit.isTrigger) return true;
+        }
+
+        // 2) 레이어 설정 누락 방지용 전체 박스 오버랩 안전망 (반경 0.8x0.8 영역)
+        Collider2D[] hits = Physics2D.OverlapBoxAll(point, new Vector2(spawnCheckRadius * 1.5f, spawnCheckRadius * 1.5f), 0f);
+        foreach (var c in hits)
+        {
+            if (c != null && c.enabled && !c.isTrigger)
+            {
+                // 타일맵 콜라이더가 아닌 엔티티(몬스터/플레이어/동물) 충돌체인지 확인
+                if (c.GetComponentInParent<Tilemap>() == null)
+                {
+                    return true;
+                }
+            }
         }
 
         return false;
