@@ -18,7 +18,7 @@ MonoBehaviour:
   isAggressive: 0
   detectRange: 0
   attackRange: 0
-  moveSpeed: 1
+  moveSpeed: 1.5
   attackDamage: 0
   attackCooldown: 0
   animType: BlendTree

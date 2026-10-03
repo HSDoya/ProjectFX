@@ -16,9 +16,9 @@ MonoBehaviour:
   enemyName: Slime3(blue)
   maxHealth: 50
   isAggressive: 1
-  detectRange: 9
-  attackRange: 1.9
+  detectRange: 4
+  attackRange: 1.5
   moveSpeed: 4
-  attackDamage: 25
-  attackCooldown: 2
+  attackDamage: 15
+  attackCooldown: 6
   animType: SimpleAnimation

@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cow_Run(MoveX) 1
+  m_Name: Cow_Walk(MoveX) 1
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -28,6 +28,8 @@ AnimationClip:
       value: {fileID: -7718894311471358691, guid: eb1745dfddc5f47459fc711458c8e170, type: 3}
     - time: 3.0166667
       value: {fileID: 4767018585102843172, guid: eb1745dfddc5f47459fc711458c8e170, type: 3}
+    - time: 4
+      value: {fileID: -7630355627676123549, guid: 9fcc27857c50d8f40880618e35e1e8c4, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -54,12 +56,13 @@ AnimationClip:
     - {fileID: -471393102204359978, guid: eb1745dfddc5f47459fc711458c8e170, type: 3}
     - {fileID: -7718894311471358691, guid: eb1745dfddc5f47459fc711458c8e170, type: 3}
     - {fileID: 4767018585102843172, guid: eb1745dfddc5f47459fc711458c8e170, type: 3}
+    - {fileID: -7630355627676123549, guid: 9fcc27857c50d8f40880618e35e1e8c4, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 3.0333333
+    m_StopTime: 4.016667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0

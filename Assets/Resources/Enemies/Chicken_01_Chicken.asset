@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: Chicken_01
   enemyName: Chicken
-  maxHealth: 10
+  maxHealth: 15
   isAggressive: 0
   detectRange: 0
   attackRange: 0

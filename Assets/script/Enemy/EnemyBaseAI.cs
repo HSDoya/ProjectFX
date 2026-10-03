@@ -19,7 +19,6 @@ public class EnemyBaseAI : MonoBehaviour
     public float minIdleTime = 1.0f;
     public float maxIdleTime = 4.0f;
 
-    // ★ [추가]: 비선공 가축이 피격당했을 때 도망치는 시간 및 속도 설정
     [Header("가축 피격 도망 설정")]
     public float panicDuration = 3.0f;
     public float fleeSpeedMultiplier = 1.6f;
@@ -51,7 +50,7 @@ public class EnemyBaseAI : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private Animator anim;
-    private Collider2D col; // 사망 시 충돌체 비활성화를 위해 추가
+    private Collider2D col;
 
     private Vector2 moveDir;
     private float lastAttackTime;
@@ -63,7 +62,6 @@ public class EnemyBaseAI : MonoBehaviour
     private bool isRunning = false;
     private bool isChasing = false;
 
-    // ★ [추가]: 도망 상태 여부 및 도망 타이머 변수
     private bool isFleeing = false;
     private float fleeTimer = 0f;
 
@@ -72,12 +70,21 @@ public class EnemyBaseAI : MonoBehaviour
     private bool isWanderingMove = false;
     private Coroutine flashCoroutine;
 
+    // ★ [추가]: 애니메이터 파라미터 유무 사전 캐싱 (없는 파라미터 호출 에러 원천 방지)
+    private bool hasParamIsMoving = false;
+    private bool hasParamIsFleeing = false;
+    private bool hasParamDirX = false;
+    private bool hasParamDirY = false;
+    private bool hasParamHit = false;
+    private bool hasParamAttack = false;
+    private bool hasParamDie = false;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        col = GetComponent<Collider2D>(); // 콜라이더 컴포넌트 캐싱
+        col = GetComponent<Collider2D>();
 
         if (rb != null)
         {
@@ -85,10 +92,34 @@ public class EnemyBaseAI : MonoBehaviour
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
+        if (col != null)
+        {
+            col.enabled = true;
+        }
+
         if (targetTransform == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null) targetTransform = playerObj.transform;
+        }
+
+        // ★ [추가]: 이 몹/가축의 애니메이터에 등록된 파라미터 목록 검사
+        CacheAnimatorParameters();
+    }
+
+    void CacheAnimatorParameters()
+    {
+        if (anim == null) return;
+
+        foreach (var p in anim.parameters)
+        {
+            if (p.name == "IsMoving") hasParamIsMoving = true;
+            else if (p.name == "IsFleeing") hasParamIsFleeing = true;
+            else if (p.name == "DirX") hasParamDirX = true;
+            else if (p.name == "DirY") hasParamDirY = true;
+            else if (p.name == "Hit") hasParamHit = true;
+            else if (p.name == "Attack") hasParamAttack = true;
+            else if (p.name == "Die") hasParamDie = true;
         }
     }
 
@@ -122,7 +153,7 @@ public class EnemyBaseAI : MonoBehaviour
     {
         if (!isInitialized || isDead) return;
 
-        // ★ [추가]: 피격받은 비선공 가축이 도망(Flee) 중일 때의 우선 처리 로직
+        // 1. 가축 피격 도망 처리
         if (isFleeing)
         {
             fleeTimer -= Time.deltaTime;
@@ -138,16 +169,17 @@ public class EnemyBaseAI : MonoBehaviour
                 isRunning = true;
                 if (targetTransform != null)
                 {
-                    // 플레이어의 반대 방향으로 도망 벡터 계산
-                    moveDir = (transform.position - targetTransform.position).normalized;
+                    // 플레이어의 반대 방향으로 도망
+                    moveDir = ((Vector2)transform.position - (Vector2)targetTransform.position).normalized;
                 }
             }
         }
-        else
+        // 2. 선공 몹 전투 및 추격
+        else if (stats.isAggressive)
         {
             float distance = (targetTransform != null) ? Vector2.Distance(transform.position, targetTransform.position) : float.MaxValue;
 
-            if (stats.isAggressive && distance <= stats.attackRange)
+            if (distance <= stats.attackRange)
             {
                 isChasing = true;
                 isMoving = false;
@@ -155,12 +187,12 @@ public class EnemyBaseAI : MonoBehaviour
                 moveDir = Vector2.zero;
                 TryAttack();
             }
-            else if (stats.isAggressive && distance <= stats.detectRange)
+            else if (distance <= stats.detectRange)
             {
                 isChasing = true;
                 isMoving = true;
                 isRunning = true;
-                moveDir = (targetTransform.position - transform.position).normalized;
+                moveDir = ((Vector2)targetTransform.position - (Vector2)transform.position).normalized;
             }
             else
             {
@@ -172,6 +204,11 @@ public class EnemyBaseAI : MonoBehaviour
                 }
                 HandleWandering();
             }
+        }
+        // 3. 평소 순찰
+        else
+        {
+            HandleWandering();
         }
 
         UpdateAnimation();
@@ -214,7 +251,6 @@ public class EnemyBaseAI : MonoBehaviour
 
         float speedMod = (WeatherManager.Instance != null) ? WeatherManager.Instance.GetSpeedModifier() : 1.0f;
 
-        // ★ [추가]: 도망 중일 때는 지정한 도망 배율(fleeSpeedMultiplier)을 곱해 더 빠르게 질주
         float currentSpeed;
         if (isFleeing)
         {
@@ -234,9 +270,9 @@ public class EnemyBaseAI : MonoBehaviour
         else
         {
             rb.linearVelocity = Vector2.zero;
-            // ★ [추가]: 도망 중 벽을 마주치면 옆 방향으로 튕겨나가도록 처리
             if (isFleeing)
             {
+                // 벽에 막히면 옆 방향으로 탈출
                 moveDir = Vector2.Perpendicular(moveDir) * (Random.value > 0.5f ? 1f : -1f);
             }
             else if (!isRunning)
@@ -251,7 +287,7 @@ public class EnemyBaseAI : MonoBehaviour
     {
         if (Time.time >= lastAttackTime + stats.attackCooldown)
         {
-            if (anim != null) anim.SetTrigger("Attack");
+            if (anim != null && hasParamAttack) anim.SetTrigger("Attack");
             lastAttackTime = Time.time;
 
             if (targetTransform != null)
@@ -266,13 +302,12 @@ public class EnemyBaseAI : MonoBehaviour
     {
         if (anim == null || isDead) return;
 
-        anim.SetBool("IsMoving", isMoving);
-        // ★ [추가]: 애니메이터에 도망(IsFleeing) 상태 불리언 파라미터 전달
-        anim.SetBool("IsFleeing", isFleeing);
+        // 파라미터가 있을 때만 안전하게 전달
+        if (hasParamIsMoving) anim.SetBool("IsMoving", isMoving);
+        if (hasParamIsFleeing) anim.SetBool("IsFleeing", isFleeing);
 
         if (isMoving)
         {
-            // ★ [추가]: 도망 중일 때도 chaseAnimStyle을 사용하도록 분기 유지
             EnemyAnimType currentStyle = (isRunning || isFleeing) ? chaseAnimStyle : wanderAnimStyle;
 
             if (currentStyle == EnemyAnimType.BlendTree)
@@ -282,24 +317,39 @@ public class EnemyBaseAI : MonoBehaviour
 
                 if (absX > absY)
                 {
-                    anim.SetFloat("DirX", 1f);
-                    anim.SetFloat("DirY", 0f);
+                    if (hasParamDirX) anim.SetFloat("DirX", 1f);
+                    if (hasParamDirY) anim.SetFloat("DirY", 0f);
 
-                    Transform flipTarget = (isRunning && !isFleeing) ? targetTransform : this.transform;
-                    float targetX = (isRunning && !isFleeing) ? flipTarget.position.x : (transform.position.x + moveDir.x);
-                    spriteRenderer.flipX = (isRunning && !isFleeing) ? (targetX < transform.position.x) : (moveDir.x > 0);
+                    // ★ [수정]: 플레이어를 추격할 때만 플레이어 위치를 보고, 도망치거나 순찰할 때는 무조건 진행 방향(moveDir.x)을 응시
+                    if (isRunning && !isFleeing && targetTransform != null)
+                    {
+                        spriteRenderer.flipX = targetTransform.position.x < transform.position.x;
+                    }
+                    else
+                    {
+                        // 원본 스프라이트가 우측 기준일 때: 왼쪽으로 가면 flipX = true, 오른쪽으로 가면 flipX = false
+                        spriteRenderer.flipX = moveDir.x < 0f;
+                    }
                 }
                 else
                 {
                     spriteRenderer.flipX = false;
-                    anim.SetFloat("DirX", 0f);
-                    anim.SetFloat("DirY", moveDir.y);
+                    if (hasParamDirX) anim.SetFloat("DirX", 0f);
+                    if (hasParamDirY) anim.SetFloat("DirY", moveDir.y);
                 }
             }
             else if (currentStyle == EnemyAnimType.SimpleAnimation)
             {
-                float targetX = (isRunning && !isFleeing) ? targetTransform.position.x : (transform.position.x + moveDir.x);
-                spriteRenderer.flipX = (isRunning && !isFleeing) ? (targetX > transform.position.x) : (moveDir.x > 0);
+                // ★ [수정]: 닭/슬라임도 도망칠 때 플레이어가 아니라 실제 도망 방향(moveDir.x)을 바라보도록 통일
+                if (isRunning && !isFleeing && targetTransform != null)
+                {
+                    spriteRenderer.flipX = targetTransform.position.x > transform.position.x;
+                }
+                else
+                {
+                    // 진행 방향이 오른쪽이면 flipX = true, 왼쪽이면 false (기존 닭 프리팹 기준)
+                    spriteRenderer.flipX = moveDir.x > 0f;
+                }
             }
         }
     }
@@ -326,15 +376,13 @@ public class EnemyBaseAI : MonoBehaviour
         }
         else
         {
-            // ★ [추가]: 비선공 가축(!isAggressive)인 경우 피격 즉시 도망 타이머 시작
             if (!stats.isAggressive)
             {
                 isFleeing = true;
                 fleeTimer = panicDuration;
             }
 
-            // 기존의 피격 모션(Hit 트리거) 및 피격 깜빡임 연출 그대로 유지
-            if (anim != null) anim.SetTrigger("Hit");
+            if (anim != null && hasParamHit) anim.SetTrigger("Hit");
 
             if (spriteRenderer != null)
             {
@@ -351,37 +399,29 @@ public class EnemyBaseAI : MonoBehaviour
         spriteRenderer.color = Color.white;
     }
 
-    // ========================================================
-    // [개선] 사망 애니메이션 재생 후 드랍 및 파괴 처리
-    // ========================================================
     private void Kill()
     {
         if (isDead) return;
         isDead = true;
 
-        // 사망 처리 코루틴 시동
         StartCoroutine(DieSequenceCoroutine());
     }
 
     private IEnumerator DieSequenceCoroutine()
     {
-        // 1. 물리/이동 정지 및 추가 타격 방지
         rb.linearVelocity = Vector2.zero;
-        if (col != null) col.enabled = false; // 충돌체를 꺼서 플레이어가 미는 현상 방지
+        if (col != null) col.enabled = false;
 
-        // 2. 피격 빨간색 제거 및 색상 초기화
         if (flashCoroutine != null) StopCoroutine(flashCoroutine);
         if (spriteRenderer != null) spriteRenderer.color = Color.white;
 
-        // 3. 사망 애니메이션 트리거 신호 발송
-        float dieAnimDuration = 0.5f; // 기본 대기 시간 (기본값)
+        float dieAnimDuration = 0.5f;
 
-        if (anim != null)
+        if (anim != null && hasParamDie)
         {
             anim.SetTrigger("Die");
 
-            // 애니메이터에 재생 중인 Die 클립의 실제 길이를 가져옵니다.
-            yield return new WaitForEndOfFrame(); // 트리거 전환 대기
+            yield return new WaitForEndOfFrame();
             AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
             if (stateInfo.IsName("Die"))
             {
@@ -389,10 +429,8 @@ public class EnemyBaseAI : MonoBehaviour
             }
         }
 
-        // 4. 사망 애니메이션 재생 시간만큼 대기
         yield return new WaitForSeconds(dieAnimDuration);
 
-        // 5. 애니메이션 완료 후 아이템 드랍 및 오브젝트 파괴
         DropItems();
         Destroy(gameObject);
     }
