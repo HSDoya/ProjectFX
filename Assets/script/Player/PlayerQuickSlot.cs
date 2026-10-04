@@ -64,7 +64,6 @@ public class PlayerQuickSlot : MonoBehaviour
     private void Update()
     {
         HandleQuickslotInput();
-        HandleActionInput();
 
         // 매 프레임마다 무기 위치/방향 업데이트
         if (!isSwinging)
@@ -131,12 +130,13 @@ public class PlayerQuickSlot : MonoBehaviour
         }
     }
 
-    private void HandleActionInput()
+    // 실제로 행동이 발동했을 때 PlayerMove가 호출한다.
+    // (예전엔 여기서 직접 마우스 입력을 받아서, 쿨타임이나 스태미너로 행동이 막혀도
+    //  무기만 허공에 휘둘러지는 불일치가 있었다. 행동 성립 여부는 PlayerMove가 단일 판단한다.)
+    public void PlaySwing()
     {
-        if (Input.GetMouseButtonDown(0) && currentEquippedItemData != null && !isSwinging)
-        {
-            StartCoroutine(SwingRoutine());
-        }
+        if (isSwinging || equippedItemRenderer == null || currentEquippedItemData == null) return;
+        StartCoroutine(SwingRoutine());
     }
 
     private IEnumerator SwingRoutine()

@@ -44,6 +44,13 @@ public class PlayerMove : MonoBehaviour
 
     [Header("공격 판정 설정")]
     public float attackHitRadius = 0.6f;
+    [Tooltip("무기 사용 간격(공격 속도). 작을수록 빠르게 휘두른다.")]
+    public float attackCooldown = 0.5f;
+    [Tooltip("농기구 사용 간격")]
+    public float toolCooldown = 0.4f;
+
+    // 무기/도구가 쿨타임을 공유한다(무기와 도구를 번갈아 바꿔서 연타하는 것도 함께 막힌다).
+    private float actionCooldownTimer = 0f;
 
     [Header("사망 / 리스폰 설정")]
     public float respawnDelay = 5f;
@@ -94,6 +101,10 @@ public class PlayerMove : MonoBehaviour
     public float runSpeedMultiplier = 1.5f;       // 달리기 시 이동 속도 배율
     public float runStaminaDrainPerSecond = 15f;  // 달리는 동안 초당 소모량
     public float dodgeStaminaCost = 20f;          // 회피 1회당 소모량
+    [Tooltip("무기(검/도끼/곡괭이) 1회 사용 스태미너")]
+    public float attackStaminaCost = 8f;
+    [Tooltip("농기구(괭이/물뿌리개/씨앗) 1회 사용 스태미너")]
+    public float toolStaminaCost = 5f;
     public float staminaRegenPerSecond = 10f;     // 회복 속도(달리기/회피를 안 쓸 때)
     public float staminaRegenDelay = 1.5f;        // 마지막 소모 후 회복이 시작되기까지 대기 시간
 
@@ -160,6 +171,11 @@ public class PlayerMove : MonoBehaviour
         if (dodgeCooldownTimer > 0f)
         {
             dodgeCooldownTimer -= Time.deltaTime;
+        }
+
+        if (actionCooldownTimer > 0f)
+        {
+            actionCooldownTimer -= Time.deltaTime;
         }
 
         UpdateStamina();
@@ -319,6 +335,9 @@ public class PlayerMove : MonoBehaviour
 
         if (equipped != null && equipped.equipSlot == EquipmentSlotType.Weapon)
         {
+            if (!TryConsumeActionCost(attackStaminaCost, attackCooldown)) return;
+            if (playerQuickSlot != null) playerQuickSlot.PlaySwing();
+
             Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, attackHitRadius);
 
             foreach (var hit in hits)
@@ -366,10 +385,32 @@ public class PlayerMove : MonoBehaviour
             return;
         }
 
-        if (TryGetTargetedTile(out Vector3Int tilePos))
+        // 장착한 도구가 없으면 농사 동작 자체가 없으므로(HandleFarmAction이 바로 반환) 스태미너도 소모하지 않는다.
+        if (equipped != null && TryGetTargetedTile(out Vector3Int tilePos))
         {
+            if (!TryConsumeActionCost(toolStaminaCost, toolCooldown)) return;
+            if (playerQuickSlot != null) playerQuickSlot.PlaySwing();
+
             HandleFarmAction(tilePos);
         }
+    }
+
+    // 행동 1회에 필요한 쿨타임과 스태미너를 함께 검사하고 소모한다.
+    // 둘 중 하나라도 부족하면 아무것도 소모하지 않고 false를 반환한다(일부만 깎이는 상황 방지).
+    private bool TryConsumeActionCost(float staminaCost, float cooldown)
+    {
+        if (actionCooldownTimer > 0f) return false;
+
+        if (currentStamina < staminaCost)
+        {
+            Debug.Log("스태미너가 부족해 행동할 수 없습니다.");
+            return false;
+        }
+
+        currentStamina -= staminaCost;
+        staminaRegenTimer = staminaRegenDelay; // 회피와 동일하게, 소모 직후에는 회복을 잠시 지연
+        actionCooldownTimer = cooldown;
+        return true;
     }
 
     // 마우스가 가리키는 칸과, 그 칸 중심까지 플레이어가 상호작용 가능한 거리 안에 있는지를 함께 반환.
