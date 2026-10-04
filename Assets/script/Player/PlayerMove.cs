@@ -19,7 +19,7 @@ public class PlayerMove : MonoBehaviour
     public Tilemap farmTilemap;
     public Tilemap waterTilemap;
     public landtiles landTileManager;
-    private Coroutine flashCoroutine;
+    private Coroutine hitFeedbackCoroutine;
 
     public bool event_time;
     Animator anim;
@@ -32,7 +32,13 @@ public class PlayerMove : MonoBehaviour
     [Header("피격 반응 설정")]
     public float knockbackForce = 4f;
     public float knockbackDuration = 0.15f;
-    public float hitInvulnerabilityDuration = 0.3f;
+    [Tooltip("최초 피격 후 추가 피격을 무시하는 시간. 여러 몹에게 둘러싸였을 때 순식간에 녹지 않게 해준다.")]
+    public float hitInvulnerabilityDuration = 1f;
+    [Tooltip("맞은 직후 빨갛게 보이는 시간. 이후 무적이 끝날 때까지는 반투명으로 표시된다.")]
+    public float hitFlashDuration = 0.15f;
+    [Range(0f, 1f)]
+    [Tooltip("무적 중 플레이어 스프라이트의 불투명도")]
+    public float invulnerableAlpha = 0.45f;
     private bool isKnockedBack = false;
     private bool isHitInvulnerable = false;
 
@@ -688,12 +694,11 @@ public class PlayerMove : MonoBehaviour
         damage = Mathf.Max(damage - defense, 0f);
         currentHealth -= damage;
 
-        if (flashCoroutine != null)
+        if (hitFeedbackCoroutine != null)
         {
-            StopCoroutine(flashCoroutine);
+            StopCoroutine(hitFeedbackCoroutine);
         }
-        flashCoroutine = StartCoroutine(FlashRedCoroutine());
-        StartCoroutine(HitInvulnerabilityRoutine());
+        hitFeedbackCoroutine = StartCoroutine(HitFeedbackRoutine());
 
         if (sourcePosition.HasValue)
         {
@@ -707,18 +712,28 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    private IEnumerator FlashRedCoroutine()
-    {
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(0.15f);
-        spriteRenderer.color = Color.white;
-    }
-
-    private IEnumerator HitInvulnerabilityRoutine()
+    // 무적 플래그와 스프라이트 색을 한 코루틴이 모두 소유한다. 예전엔 색(FlashRed)과 무적
+    // (HitInvulnerability)을 별도 코루틴으로 돌려서, 둘의 길이가 어긋나면 무적인데 평상시 색으로
+    // 보이는(= 플레이어가 무적인지 알 수 없는) 상태가 생겼다.
+    private IEnumerator HitFeedbackRoutine()
     {
         isHitInvulnerable = true;
-        yield return new WaitForSeconds(hitInvulnerabilityDuration);
+
+        // 맞은 순간은 빨갛게
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(hitFlashDuration);
+
+        // 남은 무적 시간 동안은 반투명 - 지금 무적이라는 걸 눈으로 알 수 있게
+        float translucentTime = hitInvulnerabilityDuration - hitFlashDuration;
+        if (translucentTime > 0f)
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f, invulnerableAlpha);
+            yield return new WaitForSeconds(translucentTime);
+        }
+
+        spriteRenderer.color = Color.white;
         isHitInvulnerable = false;
+        hitFeedbackCoroutine = null;
     }
 
     private IEnumerator KnockbackRoutine(Vector2 direction)
@@ -735,8 +750,15 @@ public class PlayerMove : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+        // 피격 연출 코루틴을 중간에 끊으므로, 그 코루틴이 끝에서 되돌려놓던 색과 무적 플래그를
+        // 여기서 직접 정리한다(안 하면 무적 상태로 눌러붙은 채 부활한다).
+        if (hitFeedbackCoroutine != null)
+        {
+            StopCoroutine(hitFeedbackCoroutine);
+            hitFeedbackCoroutine = null;
+        }
         spriteRenderer.color = Color.white;
+        isHitInvulnerable = false;
 
         isKnockedBack = false;
         rigid.linearVelocity = Vector2.zero;
