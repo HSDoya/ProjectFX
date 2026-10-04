@@ -16,9 +16,9 @@ MonoBehaviour:
   enemyName: Slime(green)
   maxHealth: 30
   isAggressive: 1
-  detectRange: 5
-  attackRange: 1.2
+  detectRange: 4
+  attackRange: 1
   moveSpeed: 2
-  attackDamage: 15
-  attackCooldown: 2
+  attackDamage: 5
+  attackCooldown: 1
   animType: SimpleAnimation
