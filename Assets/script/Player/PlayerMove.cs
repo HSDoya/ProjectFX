@@ -51,6 +51,14 @@ public class PlayerMove : MonoBehaviour
 
     // 무기/도구가 쿨타임을 공유한다(무기와 도구를 번갈아 바꿔서 연타하는 것도 함께 막힌다).
     private float actionCooldownTimer = 0f;
+    private float actionCooldownDuration = 0f;
+
+    // 쿨타임 UI가 읽어가는 남은 비율. 1이면 방금 사용, 0이면 사용 가능.
+    // 상태는 여기서만 들고 UI는 매 프레임 읽기만 한다(스태미너/체력과 동일한 방식).
+    public float ActionCooldownRatio01 =>
+        (actionCooldownDuration > 0f && actionCooldownTimer > 0f)
+            ? Mathf.Clamp01(actionCooldownTimer / actionCooldownDuration)
+            : 0f;
 
     [Header("사망 / 리스폰 설정")]
     public float respawnDelay = 5f;
@@ -410,6 +418,7 @@ public class PlayerMove : MonoBehaviour
         currentStamina -= staminaCost;
         staminaRegenTimer = staminaRegenDelay; // 회피와 동일하게, 소모 직후에는 회복을 잠시 지연
         actionCooldownTimer = cooldown;
+        actionCooldownDuration = cooldown;
         return true;
     }
 

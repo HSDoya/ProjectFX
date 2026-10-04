@@ -78,6 +78,14 @@ public class InventoryUI : MonoBehaviour
             subscribedInventory.onItemChangedCallback -= UpdateUI;
     }
 
+    // 쿨타임 오버레이처럼 특정 퀵슬롯 칸 위에 뭔가를 띄워야 할 때 쓴다.
+    // 슬롯 목록 수집은 이 클래스가 계속 소유하고(Awake에서 한 번), 밖에서는 조회만 하게 한다.
+    public RectTransform GetHudQuickSlotRect(int index)
+    {
+        if (index < 0 || index >= hudQuickSlotsUI.Count) return null;
+        return hudQuickSlotsUI[index] != null ? hudQuickSlotsUI[index].transform as RectTransform : null;
+    }
+
     public void UpdateUI()
     {
         if (Inventory.instance == null) return;

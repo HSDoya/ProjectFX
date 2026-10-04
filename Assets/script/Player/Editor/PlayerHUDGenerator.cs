@@ -76,6 +76,10 @@ public static class PlayerHUDGenerator
 
         var hud = root.gameObject.AddComponent<PlayerHUD>();
 
+        // 퀵슬롯 쿨타임 오버레이. 오버레이 자체는 런타임에 선택된 칸 위로 생성되므로
+        // 여기서는 컴포넌트만 붙여두면 된다(참조도 스스로 찾는다).
+        root.gameObject.AddComponent<QuickSlotCooldownUI>();
+
         var levelText = EditorUIBuilder.CreateChildText("LevelText", root, "LV. 1", 22, LevelColor, TextAlignmentOptions.MidlineLeft);
         levelText.fontStyle = FontStyles.Bold;
         levelText.gameObject.AddComponent<LayoutElement>().preferredHeight = 28;
