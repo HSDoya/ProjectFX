@@ -24,9 +24,16 @@ public class CraftingUI : MonoBehaviour
     public Button craftButton;
     public TextMeshProUGUI craftStatusText;
 
+    [Header("Craft Progress")]
+    public GameObject progressRoot;   // 제작 중일 때만 보이는 진행 바 전체
+    public Image progressFill;        // anchorMax.x로 채워지는 막대 (PlayerHUD의 게이지와 동일한 방식)
+
     public bool IsOpen { get; private set; }
 
     private RecipeData selectedRecipe;
+
+    // 제작이 끝나는 순간을 잡아내 목록/재료 표시를 갱신하기 위한 직전 프레임 상태
+    private bool wasCrafting;
     private readonly List<RecipeSlotUI> spawnedRows = new List<RecipeSlotUI>();
     private readonly List<IngredientRowUI> spawnedIngredientRows = new List<IngredientRowUI>();
 
@@ -53,6 +60,34 @@ public class CraftingUI : MonoBehaviour
     {
         if (Inventory.instance != null)
             Inventory.instance.onItemChangedCallback -= RefreshAll;
+    }
+
+    // 진행 상태는 CraftingManager가 단일 소유자라, 여기서는 매 프레임 읽어서 그리기만 한다.
+    private void Update()
+    {
+        var manager = CraftingManager.instance;
+        if (manager == null) return;
+
+        bool crafting = manager.IsCrafting;
+
+        if (progressRoot != null) progressRoot.SetActive(crafting);
+        if (crafting && progressFill != null)
+        {
+            var anchorMax = progressFill.rectTransform.anchorMax;
+            anchorMax.x = manager.CraftProgress01;
+            progressFill.rectTransform.anchorMax = anchorMax;
+        }
+
+        if (crafting)
+        {
+            if (craftButton != null) craftButton.interactable = false;
+            if (craftStatusText != null)
+                craftStatusText.text = $"Crafting... {manager.RemainingTime:0.0}s";
+        }
+
+        // 제작이 끝난 프레임에 버튼/재료 표시를 원래 상태로 되돌린다.
+        if (wasCrafting && !crafting) RefreshAll();
+        wasCrafting = crafting;
     }
 
     public void ToggleUI()
@@ -138,8 +173,13 @@ public class CraftingUI : MonoBehaviour
         }
 
         bool craftable = CraftingManager.instance != null && CraftingManager.instance.CanCraft(selectedRecipe);
-        if (craftButton != null) craftButton.interactable = craftable;
-        if (craftStatusText != null) craftStatusText.text = craftable ? "" : "Not enough materials";
+        bool crafting = CraftingManager.instance != null && CraftingManager.instance.IsCrafting;
+
+        // 제작 중에는 버튼을 잠근다. (예전엔 눌리기만 하고 아무 일도 안 일어나 먹통처럼 보였다.)
+        if (craftButton != null) craftButton.interactable = craftable && !crafting;
+
+        // 제작 중 남은 시간 표시는 Update가 담당하므로 여기서 덮어쓰지 않는다.
+        if (craftStatusText != null && !crafting) craftStatusText.text = craftable ? "" : "Not enough materials";
     }
 
     private void OnCraftButtonClicked()

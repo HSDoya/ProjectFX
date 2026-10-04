@@ -24,3 +24,4 @@ MonoBehaviour:
   equipSlot: 2
   atk: 0
   def: 10
+  placedPrefab: {fileID: 0}

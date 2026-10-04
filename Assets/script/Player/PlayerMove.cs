@@ -15,6 +15,7 @@ public class PlayerMove : MonoBehaviour
     public float speed = 5f;
     private Rigidbody2D rigid;
     private SpriteRenderer spriteRenderer;
+    private Collider2D col;
     public Tilemap farmTilemap;
     public Tilemap waterTilemap;
     public landtiles landTileManager;
@@ -23,6 +24,33 @@ public class PlayerMove : MonoBehaviour
     public bool event_time;
     Animator anim;
     private GameObject collidedObject = null;
+
+    // TODO(임시): 가구 설치 테스트용 무적. 테스트가 끝나면 이 필드와 아래 TakeDamage의 조건을 지울 것.
+    [Header("디버그 (테스트용 - 정식 빌드 전에 반드시 끌 것)")]
+    public bool debugInvincible = false;
+
+    [Header("피격 반응 설정")]
+    public float knockbackForce = 4f;
+    public float knockbackDuration = 0.15f;
+    public float hitInvulnerabilityDuration = 0.3f;
+    private bool isKnockedBack = false;
+    private bool isHitInvulnerable = false;
+
+    [Header("공격 판정 설정")]
+    public float attackHitRadius = 0.6f;
+
+    [Header("사망 / 리스폰 설정")]
+    public float respawnDelay = 5f;
+
+    [Header("가구 설치 설정")]
+    public float furniturePlacementRange = 2.5f;
+    public Color placementValidColor = new Color(0.2f, 1f, 0.3f, 0.35f);
+    public Color placementInvalidColor = new Color(1f, 0.2f, 0.2f, 0.35f);
+
+    // 설치 미리보기는 밭 커서(tileHighlight)와 같은 오브젝트를 색/크기만 바꿔서 재사용한다.
+    // 테두리만 있는 밭 커서와 달리 설치 구역은 면으로 보여야 해서 스프라이트만 따로 만들어 둔다.
+    private Sprite highlightBorderSprite;
+    private Sprite highlightAreaSprite;
 
     // 캐릭터/장착 무기가 공통으로 참조하는 시점 기준(마우스 포인터). PlayerQuickSlot은 이 값을 읽기만 한다.
     public bool IsFacingRight { get; private set; } = true;
@@ -75,6 +103,7 @@ public class PlayerMove : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        col = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
         playerQuickSlot = GetComponent<PlayerQuickSlot>();
         event_time = false;
@@ -108,14 +137,15 @@ public class PlayerMove : MonoBehaviour
     {
         UpdateTileHighlight();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging)
+        if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging && !isDead)
         {
             OnMouseClick();
         }
 
-        if (Keyboard.current.fKey.wasPressedThisFrame)
+        // F는 설치한 가구 회수를 먼저 시도하고, 주변에 가구가 없을 때만 기존 오브젝트 제거로 넘어간다.
+        if (Keyboard.current.fKey.wasPressedThisFrame && !isDead)
         {
-            TryDestroyNearestSpawnedObject();
+            if (!TryPickUpFurniture()) TryDestroyNearestSpawnedObject();
         }
 
         // --------------------------------------------------------
@@ -168,7 +198,7 @@ public class PlayerMove : MonoBehaviour
     private void OnDash(InputValue value)
     {
         if (!value.isPressed) return;
-        if (isDodging || event_time || dodgeCooldownTimer > 0f) return;
+        if (isDodging || event_time || isDead || dodgeCooldownTimer > 0f) return;
         if (currentStamina < dodgeStaminaCost)
         {
             Debug.Log("스태미너가 부족해 회피할 수 없습니다.");
@@ -211,7 +241,7 @@ public class PlayerMove : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isDodging) return; // [회피 시스템 추가] 회피 중에는 코루틴에서 속도를 제어함
+        if (isDodging || isKnockedBack || isDead) return; // 회피/넉백/사망(리스폰 대기) 중에는 이동 로직을 건너뜀
 
         if (!event_time)
         {
@@ -275,9 +305,15 @@ public class PlayerMove : MonoBehaviour
 
         ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
 
+        if (equipped != null && equipped.itemType == ItemType.Furniture && equipped.placedPrefab != null)
+        {
+            TryPlaceFurniture(equipped);
+            return;
+        }
+
         if (equipped != null && equipped.equipSlot == EquipmentSlotType.Weapon)
         {
-            Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, 0.3f);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, attackHitRadius);
 
             foreach (var hit in hits)
             {
@@ -345,9 +381,21 @@ public class PlayerMove : MonoBehaviour
     }
 
     // 마우스가 가리키는 칸에 밭 타일이 있고 상호작용 범위 안이면, 그 칸 중심에 테두리 커서를 띄운다.
+    // 가구를 들고 있을 때는 같은 커서를 설치 구역 미리보기로 바꿔서 쓴다.
     private void UpdateTileHighlight()
     {
         if (tileHighlight == null || farmTilemap == null || landTileManager == null) return;
+
+        ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
+        if (!isDead && equipped != null && equipped.itemType == ItemType.Furniture && equipped.placedPrefab != null)
+        {
+            UpdateFurniturePreview(equipped);
+            return;
+        }
+
+        tileHighlight.sprite = highlightBorderSprite;
+        tileHighlight.color = Color.white;
+        tileHighlight.transform.localScale = farmTilemap.cellSize;
 
         if (TryGetTargetedTile(out Vector3Int tilePos) && landTileManager.HasFarmTile(tilePos))
         {
@@ -365,7 +413,11 @@ public class PlayerMove : MonoBehaviour
     {
         GameObject go = new GameObject("TileHighlight");
         tileHighlight = go.AddComponent<SpriteRenderer>();
-        tileHighlight.sprite = CreateHighlightSprite();
+
+        highlightBorderSprite = CreateHighlightSprite(0f);
+        highlightAreaSprite = CreateHighlightSprite(0.45f);
+
+        tileHighlight.sprite = highlightBorderSprite;
         tileHighlight.sortingOrder = 10; // farmTilemap/cropTilemap보다 위에 그려지도록
         tileHighlight.enabled = false;
 
@@ -373,27 +425,149 @@ public class PlayerMove : MonoBehaviour
         go.transform.localScale = cellSize;
     }
 
-    private Sprite CreateHighlightSprite()
+    // fillAlpha가 0이면 테두리만(밭 커서), 0보다 크면 안쪽까지 채운 구역 표시(가구 설치 미리보기)가 된다.
+    private Sprite CreateHighlightSprite(float fillAlpha)
     {
         const int size = 32;
         const int border = 3;
         var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         tex.filterMode = FilterMode.Point;
 
-        Color clear = new Color(0f, 0f, 0f, 0f);
-        Color line = new Color(1f, 1f, 0.2f, 0.9f);
+        Color line = new Color(1f, 1f, 1f, 0.9f);
+        Color fill = new Color(1f, 1f, 1f, fillAlpha);
 
         for (int y = 0; y < size; y++)
         {
             for (int x = 0; x < size; x++)
             {
                 bool isBorder = x < border || x >= size - border || y < border || y >= size - border;
-                tex.SetPixel(x, y, isBorder ? line : clear);
+                tex.SetPixel(x, y, isBorder ? line : fill);
             }
         }
         tex.Apply();
 
         return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+    }
+
+    // 가구를 들고 있는 동안 마우스 위치에 설치 구역을 띄운다. 설치 가능하면 초록, 불가능하면 빨강.
+    private void UpdateFurniturePreview(ItemData furniture)
+    {
+        Vector2 center = GetMouseWorldPosition();
+        Vector2 footprint = GetFootprintSize(furniture);
+
+        tileHighlight.sprite = highlightAreaSprite;
+        tileHighlight.transform.position = center;
+        tileHighlight.transform.localScale = new Vector3(footprint.x, footprint.y, 1f);
+        tileHighlight.color = CanPlaceFurniture(center, footprint) ? placementValidColor : placementInvalidColor;
+        tileHighlight.enabled = true;
+    }
+
+    private Vector2 GetMouseWorldPosition()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        return new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+    }
+
+    private static Vector2 GetFootprintSize(ItemData furniture)
+    {
+        var placeable = furniture.placedPrefab.GetComponent<PlaceableFurniture>();
+        return placeable != null ? placeable.footprintSize : Vector2.one;
+    }
+
+    // 설치하려는 구역이 비어 있는지 검사. 물 타일 위나 다른 오브젝트와 겹치는 자리에는 설치할 수 없다.
+    // 플레이어 자신도 겹침 대상에 포함한다(제 자리에 설치해서 가구 안에 갇히는 것을 막기 위함).
+    private bool CanPlaceFurniture(Vector2 center, Vector2 footprint)
+    {
+        if (Vector2.Distance(transform.position, center) > furniturePlacementRange) return false;
+
+        if (IsFootprintOverWater(center, footprint)) return false;
+
+        foreach (var hit in Physics2D.OverlapBoxAll(center, footprint, 0f))
+        {
+            if (hit == null || hit.isTrigger) continue;
+            // 땅/벽 타일맵 콜라이더는 바닥이므로 겹쳐도 설치를 막지 않는다(물은 위에서 따로 검사함).
+            if (hit.GetComponentInParent<Tilemap>() != null) continue;
+            return false;
+        }
+
+        return true;
+    }
+
+    // 중심만 보면 가구의 절반이 물에 걸친 자리도 통과하므로 네 모서리까지 함께 검사한다.
+    private bool IsFootprintOverWater(Vector2 center, Vector2 footprint)
+    {
+        if (waterTilemap == null) return false;
+
+        Vector2 half = footprint * 0.5f;
+        Vector2[] points =
+        {
+            center,
+            center + new Vector2(-half.x, -half.y),
+            center + new Vector2(half.x, -half.y),
+            center + new Vector2(-half.x, half.y),
+            center + new Vector2(half.x, half.y)
+        };
+
+        foreach (var point in points)
+        {
+            if (waterTilemap.HasTile(waterTilemap.WorldToCell(point))) return true;
+        }
+
+        return false;
+    }
+
+    private void TryPlaceFurniture(ItemData furniture)
+    {
+        Vector2 center = GetMouseWorldPosition();
+        Vector2 footprint = GetFootprintSize(furniture);
+
+        if (!CanPlaceFurniture(center, footprint)) return;
+        if (Inventory.instance == null || playerQuickSlot == null) return;
+
+        // 인벤토리에서 먼저 빼내고, 실제로 빠졌을 때만 설치한다.
+        // 설치부터 하면 슬롯이 이미 비어 있어도 가구가 공짜로 생긴다.
+        if (!Inventory.instance.TryTakeOneAt(playerQuickSlot.selectedQuickSlotIndex, true, out Item taken)) return;
+
+        // 슬롯 상태가 어긋나 엉뚱한 아이템이 빠졌다면 되돌린다(다른 아이템이 소모되는 것을 방지).
+        if (taken == null || taken.data != furniture)
+        {
+            if (taken != null) Inventory.instance.AddItem(taken);
+            return;
+        }
+
+        GameObject placed = Instantiate(furniture.placedPrefab, center, Quaternion.identity);
+
+        // 회수할 때 어떤 아이템으로 돌려줄지 설치한 쪽에서 알려준다.
+        var placeable = placed.GetComponent<PlaceableFurniture>();
+        if (placeable != null) placeable.sourceItem = furniture;
+    }
+
+    // 주변에 설치된 가구가 있으면 회수해서 인벤토리로 되돌린다. 성공하면 true.
+    private bool TryPickUpFurniture()
+    {
+        PlaceableFurniture closest = null;
+        float minDist = furniturePlacementRange;
+
+        foreach (var hit in Physics2D.OverlapCircleAll(transform.position, furniturePlacementRange))
+        {
+            var furniture = hit.GetComponentInParent<PlaceableFurniture>();
+            if (furniture == null || furniture.sourceItem == null) continue;
+
+            float dist = Vector2.Distance(transform.position, furniture.transform.position);
+            if (dist <= minDist)
+            {
+                closest = furniture;
+                minDist = dist;
+            }
+        }
+
+        if (closest == null) return false;
+
+        // 인벤토리가 가득 차면 가구를 그대로 둔다(넣지도 못하고 사라지면 아이템이 증발하므로).
+        if (Inventory.instance == null || !Inventory.instance.AddItem(new Item(closest.sourceItem, 1))) return false;
+
+        Destroy(closest.gameObject);
+        return true;
     }
 
     private void HandleFarmAction(Vector3Int tilePosition)
@@ -500,12 +674,14 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Vector2? sourcePosition = null)
     {
         // --------------------------------------------------------
         // [회피 시스템 추가] isDodging 상태일 때 무적 판정 부여
+        // isHitInvulnerable: 피격 직후 짧은 무적 시간(중복 피격 방지)
         // --------------------------------------------------------
-        if (isDead || event_time || isDodging) return;
+        if (debugInvincible) return;
+        if (isDead || event_time || isDodging || isHitInvulnerable) return;
 
         // 장비창(Armor/Hat/Shoes/Accessory)에 장착된 방어구 def 합계만큼 피해 경감
         float defense = EquipmentManager.instance != null ? EquipmentManager.instance.GetTotalDefense() : 0f;
@@ -517,6 +693,13 @@ public class PlayerMove : MonoBehaviour
             StopCoroutine(flashCoroutine);
         }
         flashCoroutine = StartCoroutine(FlashRedCoroutine());
+        StartCoroutine(HitInvulnerabilityRoutine());
+
+        if (sourcePosition.HasValue)
+        {
+            Vector2 dir = (Vector2)transform.position - sourcePosition.Value;
+            if (dir.sqrMagnitude > 0.0001f) StartCoroutine(KnockbackRoutine(dir.normalized));
+        }
 
         if (currentHealth <= 0)
         {
@@ -527,14 +710,50 @@ public class PlayerMove : MonoBehaviour
     private IEnumerator FlashRedCoroutine()
     {
         spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.15f);
         spriteRenderer.color = Color.white;
+    }
+
+    private IEnumerator HitInvulnerabilityRoutine()
+    {
+        isHitInvulnerable = true;
+        yield return new WaitForSeconds(hitInvulnerabilityDuration);
+        isHitInvulnerable = false;
+    }
+
+    private IEnumerator KnockbackRoutine(Vector2 direction)
+    {
+        isKnockedBack = true;
+        rigid.linearVelocity = direction * knockbackForce;
+        yield return new WaitForSeconds(knockbackDuration);
+        if (isKnockedBack) rigid.linearVelocity = Vector2.zero;
+        isKnockedBack = false;
     }
 
     private void Die()
     {
-        currentHealth = maxHealth;
+        if (isDead) return;
+        isDead = true;
+
         if (flashCoroutine != null) StopCoroutine(flashCoroutine);
         spriteRenderer.color = Color.white;
+
+        isKnockedBack = false;
+        rigid.linearVelocity = Vector2.zero;
+
+        StartCoroutine(RespawnRoutine());
+    }
+
+    private IEnumerator RespawnRoutine()
+    {
+        spriteRenderer.enabled = false;
+        if (col != null) col.enabled = false;
+
+        yield return new WaitForSeconds(respawnDelay);
+
+        currentHealth = maxHealth;
+        spriteRenderer.enabled = true;
+        if (col != null) col.enabled = true;
+        isDead = false;
     }
 }

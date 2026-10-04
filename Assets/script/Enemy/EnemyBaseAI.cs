@@ -24,6 +24,10 @@ public class EnemyBaseAI : MonoBehaviour
     public float panicDuration = 3.0f;
     public float fleeSpeedMultiplier = 1.6f;
 
+    [Header("공격 판정 타이밍")]
+    [Tooltip("Attack 트리거 발동 후 실제 데미지가 들어가기까지의 지연 시간(모션과 판정을 맞추기 위함)")]
+    public float attackWindup = 0.25f;
+
     [Header("상황별 애니메이션 스타일 교체")]
     public EnemyAnimType wanderAnimStyle = EnemyAnimType.BlendTree;
     public EnemyAnimType chaseAnimStyle = EnemyAnimType.SimpleAnimation;
@@ -251,15 +255,25 @@ public class EnemyBaseAI : MonoBehaviour
     {
         if (Time.time >= lastAttackTime + stats.attackCooldown)
         {
-            if (anim != null) anim.SetTrigger("Attack");
             lastAttackTime = Time.time;
-
-            if (targetTransform != null)
-            {
-                PlayerMove player = targetTransform.GetComponent<PlayerMove>();
-                if (player != null) player.TakeDamage(stats.attackDamage);
-            }
+            if (anim != null) anim.SetTrigger("Attack");
+            StartCoroutine(AttackDamageRoutine());
         }
+    }
+
+    // 공격 모션(윈드업)이 실제로 재생될 시간을 준 뒤 데미지를 적용한다.
+    // 그 사이 대상이 죽거나 사거리를 벗어나면(회피 등) 데미지를 취소한다.
+    private IEnumerator AttackDamageRoutine()
+    {
+        yield return new WaitForSeconds(attackWindup);
+
+        if (isDead || targetTransform == null) yield break;
+
+        float distance = Vector2.Distance(transform.position, targetTransform.position);
+        if (distance > stats.attackRange) yield break;
+
+        PlayerMove player = targetTransform.GetComponent<PlayerMove>();
+        if (player != null) player.TakeDamage(stats.attackDamage, transform.position);
     }
 
     void UpdateAnimation()
@@ -333,9 +347,9 @@ public class EnemyBaseAI : MonoBehaviour
                 fleeTimer = panicDuration;
             }
 
-            // 기존의 피격 모션(Hit 트리거) 및 피격 깜빡임 연출 그대로 유지
-            if (anim != null) anim.SetTrigger("Hit");
-
+            // Hit 애니메이션 파라미터가 존재하지 않아 SetTrigger("Hit") 호출 시 콘솔 에러만 발생했음.
+            // 해당 파라미터/스테이트가 실제로 없어 대응하는 별도 리액션 모션 없이,
+            // 아래 피격 깜빡임 연출만으로 피격을 표시한다.
             if (spriteRenderer != null)
             {
                 if (flashCoroutine != null) StopCoroutine(flashCoroutine);

@@ -329,11 +329,26 @@ public static class CraftingUIGenerator
         var craftButtonText = EditorUIBuilder.CreateChildText("Text", craftButtonImage.transform, "Craft", 26, Color.white, TextAlignmentOptions.Center);
         EditorUIBuilder.StretchFull(craftButtonText.rectTransform);
 
+        // 제작 진행 바. 제작 중이 아닐 때는 CraftingUI가 통째로 꺼둔다.
+        var progressTrack = EditorUIBuilder.CreateChildImage("ProgressTrack", right, new Color(0.15f, 0.15f, 0.15f), fixedWidth: 0);
+        progressTrack.raycastTarget = false;
+        progressTrack.gameObject.AddComponent<LayoutElement>().preferredHeight = 14;
+
+        var progressFill = EditorUIBuilder.CreateChildImage("Fill", progressTrack.transform, new Color(0.35f, 0.75f, 0.4f), fixedWidth: 0);
+        progressFill.raycastTarget = false;
+        var fillRt = progressFill.rectTransform;
+        fillRt.anchorMin = Vector2.zero;
+        fillRt.anchorMax = Vector2.one;   // 런타임에 anchorMax.x만 진행도로 바꾼다
+        fillRt.offsetMin = Vector2.zero;
+        fillRt.offsetMax = Vector2.zero;
+
         var statusText = EditorUIBuilder.CreateChildText("StatusText", right, "", 18, new Color(0.85f, 0.35f, 0.35f), TextAlignmentOptions.Center);
         statusText.gameObject.AddComponent<LayoutElement>().preferredHeight = 24;
 
         craftingUI.craftButton = craftButton;
         craftingUI.craftStatusText = statusText;
+        craftingUI.progressRoot = progressTrack.gameObject;
+        craftingUI.progressFill = progressFill;
     }
 
     // ───────────────────────── 씬에 배치 ─────────────────────────

@@ -15,6 +15,14 @@ public class CraftingManager : MonoBehaviour
     // 연타/중복 실행 방지 (Tile_Fishing의 isFishing과 동일한 패턴)
     private bool isCrafting = false;
 
+    // 제작 진행 상태는 여기서만 들고 있고 UI는 매 프레임 읽어가기만 한다.
+    // (PlayerHUD가 PlayerMove의 체력을 그대로 읽어 쓰는 것과 같은 방식 - UI가 따로 복사해두지 않으므로
+    //  제작 도중 창을 닫았다 열어도 진행 상태가 어긋나지 않는다.)
+    public bool IsCrafting => isCrafting;
+    public RecipeData CraftingRecipe { get; private set; }
+    public float CraftProgress01 { get; private set; }
+    public float RemainingTime { get; private set; }
+
     private void Awake()
     {
         if (instance != null)
@@ -66,15 +74,25 @@ public class CraftingManager : MonoBehaviour
     private IEnumerator CraftRoutine(RecipeData recipe)
     {
         isCrafting = true;
+        CraftingRecipe = recipe;
 
-        if (recipe.craftTime > 0f)
-            yield return new WaitForSeconds(recipe.craftTime);
+        // WaitForSeconds로 한 번에 기다리면 밖에서 진행 상황을 볼 수 없어서, 경과 시간을 직접 누적한다.
+        float elapsed = 0f;
+        while (elapsed < recipe.craftTime)
+        {
+            elapsed += Time.deltaTime;
+            CraftProgress01 = Mathf.Clamp01(elapsed / recipe.craftTime);
+            RemainingTime = Mathf.Max(0f, recipe.craftTime - elapsed);
+            yield return null;
+        }
+        CraftProgress01 = 1f;
+        RemainingTime = 0f;
 
         // 대기 시간 동안 재료를 다른 데 써버렸을 수 있으니 지급 직전에 다시 확인
         if (!CanCraft(recipe))
         {
             Debug.Log("제작 중 재료가 부족해져서 제작이 취소되었습니다.");
-            isCrafting = false;
+            ResetCraftingState();
             yield break;
         }
 
@@ -84,7 +102,7 @@ public class CraftingManager : MonoBehaviour
         if (!Inventory.instance.AddItem(resultItem))
         {
             Debug.Log("인벤토리가 가득 차서 제작할 수 없습니다.");
-            isCrafting = false;
+            ResetCraftingState();
             yield break;
         }
 
@@ -95,6 +113,15 @@ public class CraftingManager : MonoBehaviour
         }
 
         Debug.Log($"{recipe.resultItem.displayName} 제작 완료!");
+        ResetCraftingState();
+    }
+
+    // 성공/취소 어느 쪽으로 끝나든 진행 상태가 남지 않도록 한 곳에서 정리한다.
+    private void ResetCraftingState()
+    {
         isCrafting = false;
+        CraftingRecipe = null;
+        CraftProgress01 = 0f;
+        RemainingTime = 0f;
     }
 }

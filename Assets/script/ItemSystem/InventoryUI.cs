@@ -13,6 +13,12 @@ public class InventoryUI : MonoBehaviour
     private List<InventorySlotUI> mainSlots = new();
     private List<InventorySlotUI> quickSlotsUI = new();
     private List<InventorySlotUI> hudQuickSlotsUI = new();
+
+    // 구독해 둔 인벤토리. 이 컴포넌트는 인벤토리 창(BG) 위에 있어서 창이 닫히면 같이 꺼지는데,
+    // 항상 떠 있는 HUD 퀵슬롯도 여기서 갱신하므로 꺼져 있는 동안에도 구독을 유지해야 한다.
+    // (예전엔 OnDisable에서 구독을 끊어서, 창이 닫힌 평상시에는 퀵슬롯이 전혀 갱신되지 않았다.)
+    private Inventory subscribedInventory;
+
     void Awake()
     {
         // 1. 메인 인벤토리 슬롯 설정
@@ -47,6 +53,13 @@ public class InventoryUI : MonoBehaviour
             hudQuickSlotsUI[i].isQuickSlot = true; // 퀵슬롯과 동일하게 취급
         }
 
+        // Awake 시점엔 Inventory의 Awake가 아직 안 돌아 instance가 비어 있을 수 있어 직접 찾는다.
+        subscribedInventory = Inventory.instance != null ? Inventory.instance : FindFirstObjectByType<Inventory>();
+        if (subscribedInventory != null)
+        {
+            subscribedInventory.onItemChangedCallback -= UpdateUI;
+            subscribedInventory.onItemChangedCallback += UpdateUI;
+        }
     }
     void Start()
     {
@@ -56,18 +69,13 @@ public class InventoryUI : MonoBehaviour
     }
     void OnEnable()
     {
-        if (Inventory.instance != null)
-        {
-            Inventory.instance.onItemChangedCallback -= UpdateUI;
-            Inventory.instance.onItemChangedCallback += UpdateUI;
-        }
         UpdateUI();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
-        if (Inventory.instance != null)
-            Inventory.instance.onItemChangedCallback -= UpdateUI;
+        if (subscribedInventory != null)
+            subscribedInventory.onItemChangedCallback -= UpdateUI;
     }
 
     public void UpdateUI()

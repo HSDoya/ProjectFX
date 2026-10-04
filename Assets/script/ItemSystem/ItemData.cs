@@ -6,7 +6,8 @@ public enum ItemType
     Consumable,   // 소비 아이템
     Equipment,    // 장비
     Material,     // 재료
-    Etc           // 기타
+    Etc,          // 기타
+    Furniture     // 가구(월드에 설치하는 아이템)
 }
 
 // CSV의 equipSlot 컬럼과 1:1 매핑
@@ -41,5 +42,9 @@ public class ItemData : ScriptableObject // ScriptableObject 상속으로 변경
     public EquipmentSlotType equipSlot;
     public int atk;
     public int def;
+
+    // 가구처럼 월드에 설치하는 아이템이 생성할 프리팹. 설치 대상이 아닌 아이템은 비어 있다.
+    // 설치 시 세부 규칙(차지 칸 수, 통행 차단 여부 등)은 이 프리팹에 붙는 컴포넌트가 들고 있다.
+    public GameObject placedPrefab;
 }
 
