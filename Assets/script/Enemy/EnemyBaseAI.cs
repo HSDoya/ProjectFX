@@ -20,8 +20,8 @@ public class EnemyBaseAI : MonoBehaviour
     public float maxIdleTime = 4.0f;
 
     [Header("가축 피격 도망 설정")]
-    public float panicDuration = 3.0f;
-    public float fleeSpeedMultiplier = 1.6f;
+    public float panicDuration = 2.0f; //도망가는 지속시간
+    public float fleeSpeedMultiplier = 1.2f; // 도망가는 속도
 
     [Header("공격 판정 타이밍")]
     [Tooltip("Attack 트리거 발동 후 실제 데미지가 들어가기까지의 지연 시간(모션과 판정을 맞추기 위함)")]

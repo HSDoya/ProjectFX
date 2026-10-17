@@ -2258,8 +2258,8 @@ MonoBehaviour:
   maxWalkTime: 3.5
   minIdleTime: 1
   maxIdleTime: 4
-  panicDuration: 3
-  fleeSpeedMultiplier: 1.6
+  panicDuration: 2
+  fleeSpeedMultiplier: 1.2
   attackWindup: 0.25
   wanderAnimStyle: 1
   chaseAnimStyle: 1
@@ -23462,10 +23462,19 @@ MonoBehaviour:
   waterTilemap: {fileID: 1214443929}
   landTileManager: {fileID: 1051139132}
   event_time: 0
+  debugInvincible: 0
   knockbackForce: 4
   knockbackDuration: 0.15
   hitInvulnerabilityDuration: 0.3
+  hitFlashDuration: 0.15
+  invulnerableAlpha: 0.45
   attackHitRadius: 0.6
+  attackCooldown: 0.5
+  toolCooldown: 0.4
+  respawnDelay: 5
+  furniturePlacementRange: 2.5
+  placementValidColor: {r: 0.2, g: 1, b: 0.3, a: 0.35}
+  placementInvalidColor: {r: 1, g: 0.2, b: 0.2, a: 0.35}
   inventory: {fileID: 1686479086}
   objectSpawner: {fileID: 1365982339}
   craftingUI: {fileID: 1105076016}
@@ -23479,6 +23488,8 @@ MonoBehaviour:
   runSpeedMultiplier: 1.5
   runStaminaDrainPerSecond: 15
   dodgeStaminaCost: 20
+  attackStaminaCost: 8
+  toolStaminaCost: 5
   staminaRegenPerSecond: 10
   staminaRegenDelay: 1.5
 --- !u!212 &2009538620054372083
@@ -28219,8 +28230,8 @@ MonoBehaviour:
   maxWalkTime: 3.5
   minIdleTime: 1
   maxIdleTime: 4
-  panicDuration: 3
-  fleeSpeedMultiplier: 1.6
+  panicDuration: 2
+  fleeSpeedMultiplier: 1.5
   attackWindup: 0.25
   wanderAnimStyle: 0
   chaseAnimStyle: 0
