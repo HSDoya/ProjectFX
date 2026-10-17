@@ -74,17 +74,29 @@ public class PlayerQuickSlot : MonoBehaviour
 
     private void HandleQuickslotInput()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1)) ToggleQuickSlot(0);
-        else if (Input.GetKeyDown(KeyCode.Alpha2)) ToggleQuickSlot(1);
-        else if (Input.GetKeyDown(KeyCode.Alpha3)) ToggleQuickSlot(2);
-        else if (Input.GetKeyDown(KeyCode.Alpha4)) ToggleQuickSlot(3);
-        else if (Input.GetKeyDown(KeyCode.Alpha5)) ToggleQuickSlot(4);
-        else if (Input.GetKeyDown(KeyCode.Alpha6)) ToggleQuickSlot(5);
-        else if (Input.GetKeyDown(KeyCode.Alpha7)) ToggleQuickSlot(6);
-        else if (Input.GetKeyDown(KeyCode.Alpha8)) ToggleQuickSlot(7);
-        else if (Input.GetKeyDown(KeyCode.Alpha9)) ToggleQuickSlot(8);
-        else if (Input.GetKeyDown(KeyCode.Alpha0)) ToggleQuickSlot(9);
+        // 숫자키도 스크롤과 같은 신규 Input System으로 읽는다. 예전엔 구식 Input.GetKeyDown과
+        // Mouse.current를 같은 메서드에서 섞어 써서, 입력 처리 방식이 한 함수 안에 두 벌 있었다.
+        var keyboard = Keyboard.current;
+        if (keyboard == null) return;
 
+        // 1~9 그리고 0(=10번째 칸) 순서. digit1Key..digit9Key가 연속이라 배열로 묶어둔다.
+        var digitKeys = new[]
+        {
+            keyboard.digit1Key, keyboard.digit2Key, keyboard.digit3Key, keyboard.digit4Key,
+            keyboard.digit5Key, keyboard.digit6Key, keyboard.digit7Key, keyboard.digit8Key,
+            keyboard.digit9Key, keyboard.digit0Key
+        };
+
+        for (int i = 0; i < digitKeys.Length; i++)
+        {
+            if (digitKeys[i].wasPressedThisFrame)
+            {
+                ToggleQuickSlot(i);
+                break;
+            }
+        }
+
+        if (Mouse.current == null) return;
         float scroll = Mouse.current.scroll.ReadValue().y;
 
         if (scroll > 0)

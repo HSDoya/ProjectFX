@@ -2,24 +2,18 @@
 using System.Collections.Generic;
 using System.Collections;
 
-public class TreeHealth : MonoBehaviour
+public class TreeHealth : MonoBehaviour, IDamageable
 {
     public int hp = 20; // 나무 체력
 
     [Header("드랍 설정")]
     public GameObject fieldItemPrefab;
 
-    [System.Serializable]
-    public class DropRule
-    {
-        public string itemID;
-        public int minDrop = 1;
-        public int maxDrop = 3;
-        [Range(0f, 100f)]
-        public float dropChance = 100f;
-    }
-
+    // DropRule은 공용 타입(DropTable.cs)으로 옮겼다. 필드 이름이 그대로라 기존 프리팹 데이터는 유지된다.
     public List<DropRule> dropRules = new List<DropRule>();
+
+    // 나무는 도끼로만 벨 수 있다는 규칙을 때리는 쪽(PlayerMove)이 아니라 여기서 알려준다.
+    public string RequiredToolType => "Axe";
 
     private bool isDestroyed = false;
     private SpriteRenderer spriteRenderer;
@@ -43,7 +37,9 @@ public class TreeHealth : MonoBehaviour
         {
             // 연타로 코루틴이 겹치면 색이 안 돌아오는 문제가 있어서, 새로 시작하기 전에 이전 걸 끊는다.
             if (hitEffectCoroutine != null) StopCoroutine(hitEffectCoroutine);
-            hitEffectCoroutine = StartCoroutine(HitEffectCoroutine());
+            // 나무는 맞았을 때 살짝 어두운 빨간색/갈색 느낌으로 깜빡이게 연출
+            hitEffectCoroutine = StartCoroutine(
+                SpriteFlash.Flash(spriteRenderer, new Color(1f, 0.6f, 0.6f), 0.1f, baseColor));
         }
 
         if (hp <= 0)
@@ -52,49 +48,13 @@ public class TreeHealth : MonoBehaviour
         }
     }
 
-    private IEnumerator HitEffectCoroutine()
-    {
-        // 나무는 맞았을 때 살짝 어두운 빨간색/갈색 느낌으로 깜빡이게 연출
-        spriteRenderer.color = new Color(1f, 0.6f, 0.6f);
-        yield return new WaitForSeconds(0.1f);
-        spriteRenderer.color = baseColor;
-        hitEffectCoroutine = null;
-    }
-
     private void ChopDown()
     {
         if (isDestroyed) return;
         isDestroyed = true;
 
-        DropItems();
+        // 나무 주변으로 아이템 흩뿌리기 (실제 로직은 공용 DropTable이 담당)
+        DropTable.SpawnDrops(dropRules, fieldItemPrefab, transform.position, 0.8f, name);
         Destroy(gameObject); // 나중에 여기를 '밑동(Stump)으로 이미지 변경' 등으로 업그레이드할 수 있습니다.
-    }
-
-    private void DropItems()
-    {
-        if (fieldItemPrefab == null || ItemDataManager.instance == null) return;
-
-        foreach (var rule in dropRules)
-        {
-            if (Random.Range(0f, 100f) <= rule.dropChance)
-            {
-                int count = Random.Range(rule.minDrop, rule.maxDrop + 1);
-                if (count <= 0) continue;
-
-                ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
-                if (data != null)
-                {
-                    // 나무 주변으로 아이템 흩뿌리기
-                    Vector3 dropPos = transform.position + (Vector3)Random.insideUnitCircle * 0.8f;
-                    GameObject droppedObj = Instantiate(fieldItemPrefab, dropPos, Quaternion.identity);
-
-                    FieldItem fieldItem = droppedObj.GetComponent<FieldItem>();
-                    if (fieldItem != null)
-                    {
-                        fieldItem.Setup(data, count);
-                    }
-                }
-            }
-        }
     }
 }

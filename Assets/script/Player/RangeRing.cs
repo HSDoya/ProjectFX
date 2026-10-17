@@ -10,13 +10,23 @@ public class RangeRing : MonoBehaviour
     public Color ringColor = new Color(1f, 0f, 0f, 0.5f);
 
     // ==========================================
-    // ¡Ú Ãß°¡: ÀÎ½ºÆåÅÍ¿¡¼­ ·¹ÀÌ¾î ¼ø¼­¸¦ ¼³Á¤ÇÒ ¼ö ÀÖµµ·Ï º¯¼öÈ­
+    // â˜… ì¶”ê°€: ì¸ìŠ¤í™í„°ì—ì„œ ë ˆì´ì–´ ìˆœì„œë¥¼ ì„¤ì •í•  ìˆ˜ ìˆë„ë¡ ë³€ìˆ˜í™”
     // ==========================================
     [Header("Sorting Settings")]
-    public string sortingLayerName = "Default"; // ½ºÇÁ¶óÀÌÆ® Á¤·Ä ·¹ÀÌ¾î ÀÌ¸§
-    public int sortingOrder = -1;               // ·¹ÀÌ¾î ¼ø¼­ (Order in Layer)
+    public string sortingLayerName = "Default"; // ìŠ¤í”„ë¼ì´íŠ¸ ì •ë ¬ ë ˆì´ì–´ ì´ë¦„
+    public int sortingOrder = -1;               // ë ˆì´ì–´ ìˆœì„œ (Order in Layer)
 
     private LineRenderer line;
+
+    // ë°˜ì§€ë¦„ì˜ ì†Œìœ ìëŠ” PlayerMove(attackRange)ë‹¤. ì´ ì»´í¬ë„ŒíŠ¸ëŠ” ë°›ì€ ê°’ì„ ê·¸ë¦¬ê¸°ë§Œ í•œë‹¤.
+    // (ì˜ˆì „ì—” ì—¬ê¸° radiusì™€ PlayerMoveì˜ íŒì • ê±°ë¦¬ê°€ ì„œë¡œ ë…ë¦½ëœ ê°’ì´ì–´ì„œ, í•œìª½ë§Œ ë°”ê¾¸ë©´
+    //  í™”ë©´ì˜ ì›ì´ ì‹¤ì œ ì‚¬ê±°ë¦¬ì™€ ë‹¤ë¥¸ ê±°ì§“ë§ì„ í•˜ê²Œ ëë‹¤.)
+    public void SetRadius(float newRadius)
+    {
+        if (Mathf.Approximately(radius, newRadius)) return;
+        radius = newRadius;
+        if (line != null) DrawCircle();
+    }
 
     void Awake()
     {
@@ -30,7 +40,7 @@ public class RangeRing : MonoBehaviour
         line.endWidth = lineWidth;
 
         // ==========================================
-        // ¡Ú ¼öÁ¤: ÇÏµåÄÚµùµÈ -1 ´ë½Å ÀÎ½ºÆåÅÍÀÇ º¯¼ö °ªÀ» Àû¿ë
+        // â˜… ìˆ˜ì •: í•˜ë“œì½”ë”©ëœ -1 ëŒ€ì‹  ì¸ìŠ¤í™í„°ì˜ ë³€ìˆ˜ ê°’ì„ ì ìš©
         // ==========================================
         line.sortingLayerName = sortingLayerName;
         line.sortingOrder = sortingOrder;

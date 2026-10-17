@@ -35,6 +35,7 @@ public class EquipmentManager : MonoBehaviour
     {
         if (newItem == null || newItem.data == null) return null;
         if (newItem.data.equipSlot != slotType) return newItem; // 슬롯 타입 안 맞으면 아이템 반환
+        if (!OwnsSlot(slotType)) return newItem;                // 장비창이 다루지 않는 슬롯이면 반환
 
         Item previous = null;
 
@@ -66,7 +67,7 @@ public class EquipmentManager : MonoBehaviour
     public bool HasEquipped(EquipmentSlotType slotType)
         => equipped.ContainsKey(slotType);
 
-    // 방어구로 취급하는 슬롯들 (여기에 새 슬롯을 추가하면 GetTotalDefense()가 자동으로 합산)
+    // 장비창이 소유하는 슬롯들 = 방어구 슬롯 (여기에 새 슬롯을 추가하면 GetTotalDefense()가 자동으로 합산)
     private static readonly EquipmentSlotType[] ArmorSlots =
     {
         EquipmentSlotType.Armor,
@@ -74,6 +75,18 @@ public class EquipmentManager : MonoBehaviour
         EquipmentSlotType.Shoes,
         EquipmentSlotType.Accessory,
     };
+
+    /// <summary>
+    /// 이 슬롯을 장비창이 소유하는지. 무기와 도구(검/도끼/곡괭이/괭이/물뿌리개)는 퀵슬롯이
+    /// 단일 소유자이고 공격·농사 모두 "손에 든 것"을 기준으로 동작한다. 그래서 장비창에는
+    /// 꽂을 수 없게 막는다. 예전엔 Tool 슬롯에 괭이를 꽂을 수 있었는데, 그러면 인벤토리에서
+    /// 빠져나가 농사에 쓸 수도 없고 GetTotalDefense()도 Tool을 보지 않아 아무 효과가 없었다
+    /// (= 아이템만 묻히는 함정).
+    /// </summary>
+    public static bool OwnsSlot(EquipmentSlotType slotType)
+    {
+        return System.Array.IndexOf(ArmorSlots, slotType) >= 0;
+    }
 
     /// <summary>
     /// 방어구 슬롯(Armor/Hat/Shoes/Accessory)에 장착된 아이템의 def 합계

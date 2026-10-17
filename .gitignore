@@ -71,3 +71,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# 코드 감사 체크리스트 (로컬 전용 - 팀 공유는 파일로 직접 전달)
+/code-audit-checklist.html
