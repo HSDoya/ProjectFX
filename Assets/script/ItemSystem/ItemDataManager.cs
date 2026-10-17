@@ -10,8 +10,14 @@ public class ItemDataManager : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null) instance = this;
-        else Destroy(gameObject);
+        // 중복 인스턴스는 여기서 끝낸다. 예전엔 Destroy 후에도 아래 Initialize까지 실행됐다.
+        if (instance != null)
+        {
+            Debug.LogWarning("More than one ItemDataManager found!");
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
 
         // 게임 시작 시 딕셔너리 세팅
         if (database != null) database.Initialize();

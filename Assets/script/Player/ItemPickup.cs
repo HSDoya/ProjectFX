@@ -39,15 +39,21 @@ public class ItemPickup : MonoBehaviour
             return;
         }
 
-        bool ok = false;
-        // amount만큼 Add 처리 (현재 Add는 1개씩 추가하도록 작성되어 있으니 반복)
-        for (int i = 0; i < Mathf.Max(1, amount); i++)
+        // FieldItem과 같은 방식으로 한 번에 넣는다 (예전엔 1개씩 Add를 반복해서 획득 로직이 두 벌이었다).
+        // AddItem은 들어간 만큼 item.quantity를 깎으므로, 실패해도 남은 수량을 그대로 알 수 있다.
+        var item = new Item(data, Mathf.Max(1, amount));
+        int originalQuantity = item.quantity;
+
+        if (inv.AddItem(item))
         {
-            if (!inv.Add(data)) { ok = (i > 0); break; } // 공간 부족 시 중단
-            ok = true;
+            Debug.Log($"{data.displayName} {originalQuantity}개 획득!");
+            Destroy(gameObject);
+            return;
         }
 
-        if (ok) Destroy(gameObject);
+        // 전부 넣었을 때만 없앤다. 예전엔 일부만 들어가도 Destroy해서 남은 수량이 그대로 증발했다.
+        amount = item.quantity; // 못 넣은 만큼만 남겨두고, 자리를 비운 뒤 다시 주울 수 있게 한다
+        Debug.Log($"인벤토리가 가득 차서 {data.displayName}을(를) {item.quantity}개 남겼습니다.");
     }
 
     // 에디터에서 편하게 셋업하려고 공개 Getter 제공(선택)

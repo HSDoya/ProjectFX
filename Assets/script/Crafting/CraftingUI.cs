@@ -47,10 +47,21 @@ public class CraftingUI : MonoBehaviour
             closeButton.onClick.AddListener(Close);
     }
 
+    // 구독해 둔 인벤토리. Inventory.instance가 아직 비어 있는 순간에 OnEnable이 돌면 구독이
+    // 조용히 실패해서 재료 수량이 갱신되지 않으므로, 직접 찾아서 참조를 쥐고 그걸로 해제까지 한다
+    // (InventoryUI가 같은 함정에 걸렸던 것과 동일한 처리).
+    private Inventory subscribedInventory;
+
     private void OnEnable()
     {
-        if (Inventory.instance != null)
-            Inventory.instance.onItemChangedCallback += RefreshAll;
+        if (subscribedInventory == null)
+            subscribedInventory = Inventory.instance != null ? Inventory.instance : FindFirstObjectByType<Inventory>();
+
+        if (subscribedInventory != null)
+        {
+            subscribedInventory.onItemChangedCallback -= RefreshAll;
+            subscribedInventory.onItemChangedCallback += RefreshAll;
+        }
 
         BuildRecipeList();
         RefreshAll();
@@ -58,8 +69,8 @@ public class CraftingUI : MonoBehaviour
 
     private void OnDisable()
     {
-        if (Inventory.instance != null)
-            Inventory.instance.onItemChangedCallback -= RefreshAll;
+        if (subscribedInventory != null)
+            subscribedInventory.onItemChangedCallback -= RefreshAll;
     }
 
     // 진행 상태는 CraftingManager가 단일 소유자라, 여기서는 매 프레임 읽어서 그리기만 한다.
@@ -131,7 +142,7 @@ public class CraftingUI : MonoBehaviour
     private void RefreshAll()
     {
         foreach (var row in spawnedRows)
-            row.RefreshCraftableState();
+            if (row != null) row.RefreshCraftableState();
         RefreshDetail();
     }
 

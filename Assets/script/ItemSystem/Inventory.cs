@@ -178,6 +178,35 @@ public class Inventory : MonoBehaviour
     }
 
     /// <summary>
+    /// 지금 상태에서 이 아이템 amount개가 "전부" 들어갈 수 있는지만 확인한다 (실제로 넣지는 않음).
+    /// AddItem은 기존 스택만 채우고 빈칸이 없으면 일부를 넣은 채 false를 반환하므로, 재료를 깎기 전에
+    /// 결과물 지급 가능 여부를 먼저 알아야 하는 제작 쪽에서 이 메서드를 쓴다.
+    /// </summary>
+    public bool CanAcceptItem(ItemData data, int amount)
+    {
+        if (data == null || amount <= 0) return false;
+
+        int remaining = amount;
+        remaining = CountAcceptableInArray(GetArray(false), data, remaining);
+        remaining = CountAcceptableInArray(GetArray(true), data, remaining);
+        return remaining <= 0;
+    }
+
+    // AddItem이 실제로 넣는 규칙과 같은 기준으로 수용 가능한 수량을 센다
+    // (빈칸은 한 스택까지, 같은 아이템이 있는 칸은 남은 공간만큼).
+    private int CountAcceptableInArray(Item[] arr, ItemData data, int remaining)
+    {
+        for (int i = 0; i < arr.Length && remaining > 0; i++)
+        {
+            if (arr[i] == null)
+                remaining -= Mathf.Max(1, data.maxStackAmount);
+            else if (data.canStack && arr[i].data.itemID == data.itemID)
+                remaining -= Mathf.Max(0, arr[i].data.maxStackAmount - arr[i].quantity);
+        }
+        return remaining;
+    }
+
+    /// <summary>
     /// 특정 인덱스의 아이템을 제거 (UI 드래그나 버리기 등에서 사용)
     /// </summary>
     public void RemoveAt(int index, bool isQuickSlot = false)

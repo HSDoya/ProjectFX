@@ -3,9 +3,12 @@ using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.Collections;
 
-public class EnemyBaseAI : MonoBehaviour
+public class EnemyBaseAI : MonoBehaviour, IDamageable
 {
     public enum EnemyAnimType { BlendTree, SimpleAnimation }
+
+    // 몹은 특정 도구를 요구하지 않는다(아무 무기로나 때릴 수 있다).
+    public string RequiredToolType => null;
 
     [Header("에셋 데이터베이스 설정")]
     public EnemyDataSO stats;
@@ -35,15 +38,7 @@ public class EnemyBaseAI : MonoBehaviour
     [Tooltip("월드 바닥에 생성될 공용 필드 아이템 프리팹")]
     public GameObject fieldItemPrefab;
 
-    [System.Serializable]
-    public class DropRule
-    {
-        public string itemID;
-        public int minDrop = 1;
-        public int maxDrop = 2;
-        [Range(0f, 100f)]
-        public float dropChance = 100f;
-    }
+    // DropRule은 공용 타입(DropTable.cs)으로 옮겼다. 필드 이름이 그대로라 기존 프리팹 데이터는 유지된다.
     [Tooltip("이 동물/몬스터가 죽을 때 뱉을 아이템 목록")]
     public List<DropRule> dropRules = new List<DropRule>();
 
@@ -73,6 +68,7 @@ public class EnemyBaseAI : MonoBehaviour
     private float targetStateTime;
     private bool isWanderingMove = false;
     private Coroutine flashCoroutine;
+    private Color baseColor = Color.white; // 피격 연출 후 항상 여기로 복구한다 (나무/돌과 동일한 방식)
 
     // ★ [추가]: 애니메이터 파라미터 유무 사전 캐싱 (없는 파라미터 호출 에러 원천 방지)
     private bool hasParamIsMoving = false;
@@ -89,6 +85,8 @@ public class EnemyBaseAI : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
         col = GetComponent<Collider2D>();
+
+        if (spriteRenderer != null) baseColor = spriteRenderer.color;
 
         if (rb != null)
         {
@@ -401,16 +399,11 @@ public class EnemyBaseAI : MonoBehaviour
             if (spriteRenderer != null)
             {
                 if (flashCoroutine != null) StopCoroutine(flashCoroutine);
-                flashCoroutine = StartCoroutine(FlashRedCoroutine());
+                // 원래 색으로 되돌린다. 예전엔 Color.white로 하드코딩해서, 원래 색이 흰색이 아닌
+                // 몹은 맞을 때마다 색이 틀어졌다.
+                flashCoroutine = StartCoroutine(SpriteFlash.Flash(spriteRenderer, Color.red, 0.1f, baseColor));
             }
         }
-    }
-
-    private IEnumerator FlashRedCoroutine()
-    {
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(0.1f);
-        spriteRenderer.color = Color.white;
     }
 
     private void Kill()
@@ -427,7 +420,7 @@ public class EnemyBaseAI : MonoBehaviour
         if (col != null) col.enabled = false;
 
         if (flashCoroutine != null) StopCoroutine(flashCoroutine);
-        if (spriteRenderer != null) spriteRenderer.color = Color.white;
+        if (spriteRenderer != null) spriteRenderer.color = baseColor;
 
         float dieAnimDuration = 0.5f;
 
@@ -445,59 +438,8 @@ public class EnemyBaseAI : MonoBehaviour
 
         yield return new WaitForSeconds(dieAnimDuration);
 
-        DropItems();
+        // 몹 주변으로 아이템 흩뿌리기 (실제 로직은 공용 DropTable이 담당)
+        DropTable.SpawnDrops(dropRules, fieldItemPrefab, transform.position, 0.5f, name);
         Destroy(gameObject);
-    }
-
-    private void DropItems()
-    {
-        if (fieldItemPrefab == null)
-        {
-            Debug.LogError("[드랍 실패] fieldItemPrefab이 비어있습니다! 인스펙터창에 FieldItem 프리팹을 넣어주세요.");
-            return;
-        }
-
-        if (ItemDataManager.instance == null)
-        {
-            Debug.LogError("[드랍 실패] 씬에 ItemDataManager 싱글턴 인스턴스가 없습니다.");
-            return;
-        }
-
-        if (dropRules.Count == 0)
-        {
-            Debug.LogWarning("[드랍 경고] 인스펙터창의 Drop Rules 목록이 비어있습니다.");
-            return;
-        }
-
-        foreach (var rule in dropRules)
-        {
-            if (Random.Range(0f, 100f) <= rule.dropChance)
-            {
-                int count = Random.Range(rule.minDrop, rule.maxDrop + 1);
-                if (count <= 0) continue;
-
-                ItemData data = ItemDataManager.instance.GetItemDataByID(rule.itemID);
-                if (data != null)
-                {
-                    Vector3 dropPos = transform.position + (Vector3)Random.insideUnitCircle * 0.5f;
-                    GameObject droppedObj = Instantiate(fieldItemPrefab, dropPos, Quaternion.identity);
-
-                    FieldItem fieldItem = droppedObj.GetComponent<FieldItem>();
-                    if (fieldItem != null)
-                    {
-                        fieldItem.Setup(data, count);
-                        Debug.Log($"[아이템 드랍 성공]: {data.displayName} {count}개");
-                    }
-                    else
-                    {
-                        Debug.LogError("[드랍 실패] 스폰된 프리팹에 FieldItem 스크립트 컴포넌트가 누락되었습니다!");
-                    }
-                }
-                else
-                {
-                    Debug.LogError($"[드랍 실패] ItemDB에서 '{rule.itemID}'를 찾을 수 없습니다. 대소문자나 오타를 확인하세요!");
-                }
-            }
-        }
     }
 }

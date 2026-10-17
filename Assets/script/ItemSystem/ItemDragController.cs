@@ -136,9 +136,10 @@ public class ItemDragController : MonoBehaviour
     /// </summary>
     private void SwapInventory(InventorySlotUI invA, InventorySlotUI invB)
     {
-        // 1. 각 슬롯이 퀵슬롯인지 메인 인벤토리인지에 따라 참조할 배열을 다르게 가져옵니다.
-        Item[] arrA = invA.isQuickSlot ? Inventory.instance.quickSlots : Inventory.instance.items;
-        Item[] arrB = invB.isQuickSlot ? Inventory.instance.quickSlots : Inventory.instance.items;
+        // 1. 각 슬롯이 퀵슬롯인지 메인 인벤토리인지에 따라 참조할 배열을 가져옵니다.
+        //    배열 선택은 반드시 GetArray를 거친다 (직접 분기하면 같은 판단이 두 벌로 갈라진다).
+        Item[] arrA = Inventory.instance.GetArray(invA.isQuickSlot);
+        Item[] arrB = Inventory.instance.GetArray(invB.isQuickSlot);
 
         // 2. 예외 처리 (배열이 없거나, 인덱스가 범위를 벗어나면 중단)
         if (arrA == null || arrB == null) return;

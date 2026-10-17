@@ -96,15 +96,19 @@ public class CraftingManager : MonoBehaviour
             yield break;
         }
 
-        // ★ 결과물을 먼저 지급 시도 - 인벤토리가 가득 차서 실패하면 재료를 소모하지 않는다.
-        //   (반대 순서로 하면 인벤토리가 꽉 찼을 때 재료만 사라지고 결과물은 못 받는 소실 버그가 생긴다.)
-        var resultItem = new Item(recipe.resultItem, recipe.resultAmount);
-        if (!Inventory.instance.AddItem(resultItem))
+        // ★ 결과물이 "전부" 들어갈 수 있는지 먼저 확인한다.
+        //   AddItem은 기존 스택만 채우고 빈칸이 없으면 일부를 넣은 채 false를 반환하므로, 바로
+        //   AddItem부터 호출하면 결과물 일부는 받았는데 재료는 안 깎인 공짜 제작이 된다.
+        if (!Inventory.instance.CanAcceptItem(recipe.resultItem, recipe.resultAmount))
         {
             Debug.Log("인벤토리가 가득 차서 제작할 수 없습니다.");
             ResetCraftingState();
             yield break;
         }
+
+        // 전부 들어간다는 걸 확인했으므로 지급 -> 소모 순서를 유지한다
+        // (반대 순서로 하면 예외 상황에서 재료만 사라지고 결과물은 못 받는 소실 버그가 생긴다.)
+        Inventory.instance.AddItem(new Item(recipe.resultItem, recipe.resultAmount));
 
         foreach (var ingredient in recipe.ingredients)
         {

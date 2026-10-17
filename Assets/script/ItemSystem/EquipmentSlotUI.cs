@@ -66,6 +66,9 @@ public class EquipmentSlotUI : MonoBehaviour,ItemSlot, IPointerClickHandler, IBe
     public bool CanReceive(Item item)
     {
         if (item == null || item.data == null) return false;
+        // 장비창이 소유하지 않는 슬롯(무기/도구)은 드롭 자체를 받지 않는다 - 꽂아도 효과가 없고
+        // 퀵슬롯에서만 쓸 수 있는 아이템이 인벤토리에서 사라지기만 한다.
+        if (!EquipmentManager.OwnsSlot(slotType)) return false;
         return item.data.equipSlot == slotType;
     }
 

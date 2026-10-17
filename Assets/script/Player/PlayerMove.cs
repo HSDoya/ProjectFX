@@ -2,7 +2,6 @@
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 using System.Collections;
-using Kinnly;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -25,10 +24,6 @@ public class PlayerMove : MonoBehaviour
     Animator anim;
     private GameObject collidedObject = null;
 
-    // TODO(임시): 가구 설치 테스트용 무적. 테스트가 끝나면 이 필드와 아래 TakeDamage의 조건을 지울 것.
-    [Header("디버그 (테스트용 - 정식 빌드 전에 반드시 끌 것)")]
-    public bool debugInvincible = false;
-
     [Header("피격 반응 설정")]
     public float knockbackForce = 4f;
     public float knockbackDuration = 0.15f;
@@ -44,6 +39,10 @@ public class PlayerMove : MonoBehaviour
 
     [Header("공격 판정 설정")]
     public float attackHitRadius = 0.6f;
+    [Tooltip("무기가 실제로 닿는 거리. 화면의 사거리 표시 원(RangeRing)도 이 값을 따라간다.")]
+    public float attackRange = 1.5f;
+    [Tooltip("밭을 갈거나 물을 주는 등 타일 상호작용이 가능한 거리")]
+    public float interactRange = 1.5f;
     [Tooltip("무기 사용 간격(공격 속도). 작을수록 빠르게 휘두른다.")]
     public float attackCooldown = 0.5f;
     [Tooltip("농기구 사용 간격")]
@@ -63,6 +62,14 @@ public class PlayerMove : MonoBehaviour
     [Header("사망 / 리스폰 설정")]
     public float respawnDelay = 5f;
 
+    // 레벨/경험치의 소유자. 체력·스태미너와 같은 자리에 둬서 PlayerHUD는 읽기만 하게 한다
+    // (예전엔 PlayerHUD가 이 값들을 자기 필드로 들고 있어서, 경험치 시스템을 붙이는 순간
+    //  같은 수치를 두 곳이 갖는 상태가 됐다). 아직 경험치를 주는 코드는 없다.
+    [Header("레벨 / 경험치")]
+    public int level = 1;
+    public float currentExp = 0f;
+    public float expToNextLevel = 100f;
+
     [Header("가구 설치 설정")]
     public float furniturePlacementRange = 2.5f;
     public Color placementValidColor = new Color(0.2f, 1f, 0.3f, 0.35f);
@@ -77,7 +84,6 @@ public class PlayerMove : MonoBehaviour
     public bool IsFacingRight { get; private set; } = true;
 
     [SerializeField] private Inventory inventory;
-    [SerializeField] private ObjectSpawner objectSpawner;
     [SerializeField] private CraftingUI craftingUI;
 
     // 퀵슬롯 선택/장착 아이템 상태는 PlayerQuickSlot이 단일 소유자로 관리한다.
@@ -148,6 +154,13 @@ public class PlayerMove : MonoBehaviour
             playerQuickSlot.OnEquippedChanged += UpdateAttackRangeIndicator;
         }
         UpdateAttackRangeIndicator();
+
+        // 화면의 사거리 표시 원이 실제 판정 거리를 그대로 따라가게 한다.
+        if (attackRangeIndicator != null)
+        {
+            var ring = attackRangeIndicator.GetComponent<RangeRing>();
+            if (ring != null) ring.SetRadius(attackRange);
+        }
     }
 
     private void OnDestroy()
@@ -167,10 +180,11 @@ public class PlayerMove : MonoBehaviour
             OnMouseClick();
         }
 
-        // F는 설치한 가구 회수를 먼저 시도하고, 주변에 가구가 없을 때만 기존 오브젝트 제거로 넘어간다.
+        // F는 설치한 가구 회수 전용이다. 예전엔 가구가 없으면 주변 나무/돌을 도구도 없이 드랍도 없이
+        // 즉시 삭제하는 디버그 기능으로 넘어가서, 도끼/곡괭이 규칙을 정면으로 우회했다.
         if (Keyboard.current.fKey.wasPressedThisFrame && !isDead)
         {
-            if (!TryPickUpFurniture()) TryDestroyNearestSpawnedObject();
+            TryPickUpFurniture();
         }
 
         // --------------------------------------------------------
@@ -346,55 +360,34 @@ public class PlayerMove : MonoBehaviour
             if (!TryConsumeActionCost(attackStaminaCost, attackCooldown)) return;
             if (playerQuickSlot != null) playerQuickSlot.PlaySwing();
 
-            Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, attackHitRadius);
+            int damage = Mathf.Max(1, equipped.atk);
 
-            foreach (var hit in hits)
+            // 피격 대상은 IDamageable 하나로 찾는다. 예전엔 나무/돌/몹마다 GetComponent를 따로 하고
+            // "어떤 도구가 필요한가"도 여기서 판단했는데, 대상이 늘어날수록 분기만 길어졌다.
+            // 이제 필요한 도구는 대상이 직접 알려준다.
+            foreach (var hit in Physics2D.OverlapCircleAll(mouseWorldPos, attackHitRadius))
             {
-                float dist = Vector2.Distance(transform.position, hit.transform.position);
-                if (dist > 1.5f) continue;
+                if (Vector2.Distance(transform.position, hit.transform.position) > attackRange) continue;
 
-                int damage = equipped.atk;
-                if (damage <= 0) damage = 1;
+                var target = hit.GetComponent<IDamageable>();
+                if (target == null) continue;
 
-                TreeHealth tree = hit.GetComponent<TreeHealth>();
-                if (tree != null)
+                string requiredTool = target.RequiredToolType;
+                if (!string.IsNullOrEmpty(requiredTool) && equipped.type != requiredTool)
                 {
-                    if (equipped.type == "Axe")
-                    {
-                        tree.TakeDamage(damage);
-                        break;
-                    }
-                    else
-                    {
-                        Debug.Log("이 무기로는 나무를 벨 수 없습니다! 도끼가 필요합니다.");
-                    }
+                    Debug.Log($"{hit.name}을(를) 다루려면 '{requiredTool}' 도구가 필요합니다.");
+                    continue; // 뒤에 있는 다른 대상은 계속 확인한다
                 }
-                StoneHealth stone = hit.GetComponent<StoneHealth>();
-                if (stone != null)
-                {
-                    if (equipped.type == "Pick") // CSV에서 곡괭이의 type은 "Pick"
-                    {
-                        stone.TakeDamage(damage);
-                        break; // 한 번에 하나의 돌만 타격
-                    }
-                    else
-                    {
-                        Debug.Log("이 도구로는 돌을 깰 수 없습니다! 곡괭이가 필요합니다.");
-                    }
-                }
-                EnemyBaseAI enemy = hit.GetComponent<EnemyBaseAI>();
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(damage);
-                    Debug.Log($"[{enemy.name}]에게 무기 데미지 {damage}를 입혔습니다!");
-                    break;
-                }
+
+                target.TakeDamage(damage);
+                break; // 한 번에 하나만 타격
             }
             return;
         }
 
-        // 장착한 도구가 없으면 농사 동작 자체가 없으므로(HandleFarmAction이 바로 반환) 스태미너도 소모하지 않는다.
-        if (equipped != null && TryGetTargetedTile(out Vector3Int tilePos))
+        // 실제 농기구일 때만 비용을 소모한다. 예전엔 null만 걸러서, 나무판자나 흉갑처럼 농사 동작이
+        // 없는 아이템을 들고 땅을 클릭해도 스태미너와 쿨타임만 빠져나가고 아무 일도 일어나지 않았다.
+        if (equipped != null && IsFarmTool(equipped.type) && TryGetTargetedTile(out Vector3Int tilePos))
         {
             if (!TryConsumeActionCost(toolStaminaCost, toolCooldown)) return;
             if (playerQuickSlot != null) playerQuickSlot.PlaySwing();
@@ -433,7 +426,7 @@ public class PlayerMove : MonoBehaviour
         tilePos = farmTilemap.WorldToCell(mouseWorldPos);
         tilePos.z = 0;
 
-        return Vector3.Distance(transform.position, farmTilemap.GetCellCenterWorld(tilePos)) <= 1.5f;
+        return Vector3.Distance(transform.position, farmTilemap.GetCellCenterWorld(tilePos)) <= interactRange;
     }
 
     // 마우스가 가리키는 칸에 밭 타일이 있고 상호작용 범위 안이면, 그 칸 중심에 테두리 커서를 띄운다.
@@ -626,6 +619,13 @@ public class PlayerMove : MonoBehaviour
         return true;
     }
 
+    // 농사 동작이 실제로 있는 도구 목록. 아래 HandleFarmAction의 분기와 짝이므로, 새 농기구를
+    // 추가할 때 여기에도 함께 넣어야 "비용은 빠지는데 동작은 없는" 상태가 생기지 않는다.
+    private static bool IsFarmTool(string toolType)
+    {
+        return toolType == "Hoe" || toolType == "WateringCan" || toolType == "Seed" || toolType == "Harvest";
+    }
+
     private void HandleFarmAction(Vector3Int tilePosition)
     {
         ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
@@ -683,37 +683,6 @@ public class PlayerMove : MonoBehaviour
         attackRangeIndicator.SetActive(isWeapon);
     }
 
-    private void TryDestroyNearestSpawnedObject()
-    {
-        if (objectSpawner == null || objectSpawner.spawnedObjects.Count == 0) return;
-
-        GameObject closest = null;
-        float minDist = 1.5f;
-
-        for (int i = objectSpawner.spawnedObjects.Count - 1; i >= 0; i--)
-        {
-            GameObject obj = objectSpawner.spawnedObjects[i];
-            if (obj == null)
-            {
-                objectSpawner.spawnedObjects.RemoveAt(i);
-                continue;
-            }
-
-            float dist = Vector3.Distance(transform.position, obj.transform.position);
-            if (dist < minDist)
-            {
-                closest = obj;
-                minDist = dist;
-            }
-        }
-
-        if (closest != null)
-        {
-            objectSpawner.spawnedObjects.Remove(closest);
-            Destroy(closest);
-        }
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("sea") || collision.gameObject.CompareTag("farmTile"))
@@ -736,7 +705,6 @@ public class PlayerMove : MonoBehaviour
         // [회피 시스템 추가] isDodging 상태일 때 무적 판정 부여
         // isHitInvulnerable: 피격 직후 짧은 무적 시간(중복 피격 방지)
         // --------------------------------------------------------
-        if (debugInvincible) return;
         if (isDead || event_time || isDodging || isHitInvulnerable) return;
 
         // 장비창(Armor/Hat/Shoes/Accessory)에 장착된 방어구 def 합계만큼 피해 경감

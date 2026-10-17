@@ -3,10 +3,9 @@ using UnityEngine.UI;
 using TMPro;
 
 // 화면 좌상단에 얹는 미니멀 스타일 HP/스태미너/EXP HUD.
-// HP와 스태미너는 둘 다 PlayerMove가 들고 있는 실제 값을 그대로 반영한다(이중 저장 방지 - 이 컴포넌트는
-// 값을 자체 보관하지 않고 매 프레임 읽기만 한다).
-// EXP는 아직 게임에 해당 시스템이 없어서, 이 컴포넌트가 값을 직접 들고 표시만 한다
-// (SetExp/SetLevel로 나중에 실제 시스템에서 채워 넣으면 됨).
+// HP·스태미너·레벨·경험치 모두 PlayerMove가 들고 있는 실제 값을 매 프레임 읽어서 표시만 한다.
+// 이 컴포넌트는 어떤 수치도 자체 보관하지 않는다 - 예전엔 레벨/경험치만 여기 필드로 들고 있어서,
+// 경험치 시스템을 붙이면 같은 수치의 소유자가 둘이 되는 구조였다.
 public class PlayerHUD : MonoBehaviour
 {
     [Header("Player 참조")]
@@ -20,12 +19,9 @@ public class PlayerHUD : MonoBehaviour
     public Image staminaFill;
     public TextMeshProUGUI staminaValueText;
 
-    [Header("EXP / Level (테스트용 - 아직 실제 경험치 시스템 없음)")]
+    [Header("EXP / Level (PlayerMove의 실제 값을 매 프레임 반영)")]
     public Image expFill;
     public TextMeshProUGUI levelText;
-    public int level = 1;
-    public float currentExp = 0f;
-    public float expToNextLevel = 100f;
 
     private void Awake()
     {
@@ -65,10 +61,12 @@ public class PlayerHUD : MonoBehaviour
     {
         if (expFill != null)
         {
-            float ratio = expToNextLevel > 0 ? currentExp / expToNextLevel : 0f;
+            float ratio = (playerMove != null && playerMove.expToNextLevel > 0)
+                ? playerMove.currentExp / playerMove.expToNextLevel
+                : 0f;
             SetFillRatio(expFill, ratio);
         }
-        if (levelText != null) levelText.text = $"LV. {level}";
+        if (levelText != null && playerMove != null) levelText.text = $"LV. {playerMove.level}";
     }
 
     private static void SetFillRatio(Image fill, float ratio)
@@ -79,14 +77,4 @@ public class PlayerHUD : MonoBehaviour
         rt.anchorMax = anchorMax;
     }
 
-    public void SetExp(float current, float toNext)
-    {
-        currentExp = current;
-        expToNextLevel = toNext;
-    }
-
-    public void SetLevel(int newLevel)
-    {
-        level = newLevel;
-    }
 }
