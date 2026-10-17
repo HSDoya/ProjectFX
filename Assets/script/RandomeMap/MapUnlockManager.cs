@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
-// Ã»Å©ÀÇ ÇöÀç »óÅÂ¸¦ Á¤ÀÇÇÕ´Ï´Ù.
+// ì²­í¬ì˜ í˜„ì¬ ìƒíƒœë¥¼ ì •ì˜í•©ë‹ˆë‹¤.
 public enum ChunkState
 {
-    Unexplored,  // ¾ÆÁ÷ ¹ß°ßµÇÁö ¾ÊÀ½ (Á¢±Ù ºÒ°¡)
-    Purchasable, // ÁÖº¯ ¶¥ÀÌ ¿­·Á¼­ ±¸¸Å(ÇØ±İ) °¡´ÉÇØÁü
-    Unlocked     // ÀÌ¹Ì °³¹æµÈ ¶¥
+    Unexplored,  // ì•„ì§ ë°œê²¬ë˜ì§€ ì•ŠìŒ (ì ‘ê·¼ ë¶ˆê°€)
+    Purchasable, // ì£¼ë³€ ë•…ì´ ì—´ë ¤ì„œ êµ¬ë§¤(í•´ê¸ˆ) ê°€ëŠ¥í•´ì§
+    Unlocked     // ì´ë¯¸ ê°œë°©ëœ ë•…
 }
 
 public class MapUnlockManager : MonoBehaviour
@@ -13,12 +13,12 @@ public class MapUnlockManager : MonoBehaviour
     public MapGenerator mapGenerator;
     public GameObject unlockSignPrefab;
 
-    [Header("ÇØ±İ ¼³Á¤")]
+    [Header("í•´ê¸ˆ ì„¤ì •")]
     public int baseUnlockCost = 50;
 
-    [Header("¸Ê Å©±â Á¦ÇÑ")]
-    [Tooltip("Áß¾ÓÀ» ±âÁØÀ¸·Î »óÇÏÁÂ¿ì ¸î Ä­±îÁö È®ÀåÇÒÁö Á¤ÇÕ´Ï´Ù. 2·Î ¼³Á¤ÇÏ¸é 5x5 ¸ÊÀÌ µË´Ï´Ù.")]
-    public int maxGridRadius = 2; // -2, -1, 0, 1, 2 => ÃÑ 5Ä­ (5x5)
+    [Header("ë§µ í¬ê¸° ì œí•œ")]
+    [Tooltip("ì¤‘ì•™ì„ ê¸°ì¤€ìœ¼ë¡œ ìƒí•˜ì¢Œìš° ëª‡ ì¹¸ê¹Œì§€ í™•ì¥í• ì§€ ì •í•©ë‹ˆë‹¤. 2ë¡œ ì„¤ì •í•˜ë©´ 5x5 ë§µì´ ë©ë‹ˆë‹¤.")]
+    public int maxGridRadius = 2; // -2, -1, 0, 1, 2 => ì´ 5ì¹¸ (5x5)
 
     private Dictionary<Vector2Int, ChunkState> chunkStates = new Dictionary<Vector2Int, ChunkState>();
 
@@ -29,8 +29,15 @@ public class MapUnlockManager : MonoBehaviour
             mapGenerator.InitMap();
         }
 
-        // Áß¾Ó (0, 0) ±¸¿ª ¹«·á °³¹æ
+        // ì¤‘ì•™ (0, 0) êµ¬ì—­ ë¬´ë£Œ ê°œë°©
         UnlockChunk(new Vector2Int(0, 0), true);
+    }
+
+    // ì´ ì²­í¬ê°€ ê°œë°©ëœ ë•…ì¸ì§€. chunkStatesê°€ privateì´ë¼ ë°–ì—ì„œ ë¬¼ì–´ë³¼ ë°©ë²•ì´ ì—†ì—ˆë‹¤.
+    // ê±´ë¬¼/ê°€êµ¬ ì„¤ì¹˜ íŒì •ì—ì„œ "í•´ê¸ˆ ì•ˆ ëœ ë•…ì—ëŠ” ì„¤ì¹˜ ë¶ˆê°€"ë¥¼ ê²€ì‚¬í•˜ëŠ” ë° ì“´ë‹¤.
+    public bool IsUnlocked(Vector2Int coord)
+    {
+        return chunkStates.TryGetValue(coord, out var state) && state == ChunkState.Unlocked;
     }
 
     public void UnlockChunk(Vector2Int coord, bool isFree = false)
@@ -39,7 +46,7 @@ public class MapUnlockManager : MonoBehaviour
 
         if (!isFree)
         {
-            Debug.Log($" {coord} ±¸¿ªÀ» {baseUnlockCost} °ñµå¿¡ °³¹æÇß½À´Ï´Ù!");
+            Debug.Log($" {coord} êµ¬ì—­ì„ {baseUnlockCost} ê³¨ë“œì— ê°œë°©í–ˆìŠµë‹ˆë‹¤!");
         }
 
         chunkStates[coord] = ChunkState.Unlocked;
@@ -55,7 +62,7 @@ public class MapUnlockManager : MonoBehaviour
         {
             Vector2Int neighbor = coord + dir;
 
-            //  ÇÙ½É: 5x5 ±×¸®µå Á¦ÇÑ (x¿Í y ÁÂÇ¥°¡ -2 ~ 2 »çÀÌÀÏ ¶§¸¸ Ç¥ÁöÆÇ »ı¼º)
+            //  í•µì‹¬: 5x5 ê·¸ë¦¬ë“œ ì œí•œ (xì™€ y ì¢Œí‘œê°€ -2 ~ 2 ì‚¬ì´ì¼ ë•Œë§Œ í‘œì§€íŒ ìƒì„±)
             if (Mathf.Abs(neighbor.x) <= maxGridRadius && Mathf.Abs(neighbor.y) <= maxGridRadius)
             {
                 if (!chunkStates.ContainsKey(neighbor) || chunkStates[neighbor] == ChunkState.Unexplored)
@@ -69,7 +76,7 @@ public class MapUnlockManager : MonoBehaviour
 
     private void SpawnUnlockSign(Vector2Int coord)
     {
-        //  ¼öÁ¤µÊ: Ã»Å©°¡ Áß¾Ó Á¤·ÄµÇ¾úÀ¸¹Ç·Î, Ç¥ÁöÆÇÀÇ À§Ä¡µµ µü ¸Â°Ô ±³Á¤ÇÕ´Ï´Ù!
+        //  ìˆ˜ì •ë¨: ì²­í¬ê°€ ì¤‘ì•™ ì •ë ¬ë˜ì—ˆìœ¼ë¯€ë¡œ, í‘œì§€íŒì˜ ìœ„ì¹˜ë„ ë”± ë§ê²Œ êµì •í•©ë‹ˆë‹¤!
         float worldX = coord.x * mapGenerator.chunkSize;
         float worldY = coord.y * mapGenerator.chunkSize;
         Vector3 spawnPos = new Vector3(worldX, worldY, 0);

@@ -9,23 +9,17 @@ using TMPro;
 // 디자인은 나중에 실제 에셋으로 교체하면 되고, 이 툴은 "동작하는 뼈대"만 만드는 용도.
 public static class CraftingUIGenerator
 {
-    private const string PrefabFolder = "Assets/script/Crafting/Prefabs";
+    // 재료 한 줄 프리팹과 같은 폴더를 쓴다(경로를 두 곳에 적어두면 한쪽만 바뀌어 어긋난다).
+    private const string PrefabFolder = EditorUIBuilder.IngredientRowPrefabFolder;
 
     [MenuItem("Tools/제작 UI 테스트용 생성")]
     public static void GenerateCraftingUI()
     {
-        if (!AssetDatabase.IsValidFolder(PrefabFolder))
-        {
-            if (!AssetDatabase.IsValidFolder("Assets/script/Crafting"))
-            {
-                Debug.LogError("[CraftingUIGenerator] Assets/script/Crafting 폴더가 없습니다.");
-                return;
-            }
-            AssetDatabase.CreateFolder("Assets/script/Crafting", "Prefabs");
-        }
+        if (!EditorUIBuilder.EnsureFolder(PrefabFolder)) return;
 
         RecipeSlotUI recipeRowPrefab = BuildRecipeRowPrefab();
-        IngredientRowUI ingredientRowPrefab = BuildIngredientRowPrefab();
+        // 재료 한 줄은 건설 현장 패널과 공용이라 EditorUIBuilder가 만든다.
+        IngredientRowUI ingredientRowPrefab = EditorUIBuilder.BuildIngredientRowPrefab();
         GameObject panelPrefab = BuildCraftingPanel(recipeRowPrefab, ingredientRowPrefab);
 
         TryInstantiateIntoScene(panelPrefab);
@@ -74,42 +68,6 @@ public static class CraftingUIGenerator
         slotUI.button = button;
 
         return EditorUIBuilder.SaveAndDestroy(root, $"{PrefabFolder}/RecipeSlotRow.prefab").GetComponent<RecipeSlotUI>();
-    }
-
-    // ───────────────────────── 재료 한 줄 프리팹 ─────────────────────────
-
-    private static IngredientRowUI BuildIngredientRowPrefab()
-    {
-        var root = new GameObject("IngredientRow", typeof(RectTransform));
-
-        var layoutElement = root.AddComponent<LayoutElement>();
-        layoutElement.minHeight = 42;
-        layoutElement.preferredHeight = 42;
-
-        var layout = root.AddComponent<HorizontalLayoutGroup>();
-        layout.spacing = 10;
-        layout.childAlignment = TextAnchor.MiddleLeft;
-        layout.childControlHeight = true;
-        layout.childControlWidth = false;
-        layout.childForceExpandHeight = true;
-        layout.childForceExpandWidth = false;
-
-        var iconImg = EditorUIBuilder.CreateChildImage("Icon", root.transform, Color.white, fixedWidth: 32);
-        iconImg.preserveAspect = true;
-
-        var nameText = EditorUIBuilder.CreateChildText("Name", root.transform, "", 18, new Color(0.15f, 0.15f, 0.15f), TextAlignmentOptions.MidlineLeft);
-        nameText.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-
-        var countText = EditorUIBuilder.CreateChildText("Count", root.transform, "", 18, Color.black, TextAlignmentOptions.MidlineRight);
-        countText.fontStyle = FontStyles.Bold;
-        countText.gameObject.AddComponent<LayoutElement>().minWidth = 90;
-
-        var ingredientUI = root.AddComponent<IngredientRowUI>();
-        ingredientUI.iconImage = iconImg;
-        ingredientUI.nameText = nameText;
-        ingredientUI.countText = countText;
-
-        return EditorUIBuilder.SaveAndDestroy(root, $"{PrefabFolder}/IngredientRow.prefab").GetComponent<IngredientRowUI>();
     }
 
     // ───────────────────────── 제작 패널 전체 ─────────────────────────

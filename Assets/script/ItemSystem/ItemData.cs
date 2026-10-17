@@ -7,7 +7,8 @@ public enum ItemType
     Equipment,    // 장비
     Material,     // 재료
     Etc,          // 기타
-    Furniture     // 가구(월드에 설치하는 아이템)
+    Furniture,
+    Blueprint   // 건설 설계도. 땅에 설치하면 건설 현장(BuildingSite)이 생긴다.     // 가구(월드에 설치하는 아이템)
 }
 
 // CSV의 equipSlot 컬럼과 1:1 매핑

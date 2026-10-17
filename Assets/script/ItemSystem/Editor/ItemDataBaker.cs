@@ -97,9 +97,11 @@ public class ItemDataBaker : EditorWindow
 
             // 설치용 프리팹 연결. 아이콘과 같은 규칙(파일명 = itemID)으로 찾으므로 CSV 컬럼이 필요 없다.
             itemData.placedPrefab = Resources.Load<GameObject>($"FurniturePrefabs/{itemID}");
-            if (itemData.itemType == ItemType.Furniture && itemData.placedPrefab == null)
+            bool needsPlacedPrefab = itemData.itemType == ItemType.Furniture
+                                  || itemData.itemType == ItemType.Blueprint;
+            if (needsPlacedPrefab && itemData.placedPrefab == null)
             {
-                Debug.LogWarning($"[{BakerName}] 가구 '{itemID}'의 설치 프리팹을 찾을 수 없습니다. Resources/FurniturePrefabs/{itemID}.prefab 이 있는지 확인하세요.");
+                Debug.LogWarning($"[{BakerName}] 설치물 '{itemID}'의 프리팹을 찾을 수 없습니다. Resources/FurniturePrefabs/{itemID}.prefab 이 있는지 확인하세요.");
             }
 
             // 변경사항이 있다고 에디터에 알림

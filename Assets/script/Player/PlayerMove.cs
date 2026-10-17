@@ -70,8 +70,12 @@ public class PlayerMove : MonoBehaviour
     public float currentExp = 0f;
     public float expToNextLevel = 100f;
 
-    [Header("가구 설치 설정")]
+    [Header("설치 / 건설 설정")]
     public float furniturePlacementRange = 2.5f;
+    [Tooltip("설치 가능 판정의 소유자. 비어 있으면 PlayerMove의 기존 자체 검사로 동작한다.")]
+    [SerializeField] private PlacementValidator placementValidator;
+    [Tooltip("가까운 건설 현장의 재료 현황을 띄우는 패널. 비어 있으면 씬에서 직접 찾는다.")]
+    [SerializeField] private BuildingSiteUI buildingSiteUI;
     public Color placementValidColor = new Color(0.2f, 1f, 0.3f, 0.35f);
     public Color placementInvalidColor = new Color(1f, 0.2f, 0.2f, 0.35f);
 
@@ -142,10 +146,15 @@ public class PlayerMove : MonoBehaviour
 
         var playerInput = GetComponent<PlayerInput>();
         if (playerInput != null) runAction = playerInput.actions["Run"];
+
+        EnsurePlacementValidator();
     }
 
     private void Start()
     {
+        // 패널은 씬 오브젝트라서 Start 시점에는 깨어 있다. 인스펙터에 직접 넣으면 그쪽이 우선이다.
+        if (buildingSiteUI == null) buildingSiteUI = FindFirstObjectByType<BuildingSiteUI>();
+
         currentHealth = maxHealth;
         currentStamina = maxStamina;
 
@@ -174,6 +183,7 @@ public class PlayerMove : MonoBehaviour
     private void Update()
     {
         UpdateTileHighlight();
+        UpdateBuildingSiteUI();
 
         if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging && !isDead)
         {
@@ -185,6 +195,12 @@ public class PlayerMove : MonoBehaviour
         if (Keyboard.current.fKey.wasPressedThisFrame && !isDead)
         {
             TryPickUpFurniture();
+        }
+
+        // R은 주변 건설 현장에 재료를 넣는다. F(가구 회수)에 또 얹으면 한 키가 두 일을 하게 되므로 분리.
+        if (Keyboard.current.rKey.wasPressedThisFrame && !isDead)
+        {
+            TryDepositToBuildingSite();
         }
 
         // --------------------------------------------------------
@@ -349,7 +365,7 @@ public class PlayerMove : MonoBehaviour
 
         ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
 
-        if (equipped != null && equipped.itemType == ItemType.Furniture && equipped.placedPrefab != null)
+        if (IsPlaceable(equipped))
         {
             TryPlaceFurniture(equipped);
             return;
@@ -436,7 +452,7 @@ public class PlayerMove : MonoBehaviour
         if (tileHighlight == null || farmTilemap == null || landTileManager == null) return;
 
         ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
-        if (!isDead && equipped != null && equipped.itemType == ItemType.Furniture && equipped.placedPrefab != null)
+        if (!isDead && IsPlaceable(equipped))
         {
             UpdateFurniturePreview(equipped);
             return;
@@ -498,17 +514,67 @@ public class PlayerMove : MonoBehaviour
         return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
     }
 
-    // 가구를 들고 있는 동안 마우스 위치에 설치 구역을 띄운다. 설치 가능하면 초록, 불가능하면 빨강.
+    // 판별기가 인스펙터에 연결돼 있지 않으면 런타임에 만들어 쓴다. 필요한 참조(지형/물 타일맵,
+    // landtiles)는 PlayerMove가 이미 들고 있으므로, 씬 작업 없이도 설치 판정이 동작한다.
+    // 인스펙터에서 직접 붙이면 그쪽 설정이 우선이다.
+    private void EnsurePlacementValidator()
+    {
+        if (placementValidator != null) return;
+
+        placementValidator = GetComponent<PlacementValidator>();
+        if (placementValidator == null) placementValidator = gameObject.AddComponent<PlacementValidator>();
+
+        if (placementValidator.groundTilemap == null) placementValidator.groundTilemap = farmTilemap;
+        if (placementValidator.waterTilemap == null) placementValidator.waterTilemap = waterTilemap;
+        if (placementValidator.landTileManager == null) placementValidator.landTileManager = landTileManager;
+        if (placementValidator.mapUnlockManager == null)
+            placementValidator.mapUnlockManager = FindFirstObjectByType<MapUnlockManager>();
+    }
+
+    // 땅에 설치할 수 있는 물건인지 (가구 / 건설 설계도 공통).
+    // 조건을 한 곳에 두지 않으면 미리보기와 실제 설치가 서로 다른 기준을 쓰게 된다.
+    private static bool IsPlaceable(ItemData item)
+    {
+        return item != null
+            && item.placedPrefab != null
+            && (item.itemType == ItemType.Furniture || item.itemType == ItemType.Blueprint);
+    }
+
+    // 설치물을 들고 있는 동안 마우스 위치에 설치 구역을 띄운다. 설치 가능하면 초록, 불가능하면 빨강.
     private void UpdateFurniturePreview(ItemData furniture)
     {
-        Vector2 center = GetMouseWorldPosition();
         Vector2 footprint = GetFootprintSize(furniture);
+        var check = ValidatePlacement(furniture, out Vector2 center);
 
         tileHighlight.sprite = highlightAreaSprite;
         tileHighlight.transform.position = center;
         tileHighlight.transform.localScale = new Vector3(footprint.x, footprint.y, 1f);
-        tileHighlight.color = CanPlaceFurniture(center, footprint) ? placementValidColor : placementInvalidColor;
+        tileHighlight.color = check.canPlace ? placementValidColor : placementInvalidColor;
         tileHighlight.enabled = true;
+    }
+
+    // 설치 판정은 PlacementValidator가 소유한다. 연결돼 있지 않으면 기존 자체 검사로 돌아간다
+    // (씬에 컴포넌트를 붙이기 전에도 가구 설치가 멈추지 않도록).
+    private PlacementValidator.Result ValidatePlacement(ItemData item, out Vector2 center)
+    {
+        Vector2 footprint = GetFootprintSize(item);
+
+        if (placementValidator != null)
+        {
+            Vector2Int cells = placementValidator.ToCellCount(footprint);
+            var result = placementValidator.Validate(
+                GetMouseWorldPosition(), cells, footprint, transform.position, furniturePlacementRange);
+            center = result.snappedCenter;
+            return result;
+        }
+
+        center = GetMouseWorldPosition();
+        return new PlacementValidator.Result
+        {
+            canPlace = CanPlaceFurniture(center, footprint),
+            snappedCenter = center,
+            cells = new CellPlacement[0]
+        };
     }
 
     private Vector2 GetMouseWorldPosition()
@@ -567,10 +633,14 @@ public class PlayerMove : MonoBehaviour
 
     private void TryPlaceFurniture(ItemData furniture)
     {
-        Vector2 center = GetMouseWorldPosition();
         Vector2 footprint = GetFootprintSize(furniture);
+        var check = ValidatePlacement(furniture, out Vector2 center);
 
-        if (!CanPlaceFurniture(center, footprint)) return;
+        if (!check.canPlace)
+        {
+            if (!string.IsNullOrEmpty(check.reason)) Debug.Log(check.reason);
+            return;
+        }
         if (Inventory.instance == null || playerQuickSlot == null) return;
 
         // 인벤토리에서 먼저 빼내고, 실제로 빠졌을 때만 설치한다.
@@ -589,6 +659,32 @@ public class PlayerMove : MonoBehaviour
         // 회수할 때 어떤 아이템으로 돌려줄지 설치한 쪽에서 알려준다.
         var placeable = placed.GetComponent<PlaceableFurniture>();
         if (placeable != null) placeable.sourceItem = furniture;
+
+        // 설계도로 생긴 건설 현장은 외형/콜라이더를 footprint에 맞춘다(아트가 없는 동안 필요).
+        var site = placed.GetComponent<BuildingSite>();
+        if (site != null) site.FitTo(footprint);
+    }
+
+    // R키(재료 투입)와 재료 현황 패널이 서로 다른 현장을 가리키면 "넣었는데 숫자가 안 바뀌는"
+    // 상태가 되므로, 대상 선정은 BuildingSite.FindNearest 하나만 쓴다.
+    private BuildingSite FindNearestBuildingSite()
+    {
+        return BuildingSite.FindNearest(transform.position, furniturePlacementRange);
+    }
+
+    // 주변에서 가장 가까운 미완공 건설 현장에 재료를 넣는다.
+    private void TryDepositToBuildingSite()
+    {
+        var site = FindNearestBuildingSite();
+        if (site != null) site.DepositFromInventory();
+    }
+
+    // 가까운 건설 현장이 있으면 필요 재료와 투입 현황을 패널에 띄운다. 없으면 패널이 숨는다.
+    // 패널은 투입량을 따로 들고 있지 않고 현장에서 바로 읽으므로 항상 실제 값과 같다.
+    private void UpdateBuildingSiteUI()
+    {
+        if (buildingSiteUI == null) return;
+        buildingSiteUI.Show(isDead ? null : FindNearestBuildingSite());
     }
 
     // 주변에 설치된 가구가 있으면 회수해서 인벤토리로 되돌린다. 성공하면 true.
@@ -611,9 +707,23 @@ public class PlayerMove : MonoBehaviour
         }
 
         if (closest == null) return false;
+        if (Inventory.instance == null) return false;
 
-        // 인벤토리가 가득 차면 가구를 그대로 둔다(넣지도 못하고 사라지면 아이템이 증발하므로).
-        if (Inventory.instance == null || !Inventory.instance.AddItem(new Item(closest.sourceItem, 1))) return false;
+        // 미완공 건설 현장이면 투입된 재료를 먼저 환급한다. 인벤토리가 좁아 일부가 남으면
+        // 현장을 그대로 두고 끝낸다(없애면 남은 재료가 증발하고, 설계도까지 주면 복제가 된다).
+        var site = closest.GetComponent<BuildingSite>();
+        if (site != null && !site.IsComplete)
+        {
+            site.RefundDeposited();
+            if (site.HasDeposited)
+            {
+                Debug.Log("인벤토리 공간이 부족해 재료를 다 돌려받지 못했습니다. 비운 뒤 다시 회수하세요.");
+                return false;
+            }
+        }
+
+        // 인벤토리가 가득 차면 설치물을 그대로 둔다(넣지도 못하고 사라지면 아이템이 증발하므로).
+        if (!Inventory.instance.AddItem(new Item(closest.sourceItem, 1))) return false;
 
         Destroy(closest.gameObject);
         return true;

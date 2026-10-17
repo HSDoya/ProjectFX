@@ -49,6 +49,18 @@ public class MapGenerator : MonoBehaviour
         generatedChunks.Clear();
     }
 
+    // 월드 좌표가 어느 청크에 속하는지. GenerateChunk가 쓰는 오프셋 규칙
+    // (startX = coord.x * chunkSize - chunkSize/2)의 역변환이다.
+    // chunkSize와 그 규칙을 이 클래스가 소유하므로 역변환도 여기 둔다
+    // (다른 곳에서 직접 계산하면 같은 규칙이 두 벌로 갈라진다).
+    public Vector2Int WorldToChunk(Vector2 worldPos)
+    {
+        float half = chunkSize / 2f;
+        return new Vector2Int(
+            Mathf.FloorToInt((worldPos.x + half) / chunkSize),
+            Mathf.FloorToInt((worldPos.y + half) / chunkSize));
+    }
+
     public void GenerateChunk(Vector2Int chunkCoord)
     {
         if (generatedChunks.Contains(chunkCoord)) return;
