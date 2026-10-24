@@ -17,9 +17,9 @@ MonoBehaviour:
   maxHealth: 50
   isAggressive: 1
   detectRange: 4
-  attackRange: 1.5
-  moveSpeed: 4
+  attackRange: 1
+  moveSpeed: 2
   attackDamage: 15
-  attackCooldown: 6
+  attackCooldown: 1
   animType: SimpleAnimation
   expReward: 30

@@ -16,19 +16,27 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
     [Header("추격 대상 설정")]
     public Transform targetTransform;
 
-    [Header("순찰 시간 설정")]
+    [Header("순찰 및 행동 주기 설정 (초 단위)")]
+    [Tooltip("가축/몬스터가 한 방향으로 걷는 최소 시간")]
     public float minWalkTime = 1.5f;
+    [Tooltip("가축/몬스터가 한 방향으로 걷는 최대 시간")]
     public float maxWalkTime = 3.5f;
+    [Tooltip("가축/몬스터가 멈춰서 대기하는 최소 시간")]
     public float minIdleTime = 1.0f;
+    [Tooltip("가축/몬스터가 멈춰서 대기하는 최대 시간")]
     public float maxIdleTime = 4.0f;
 
     [Header("가축 피격 도망 설정")]
-    public float panicDuration = 2.0f; //도망가는 지속시간
-    public float fleeSpeedMultiplier = 1.2f; // 도망가는 속도
+    [Tooltip("가축이 공격받았을 때 도망치는 지속 시간")]
+    public float panicDuration = 2.0f;
+    [Tooltip("가축이 도망칠 때의 이동 속도 배율")]
+    public float fleeSpeedMultiplier = 1.2f;
 
-    [Header("공격 판정 타이밍")]
-    [Tooltip("Attack 트리거 발동 후 실제 데미지가 들어가기까지의 지연 시간(모션과 판정을 맞추기 위함)")]
+    [Header("공격 판정 및 모션 타이밍 설정")]
+    [Tooltip("Attack 트리거 발동 후 실제 데미지가 적용될 때까지의 시간")]
     public float attackWindup = 0.25f;
+    [Tooltip("공격 모션이 완전히 끝나고 다시 움직이기까지 대기하는 시간(초)")]
+    public float attackDuration = 0.6f;
 
     [Header("상황별 애니메이션 스타일 교체")]
     public EnemyAnimType wanderAnimStyle = EnemyAnimType.BlendTree;
@@ -38,7 +46,6 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
     [Tooltip("월드 바닥에 생성될 공용 필드 아이템 프리팹")]
     public GameObject fieldItemPrefab;
 
-    // DropRule은 공용 타입(DropTable.cs)으로 옮겼다. 필드 이름이 그대로라 기존 프리팹 데이터는 유지된다.
     [Tooltip("이 동물/몬스터가 죽을 때 뱉을 아이템 목록")]
     public List<DropRule> dropRules = new List<DropRule>();
 
@@ -60,6 +67,7 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
     private bool isMoving = false;
     private bool isRunning = false;
     private bool isChasing = false;
+    private bool isAttacking = false; // ★ 공격 모션 재생 중 이동 및 중복 행동을 막는 플래그
 
     private bool isFleeing = false;
     private float fleeTimer = 0f;
@@ -68,9 +76,10 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
     private float targetStateTime;
     private bool isWanderingMove = false;
     private Coroutine flashCoroutine;
-    private Color baseColor = Color.white; // 피격 연출 후 항상 여기로 복구한다 (나무/돌과 동일한 방식)
+    private Coroutine attackCoroutine; // ★ 공격 동작 제어 코루틴
+    private Color baseColor = Color.white;
 
-    // ★ [추가]: 애니메이터 파라미터 유무 사전 캐싱 (없는 파라미터 호출 에러 원천 방지)
+    // 파라미터 유무 사전 캐싱
     private bool hasParamIsMoving = false;
     private bool hasParamIsFleeing = false;
     private bool hasParamDirX = false;
@@ -105,7 +114,6 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
             if (playerObj != null) targetTransform = playerObj.transform;
         }
 
-        // ★ [추가]: 이 몹/가축의 애니메이터에 등록된 파라미터 목록 검사
         CacheAnimatorParameters();
     }
 
@@ -155,6 +163,16 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
     {
         if (!isInitialized || isDead) return;
 
+        // 공격 동작 중에는 이동 방향을 초기화하고 다른 행동 전환을 일시 차단
+        if (isAttacking)
+        {
+            isMoving = false;
+            isRunning = false;
+            moveDir = Vector2.zero;
+            UpdateAnimation();
+            return;
+        }
+
         // 1. 가축 피격 도망 처리
         if (isFleeing)
         {
@@ -171,7 +189,6 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
                 isRunning = true;
                 if (targetTransform != null)
                 {
-                    // 플레이어의 반대 방향으로 도망
                     moveDir = ((Vector2)transform.position - (Vector2)targetTransform.position).normalized;
                 }
             }
@@ -181,14 +198,20 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
         {
             float distance = (targetTransform != null) ? Vector2.Distance(transform.position, targetTransform.position) : float.MaxValue;
 
+            // 공격 사거리 안쪽이고 쿨타임이 찼다면 공격 시도
             if (distance <= stats.attackRange)
             {
                 isChasing = true;
                 isMoving = false;
                 isRunning = false;
                 moveDir = Vector2.zero;
-                TryAttack();
+
+                if (Time.time >= lastAttackTime + stats.attackCooldown)
+                {
+                    TryAttack();
+                }
             }
+            // 사거리를 벗어났으나 감지 범위 내라면 즉시 추격 (공격 모션 잔류 차단)
             else if (distance <= stats.detectRange)
             {
                 isChasing = true;
@@ -196,6 +219,7 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
                 isRunning = true;
                 moveDir = ((Vector2)targetTransform.position - (Vector2)transform.position).normalized;
             }
+            // 플레이어를 놓쳤다면 평화 순찰 모드로 복귀
             else
             {
                 if (isChasing)
@@ -207,7 +231,7 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
                 HandleWandering();
             }
         }
-        // 3. 평소 순찰
+        // 3. 평소 순찰 (가축 및 비선공 상태)
         else
         {
             HandleWandering();
@@ -245,7 +269,8 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
-        if (!isInitialized || !isMoving || isDead)
+        // 사망 상태이거나 공격 모션 실행 중일 때는 물리 이동을 즉시 정지
+        if (!isInitialized || !isMoving || isDead || isAttacking)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -274,7 +299,6 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
             rb.linearVelocity = Vector2.zero;
             if (isFleeing)
             {
-                // 벽에 막히면 옆 방향으로 탈출
                 moveDir = Vector2.Perpendicular(moveDir) * (Random.value > 0.5f ? 1f : -1f);
             }
             else if (!isRunning)
@@ -287,38 +311,75 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
 
     void TryAttack()
     {
-        if (Time.time >= lastAttackTime + stats.attackCooldown)
+        lastAttackTime = Time.time;
+        isAttacking = true;
+        isMoving = false;
+        rb.linearVelocity = Vector2.zero;
+
+        // 공격 시작 시 플레이어 방향으로 즉시 바라보기 보정
+        if (targetTransform != null)
         {
-            lastAttackTime = Time.time;
-            if (anim != null && hasParamAttack) anim.SetTrigger("Attack");
-            StartCoroutine(AttackDamageRoutine());
+            Vector2 toPlayer = (targetTransform.position - transform.position).normalized;
+            AlignFacingDirection(toPlayer);
         }
+
+        if (anim != null && hasParamAttack)
+        {
+            anim.SetTrigger("Attack");
+        }
+
+        if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+        attackCoroutine = StartCoroutine(AttackSequenceRoutine());
     }
 
-    // 공격 모션(윈드업)이 실제로 재생될 시간을 준 뒤 데미지를 적용한다.
-    // 그 사이 대상이 죽거나 사거리를 벗어나면(회피 등) 데미지를 취소한다.
-    private IEnumerator AttackDamageRoutine()
+    private IEnumerator AttackSequenceRoutine()
     {
+        // 1. 공격 준비 시간(윈드업) 대기
         yield return new WaitForSeconds(attackWindup);
 
-        if (isDead || targetTransform == null) yield break;
+        // 공격 준비 중 대상이 죽거나 범위를 벗어났는지 재검증
+        if (!isDead && targetTransform != null)
+        {
+            float distance = Vector2.Distance(transform.position, targetTransform.position);
+            if (distance <= stats.attackRange)
+            {
+                PlayerMove player = targetTransform.GetComponent<PlayerMove>();
+                if (player != null) player.TakeDamage(stats.attackDamage, transform.position);
+            }
+        }
 
-        float distance = Vector2.Distance(transform.position, targetTransform.position);
-        if (distance > stats.attackRange) yield break;
+        // 2. 남은 공격 후딜레이(전체 모션 길이에서 선딜레이 제외) 대기
+        float recoveryTime = Mathf.Max(0.05f, attackDuration - attackWindup);
+        yield return new WaitForSeconds(recoveryTime);
 
-        PlayerMove player = targetTransform.GetComponent<PlayerMove>();
-        if (player != null) player.TakeDamage(stats.attackDamage, transform.position);
+        isAttacking = false;
+        attackCoroutine = null;
+    }
+
+    void AlignFacingDirection(Vector2 dir)
+    {
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+        {
+            if (hasParamDirX) anim.SetFloat("DirX", 1f);
+            if (hasParamDirY) anim.SetFloat("DirY", 0f);
+            spriteRenderer.flipX = (dir.x < 0f);
+        }
+        else
+        {
+            spriteRenderer.flipX = false;
+            if (hasParamDirX) anim.SetFloat("DirX", 0f);
+            if (hasParamDirY) anim.SetFloat("DirY", dir.y);
+        }
     }
 
     void UpdateAnimation()
     {
         if (anim == null || isDead) return;
 
-        // 파라미터가 있을 때만 안전하게 전달
         if (hasParamIsMoving) anim.SetBool("IsMoving", isMoving);
         if (hasParamIsFleeing) anim.SetBool("IsFleeing", isFleeing);
 
-        if (isMoving)
+        if (isMoving && !isAttacking)
         {
             EnemyAnimType currentStyle = (isRunning || isFleeing) ? chaseAnimStyle : wanderAnimStyle;
 
@@ -332,14 +393,12 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
                     if (hasParamDirX) anim.SetFloat("DirX", 1f);
                     if (hasParamDirY) anim.SetFloat("DirY", 0f);
 
-                    // ★ [수정]: 플레이어를 추격할 때만 플레이어 위치를 보고, 도망치거나 순찰할 때는 무조건 진행 방향(moveDir.x)을 응시
                     if (isRunning && !isFleeing && targetTransform != null)
                     {
                         spriteRenderer.flipX = targetTransform.position.x < transform.position.x;
                     }
                     else
                     {
-                        // 원본 스프라이트가 우측 기준일 때: 왼쪽으로 가면 flipX = true, 오른쪽으로 가면 flipX = false
                         spriteRenderer.flipX = moveDir.x < 0f;
                     }
                 }
@@ -352,14 +411,12 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
             }
             else if (currentStyle == EnemyAnimType.SimpleAnimation)
             {
-                // ★ [수정]: 닭/슬라임도 도망칠 때 플레이어가 아니라 실제 도망 방향(moveDir.x)을 바라보도록 통일
                 if (isRunning && !isFleeing && targetTransform != null)
                 {
                     spriteRenderer.flipX = targetTransform.position.x > transform.position.x;
                 }
                 else
                 {
-                    // 진행 방향이 오른쪽이면 flipX = true, 왼쪽이면 false (기존 닭 프리팹 기준)
                     spriteRenderer.flipX = moveDir.x > 0f;
                 }
             }
@@ -382,6 +439,9 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
         currentHealth -= damageAmount;
         Debug.Log($"{gameObject.name} 피격 발생! 데미지: {damageAmount}, 남은 HP: {currentHealth}");
 
+        // ★ 피격 시 진행 중이던 공격 동작 및 대기 중인 트리거 즉시 캔슬
+        CancelAttackState();
+
         if (currentHealth <= 0)
         {
             Kill();
@@ -399,17 +459,27 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
             if (spriteRenderer != null)
             {
                 if (flashCoroutine != null) StopCoroutine(flashCoroutine);
-                // 원래 색으로 되돌린다. 예전엔 Color.white로 하드코딩해서, 원래 색이 흰색이 아닌
-                // 몹은 맞을 때마다 색이 틀어졌다.
                 flashCoroutine = StartCoroutine(SpriteFlash.Flash(spriteRenderer, Color.red, 0.1f, baseColor));
             }
         }
     }
 
-    /// <summary>
-    /// 적이 죽을 때 경험치 보상값을 알린다. 싱글플레이라 가해자는 항상 플레이어이므로,
-    /// IDamageable.TakeDamage에 가해자 인자를 추가(구현 4곳 수정)하지 않고 알림만 보낸다.
-    /// </summary>
+    private void CancelAttackState()
+    {
+        isAttacking = false;
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        // 큐에 밀려있던 공격 트리거 제거
+        if (anim != null && hasParamAttack)
+        {
+            anim.ResetTrigger("Attack");
+        }
+    }
+
     public static event System.Action<int> OnEnemyKilled;
 
     private void Kill()
@@ -417,9 +487,11 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
         if (isDead) return;
         isDead = true;
 
-        // 보상은 적 데이터(EnemyDataSO)가 소유한다. 여기서 수치를 들고 있으면 CSV와 두 벌이 된다.
-        OnEnemyKilled?.Invoke(stats != null ? stats.expReward : 0);
+        // 사망 시 공격 및 피격 관련 모든 모션 상태 캔슬
+        CancelAttackState();
+        if (anim != null && hasParamHit) anim.ResetTrigger("Hit");
 
+        OnEnemyKilled?.Invoke(stats != null ? stats.expReward : 0);
         StartCoroutine(DieSequenceCoroutine());
     }
 
@@ -447,7 +519,6 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
 
         yield return new WaitForSeconds(dieAnimDuration);
 
-        // 몹 주변으로 아이템 흩뿌리기 (실제 로직은 공용 DropTable이 담당)
         DropTable.SpawnDrops(dropRules, fieldItemPrefab, transform.position, 0.5f, name);
         Destroy(gameObject);
     }

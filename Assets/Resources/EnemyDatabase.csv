@@ -2,5 +2,5 @@ itemID,enemyName,maxHealth,isAggressive,detectRange,attackRange,moveSpeed,attack
 Chicken_01,Chicken,15,FALSE,0,0,1.5,0,0,SimpleAnimation,3
 Cow_01,Cow,50,FALSE,0,0,1.5,0,0,BlendTree,8
 Slime_01,Slime(green),30,TRUE,4,1,2,5,1,SimpleAnimation,10
-Slime_02,Slime2(red),40,TRUE,4,1.2,3,10,3,SimpleAnimation,18
-Slime_03,Slime3(blue),50,TRUE,4,1.5,4,15,6,SimpleAnimation,30
+Slime_02,Slime2(red),40,TRUE,4,1,2,10,1,SimpleAnimation,18
+Slime_03,Slime3(blue),50,TRUE,4,1,2,15,1,SimpleAnimation,30
