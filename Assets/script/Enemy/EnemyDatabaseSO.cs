@@ -4,10 +4,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EnemyDatabase", menuName = "Enemy/Enemy Database")]
 public class EnemyDatabaseSO : ScriptableObject
 {
-    // º£ÀÌÄ¿°¡ ÀÚµ¿À¸·Î Ã¤¿öÁÙ ÀüÃ¼ µ¥ÀÌÅÍ ¸®½ºÆ®
+    // ë² ì´ì»¤ê°€ ìë™ìœ¼ë¡œ ì±„ì›Œì¤„ ì „ì²´ ë°ì´í„° ë¦¬ìŠ¤íŠ¸
     public List<EnemyDataSO> allEnemies = new List<EnemyDataSO>();
 
-    // ·±Å¸ÀÓ ºü¸¥ °Ë»ö¿ë µñ¼Å³Ê¸®
+    // ëŸ°íƒ€ì„ ë¹ ë¥¸ ê²€ìƒ‰ìš© ë”•ì…”ë„ˆë¦¬
     private Dictionary<string, EnemyDataSO> enemyDict = new Dictionary<string, EnemyDataSO>();
 
     public void Initialize()
@@ -24,7 +24,7 @@ public class EnemyDatabaseSO : ScriptableObject
 
     public EnemyDataSO GetEnemyByID(string id)
     {
-        if (enemyDict.Count == 0) Initialize(); // ÃÊ±âÈ­ º¸Àå
+        if (enemyDict.Count == 0) Initialize(); // ì´ˆê¸°í™” ë³´ì¥
         enemyDict.TryGetValue(id, out var enemy);
         return enemy;
     }

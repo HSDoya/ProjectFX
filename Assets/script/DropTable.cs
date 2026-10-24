@@ -43,7 +43,9 @@ public static class DropTable
         foreach (var rule in rules)
         {
             if (rule == null || string.IsNullOrEmpty(rule.itemID)) continue;
-            if (Random.Range(0f, 100f) > rule.dropChance) continue;
+            // LUK 스탯이 드랍 확률을 올린다. 보너스의 주인은 PlayerStats이고 여기서는 더해서 쓸 뿐이다.
+            float chance = rule.dropChance + (PlayerStats.Instance != null ? PlayerStats.Instance.DropChanceBonus : 0f);
+            if (Random.Range(0f, 100f) > chance) continue;
 
             int count = Random.Range(rule.minDrop, rule.maxDrop + 1);
             if (count <= 0) continue;

@@ -3,19 +3,23 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewEnemyData", menuName = "Enemy/Enemy Data Single")]
 public class EnemyDataSO : ScriptableObject
 {
-    [Header("±âº» Á¤º¸")]
+    [Header("ê¸°ë³¸ ì •ë³´")]
     public string itemID;
     public string enemyName;
     public int maxHealth;
 
-    [Header("¼ºÇâ ¹× AI ¹üÀ§")]
-    public bool isAggressive;     // TRUE = ¼±°ø ¸÷, FALSE = ºñ¼±°ø µ¿¹°(¼Ò, ´ß µî)
-    public float detectRange;     // ¼±°ø ¸÷ÀÇ Ãß°İ ¹üÀ§ (ºñ¼±°øÀÌ¸é 0 ¶Ç´Â ¹«½Ã)
-    public float attackRange;     // °ø°İ »ç°Å¸®
+    [Header("ì„±í–¥ ë° AI ë²”ìœ„")]
+    public bool isAggressive;     // TRUE = ì„ ê³µ ëª¹, FALSE = ë¹„ì„ ê³µ ë™ë¬¼(ì†Œ, ë‹­ ë“±)
+    public float detectRange;     // ì„ ê³µ ëª¹ì˜ ì¶”ê²© ë²”ìœ„ (ë¹„ì„ ê³µì´ë©´ 0 ë˜ëŠ” ë¬´ì‹œ)
+    public float attackRange;     // ê³µê²© ì‚¬ê±°ë¦¬
 
-    [Header("ÀÌµ¿ ¹× ÀüÅõ ½ºÅÈ")]
+    [Header("ì´ë™ ë° ì „íˆ¬ ìŠ¤íƒ¯")]
     public float moveSpeed;
     public float attackDamage;
     public float attackCooldown;
-    public string animType;       // BlendTree ¶Ç´Â SimpleAnimation
+    public string animType;       // BlendTree ë˜ëŠ” SimpleAnimation
+
+    [Header("ë³´ìƒ")]
+    [Tooltip("ì£½ì—ˆì„ ë•Œ í”Œë ˆì´ì–´ì—ê²Œ ì£¼ëŠ” ê²½í—˜ì¹˜")]
+    public int expReward;
 }

@@ -14,7 +14,10 @@ public class QuickSlotCooldownUI : MonoBehaviour
 
     private PlayerMove playerMove;
     private PlayerQuickSlot quickSlot;
-    private InventoryUI inventoryUI;
+    // HUD 퀵슬롯 칸은 QuickSlotBarUI가 소유한다. 예전엔 InventoryUI에서 가져왔는데,
+    // 그 컴포넌트는 인벤토리 창 위에 있어서 창이 닫혀 있으면 FindFirstObjectByType으로
+    // 찾히지 않았다(비활성 오브젝트는 검색되지 않는다).
+    private QuickSlotBarUI quickSlotBar;
 
     private RectTransform overlay;
     private int attachedSlotIndex = -1;
@@ -23,7 +26,7 @@ public class QuickSlotCooldownUI : MonoBehaviour
     {
         playerMove = FindFirstObjectByType<PlayerMove>();
         quickSlot = FindFirstObjectByType<PlayerQuickSlot>();
-        inventoryUI = FindFirstObjectByType<InventoryUI>();
+        quickSlotBar = QuickSlotBarUI.Instance != null ? QuickSlotBarUI.Instance : FindFirstObjectByType<QuickSlotBarUI>();
 
         CreateOverlay();
     }
@@ -42,7 +45,7 @@ public class QuickSlotCooldownUI : MonoBehaviour
 
     private void Update()
     {
-        if (overlay == null || playerMove == null || quickSlot == null || inventoryUI == null) return;
+        if (overlay == null || playerMove == null || quickSlot == null || quickSlotBar == null) return;
 
         float ratio = playerMove.ActionCooldownRatio01;
         int index = quickSlot.selectedQuickSlotIndex;
@@ -53,7 +56,7 @@ public class QuickSlotCooldownUI : MonoBehaviour
             return;
         }
 
-        RectTransform slot = inventoryUI.GetHudQuickSlotRect(index);
+        RectTransform slot = quickSlotBar.GetSlotRect(index);
         if (slot == null)
         {
             if (overlay.gameObject.activeSelf) overlay.gameObject.SetActive(false);

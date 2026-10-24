@@ -28,7 +28,6 @@ public class CraftingUI : MonoBehaviour
     public GameObject progressRoot;   // 제작 중일 때만 보이는 진행 바 전체
     public Image progressFill;        // anchorMax.x로 채워지는 막대 (PlayerHUD의 게이지와 동일한 방식)
 
-    public bool IsOpen { get; private set; }
 
     private RecipeData selectedRecipe;
 
@@ -51,6 +50,9 @@ public class CraftingUI : MonoBehaviour
     // 조용히 실패해서 재료 수량이 갱신되지 않으므로, 직접 찾아서 참조를 쥐고 그걸로 해제까지 한다
     // (InventoryUI가 같은 함정에 걸렸던 것과 동일한 처리).
     private Inventory subscribedInventory;
+
+    // 닫기 버튼이 창을 닫을 때만 쓰는 참조.
+    private MenuWindow menuWindow;
 
     private void OnEnable()
     {
@@ -101,17 +103,14 @@ public class CraftingUI : MonoBehaviour
         wasCrafting = crafting;
     }
 
-    public void ToggleUI()
-    {
-        IsOpen = !IsOpen;
-        if (panelRoot != null) panelRoot.SetActive(IsOpen);
-    }
 
+    // 패널 우상단 X. 탭 하나만 숨기면 창은 열린 채 빈 영역이 남으므로 창 전체를 닫는다.
+    // 열림 상태의 주인은 MenuWindow이고, 여기서는 닫아달라고 부탁만 한다.
     public void Close()
     {
-        if (!IsOpen) return;
-        IsOpen = false;
-        if (panelRoot != null) panelRoot.SetActive(false);
+        if (menuWindow == null) menuWindow = FindFirstObjectByType<MenuWindow>();
+        if (menuWindow != null) menuWindow.Close();
+        else if (panelRoot != null) panelRoot.SetActive(false); // 창이 없는 구성에서도 닫히게
     }
 
     private void BuildRecipeList()

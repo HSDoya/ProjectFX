@@ -27,9 +27,6 @@ public class Inventory : MonoBehaviour
     }
     #endregion
 
-    [Header("UI Reference")]
-    [SerializeField] private GameObject inventoryUI; // 인벤토리 UI 전체 부모
-    [SerializeField] private GameObject hudQuickSlotUI; // 게임 화면용 하단 퀵슬롯 UI
    
     [Header("Inventory Settings")]
     // 이미지에 맞춘 14x5 설정
@@ -45,8 +42,6 @@ public class Inventory : MonoBehaviour
     public Item[] items;       // 메인 인벤토리 (70칸)
     public Item[] quickSlots;  // 퀵슬롯 (14칸)
 
-    public bool isInventoryOpen = false;
-
     // UI 갱신을 위한 이벤트
     public event Action onItemChangedCallback;
     public void RefreshUI()
@@ -56,12 +51,6 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-        // UI 초기 상태 설정
-        if (inventoryUI != null)
-            inventoryUI.SetActive(isInventoryOpen);
-        //게임 시작시 하단 UI 활성화 
-        if (hudQuickSlotUI != null)
-            hudQuickSlotUI.SetActive(!isInventoryOpen);
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
         if (ItemDataManager.instance != null)
@@ -217,24 +206,6 @@ public class Inventory : MonoBehaviour
             arr[index] = null; // 리스트 삭제가 아니라 null로 비움
             onItemChangedCallback?.Invoke();
         }
-    }
-    public void ToggleUI()
-    {
-        // 1. 상태 값 반전 (True <-> False)
-        isInventoryOpen = !isInventoryOpen;
-
-        // 2. 실제 UI 오브젝트 켜고 끄기
-        if (inventoryUI != null)
-        {
-            inventoryUI.SetActive(isInventoryOpen);
-        }
-
-        // 인벤토리의 반대 상태로 하단 퀵슬롯 켜고 끄기
-        if (hudQuickSlotUI != null)
-            hudQuickSlotUI.SetActive(!isInventoryOpen);
-
-        // 3. (선택사항) 인벤토리가 켜질 때 UI 내용도 최신화하고 싶다면
-        if (isInventoryOpen) RefreshUI(); 
     }
 
     /// <summary>

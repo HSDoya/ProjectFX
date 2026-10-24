@@ -38,8 +38,8 @@ public class PlayerHUD : MonoBehaviour
     private void RefreshHp()
     {
         if (hpFill == null) return;
-        float ratio = (playerMove != null && playerMove.maxHealth > 0)
-            ? playerMove.currentHealth / playerMove.maxHealth
+        float ratio = (playerMove != null && playerMove.MaxHealth > 0)
+            ? playerMove.currentHealth / playerMove.MaxHealth
             : 0f;
         SetFillRatio(hpFill, ratio);
         if (hpValueText != null && playerMove != null)
@@ -49,8 +49,8 @@ public class PlayerHUD : MonoBehaviour
     private void RefreshStamina()
     {
         if (staminaFill == null) return;
-        float ratio = (playerMove != null && playerMove.maxStamina > 0)
-            ? playerMove.currentStamina / playerMove.maxStamina
+        float ratio = (playerMove != null && playerMove.MaxStamina > 0)
+            ? playerMove.currentStamina / playerMove.MaxStamina
             : 0f;
         SetFillRatio(staminaFill, ratio);
         if (staminaValueText != null && playerMove != null)
@@ -61,8 +61,8 @@ public class PlayerHUD : MonoBehaviour
     {
         if (expFill != null)
         {
-            float ratio = (playerMove != null && playerMove.expToNextLevel > 0)
-                ? playerMove.currentExp / playerMove.expToNextLevel
+            float ratio = (playerMove != null && playerMove.ExpToNextLevel > 0)
+                ? playerMove.currentExp / playerMove.ExpToNextLevel
                 : 0f;
             SetFillRatio(expFill, ratio);
         }

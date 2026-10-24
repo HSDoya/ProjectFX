@@ -11,7 +11,7 @@ public class MapGenerator : MonoBehaviour
     public TileBase waterTile;
 
     [Header("청크(구역) 맵 생성 설정")]
-    public int chunkSize = 40;
+    public int chunkSize = 200;
     public float noiseScale = 0.08f;
     [Range(0f, 1f)] public float waterThreshold = 0.4f;
 

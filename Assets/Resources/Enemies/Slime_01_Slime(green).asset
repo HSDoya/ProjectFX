@@ -22,3 +22,4 @@ MonoBehaviour:
   attackDamage: 5
   attackCooldown: 1
   animType: SimpleAnimation
+  expReward: 10

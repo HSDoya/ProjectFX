@@ -1,26 +1,85 @@
+using TMPro;
 using UnityEngine;
 
+// 스킬 트리. 탭 창(MenuWindow)의 Skills 탭 안에서 동작한다.
+//
+// 예전에는 별도 씬(SkillTree.unity)이었다. 그런데 그 씬으로 가려면 SceneManager.LoadScene을
+// 단일 모드로 불러야 해서 Main이 통째로 언로드됐다 - 세이브가 없으니 인벤토리/레벨/건설이
+// 전부 날아가고, 돌아올 수단도 없었다. 지금은 씬 전환 없이 패널로 떠서 그 문제가 사라졌고,
+// 같은 씬에 있으니 PlayerStats의 스킬 포인트를 바로 쓸 수 있다.
 public class SkillTreeManager : MonoBehaviour
 {
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private Transform gridContainer;
     [SerializeField] private SkillDatabaseSO skillDatabase;
+    [Tooltip("남은 스킬 포인트 표시. 없으면 표시만 생략된다.")]
+    [SerializeField] private TextMeshProUGUI pointsText;
 
     [Header("Grid Settings")]
     [SerializeField] private int gridWidth = 8;
     [SerializeField] private int gridHeight = 8;
     [SerializeField] private float cellPitch = 90f; // 칸 크기(80) + 여백(10). 좌표 -> 픽셀 위치 변환에 사용
+    [SerializeField] private float nodeSize = 80f;
 
     private SkillNode[,] skillGrid;
+    private bool generated;
 
-    // 사분면 시작 스킬 4개는 무료로 자동 해금되므로, 나머지(20 - 4 = 16)를 여는 데 필요한 포인트.
-    // skillDatabase의 스킬 수/시작 스킬 수가 바뀌면 이 값도 함께 조정해야 전체 트리를 다 열 수 있다.
-    public int skillPoints = 16;
+    // 포인트는 PlayerStats가 소유한다. 여기서 따로 들고 있지 않는다.
+    private PlayerStats Stats => PlayerStats.Instance;
 
-    void Start()
+    // 구독해 둔 대상을 쥐고 그걸로 해제한다. Instance로 해제하면 그 사이에 바뀌었을 때
+    // 엉뚱한 대상에서 빼게 된다 (InventoryUI/QuickSlotBarUI와 같은 방침).
+    private PlayerStats subscribed;
+
+    // 패널이 꺼진 채로 시작하므로 Start가 아니라 처음 열릴 때 만든다.
+    private void OnEnable()
     {
-        skillGrid = new SkillNode[gridWidth, gridHeight];
-        GenerateGrid();
+        if (!generated)
+        {
+            generated = true;
+            skillGrid = new SkillNode[gridWidth, gridHeight];
+            GenerateGrid();
+            FitContainer();
+        }
+
+        subscribed = Stats;
+        if (subscribed != null)
+        {
+            subscribed.OnStatsChanged -= RefreshPoints;
+            subscribed.OnStatsChanged += RefreshPoints;
+        }
+
+        RefreshPoints();
+    }
+
+    private void OnDisable()
+    {
+        if (subscribed != null) subscribed.OnStatsChanged -= RefreshPoints;
+        subscribed = null;
+    }
+
+    private void RefreshPoints()
+    {
+        if (pointsText == null) return;
+        pointsText.text = Stats != null ? $"Skill points : {Stats.availableSkillPoints}" : "Skill points : -";
+    }
+
+    // 노드를 다 만든 뒤 실제로 쓰인 좌표 범위에 맞춰 컨테이너 크기를 맞춘다.
+    // gridWidth/Height(8x8) 기준으로 두면 4x6만 쓰는 지금 트리가 패널 왼쪽 위로 쏠린다.
+    private void FitContainer()
+    {
+        var rt = gridContainer as RectTransform;
+        if (rt == null || skillDatabase == null) return;
+
+        int maxX = 0, maxY = 0;
+        foreach (var skill in skillDatabase.allSkills)
+        {
+            if (skill == null) continue;
+            if (skill.gridX > maxX) maxX = skill.gridX;
+            if (skill.gridY > maxY) maxY = skill.gridY;
+        }
+
+        rt.sizeDelta = new Vector2(maxX * cellPitch + nodeSize, maxY * cellPitch + nodeSize);
     }
 
     void GenerateGrid()
@@ -73,18 +132,28 @@ public class SkillTreeManager : MonoBehaviour
             rt.anchorMin = new Vector2(0, 1);
             rt.anchorMax = new Vector2(0, 1);
             rt.pivot = new Vector2(0, 1);
-            rt.sizeDelta = new Vector2(80, 80);
+            rt.sizeDelta = new Vector2(nodeSize, nodeSize);
             rt.anchoredPosition = new Vector2(x * cellPitch, -y * cellPitch);
         }
     }
 
     public void TryUnlockNode(SkillNode node)
     {
-        if (skillPoints > 0)
+        var stats = Stats;
+        if (stats == null)
         {
-            skillPoints--;
-            UnlockNodeData(node.X, node.Y);
+            Debug.LogWarning("[SkillTree] PlayerStats를 찾을 수 없어 스킬을 해금할 수 없습니다.");
+            return;
         }
+
+        // 조용히 아무것도 안 하면 "눌렀는데 왜 안 되지"가 된다. 이유를 남긴다.
+        if (!stats.SpendSkillPoint())
+        {
+            Debug.Log("[SkillTree] 스킬 포인트가 없습니다. 레벨을 올리면 레벨당 1점씩 받습니다.");
+            return;
+        }
+
+        UnlockNodeData(node.X, node.Y);
     }
 
     private void UnlockNodeData(int x, int y)

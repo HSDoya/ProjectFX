@@ -22,7 +22,9 @@ public static class PlayerHUDGenerator
     private static readonly Color TextShadowColor = new Color(0f, 0f, 0f, 0.8f);
     private static readonly Color PanelColor = new Color(0.06f, 0.06f, 0.07f, 0.6f);
 
-    [MenuItem("Tools/플레이어 HUD 테스트용 생성")]
+    // 다시 실행하면 코드 기준으로 프리팹을 덮어쓴다(손으로 꾸민 디자인이 있으면 날아간다).
+    // 평소에는 "게임 UI 전체 생성"을 쓰고, HUD만 되살릴 때 이 메뉴를 쓴다.
+    [MenuItem("Tools/UI 다시 만들기/플레이어 HUD만", false, 21)]
     public static void GeneratePlayerHUD()
     {
         if (!AssetDatabase.IsValidFolder(PrefabFolder))

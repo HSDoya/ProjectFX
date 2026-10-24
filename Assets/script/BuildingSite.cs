@@ -102,6 +102,17 @@ public class BuildingSite : MonoBehaviour
     private Sprite placeholderSite;
     private Sprite placeholderDone;
 
+    // 지금 외형이 코드로 만든 플레이스홀더인가. 플레이스홀더는 1x1 유닛이라 footprint에 맞춰
+    // 스케일로 늘려야 하지만, 실제 아트는 임포트 설정(PPU/피벗)이 크기를 정하므로 스케일을
+    // 건드리면 안 된다. 이 둘을 구분하지 않으면 완공 때 늘려둔 스케일이 그대로 남아,
+    // 실제 아트가 footprint 배수만큼 커지고 납작해진다.
+    private bool usingPlaceholder;
+
+    // FitTo가 받아둔 footprint. 완공으로 외형이 바뀌면 스케일과 콜라이더를 다시 계산해야 해서
+    // 설치 시점의 값을 들고 있는다.
+    private Vector2 fittedFootprint;
+    private bool hasFootprint;
+
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -114,6 +125,7 @@ public class BuildingSite : MonoBehaviour
             {
                 placeholderSite = BuildPlaceholder(new Color(0.75f, 0.68f, 0.45f), true);
                 spriteRenderer.sprite = placeholderSite;
+                usingPlaceholder = true;
             }
             ApplyConstructionLook();
         }
@@ -191,13 +203,19 @@ public class BuildingSite : MonoBehaviour
             if (completedSprite != null)
             {
                 spriteRenderer.sprite = completedSprite;
+                usingPlaceholder = false;
             }
             else
             {
                 placeholderDone = BuildPlaceholder(new Color(0.55f, 0.38f, 0.24f), false);
                 spriteRenderer.sprite = placeholderDone;
+                usingPlaceholder = true;
             }
             spriteRenderer.color = Color.white;
+
+            // 외형이 바뀌면 크기를 정하는 주체도 바뀐다(플레이스홀더=스케일, 실제 아트=임포트 설정).
+            // 다시 계산하지 않으면 플레이스홀더용으로 늘려둔 스케일이 실제 아트에 그대로 적용된다.
+            ApplyFootprint();
         }
 
         Debug.Log($"[{buildingName}] 완공되었습니다!");
@@ -270,21 +288,31 @@ public class BuildingSite : MonoBehaviour
     // 설치하는 쪽에서 footprint를 알려주면 외형과 콜라이더를 그 크기에 맞춘다.
     public void FitTo(Vector2 footprint)
     {
-        if (spriteRenderer != null && spriteRenderer.sprite != null)
-        {
-            // 플레이스홀더는 1x1 유닛이므로 스케일로 늘린다. 실제 아트를 쓸 때는 건드리지 않는다.
-            if (completedSprite == null || spriteRenderer.sprite == placeholderSite)
-                transform.localScale = new Vector3(footprint.x, footprint.y, 1f);
-        }
+        fittedFootprint = footprint;
+        hasFootprint = true;
+        ApplyFootprint();
+    }
+
+    // 현재 외형 기준으로 스케일과 콜라이더를 다시 맞춘다. 설치할 때와 완공할 때 모두 부른다.
+    private void ApplyFootprint()
+    {
+        if (!hasFootprint) return;
+
+        // 스케일로 늘리는 건 1x1 플레이스홀더뿐이다. 실제 아트는 PPU와 피벗이 이미 월드 크기를
+        // 정해놨으므로 1배로 되돌린다.
+        transform.localScale = usingPlaceholder
+            ? new Vector3(fittedFootprint.x, fittedFootprint.y, 1f)
+            : Vector3.one;
 
         var box = GetComponent<BoxCollider2D>();
         if (box != null)
         {
-            // 콜라이더는 로컬 크기이므로 스케일을 되돌려 적용한다.
+            // 콜라이더는 로컬 크기이므로 스케일을 되돌려 적용한다. 스케일만 1로 돌리고 여기를
+            // 다시 계산하지 않으면, 로컬 1x1이던 콜라이더가 월드에서도 1x1로 쪼그라든다.
             Vector3 s = transform.localScale;
             box.size = new Vector2(
-                footprint.x / Mathf.Max(0.0001f, s.x),
-                footprint.y / Mathf.Max(0.0001f, s.y));
+                fittedFootprint.x / Mathf.Max(0.0001f, s.x),
+                fittedFootprint.y / Mathf.Max(0.0001f, s.y));
         }
     }
 }

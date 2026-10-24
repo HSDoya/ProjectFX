@@ -89,6 +89,14 @@ public class ItemDragController : MonoBehaviour
         // 1) 타겟 슬롯이 드래그 아이템을 받을 수 있는지 확인 (예: 장비 슬롯 타입 체크)
         if (!targetSlot.CanReceive(draggedItem))
         {
+            // 조용히 되돌리면 "왜 안 껴지는지" 알 수 없다. 장비 칸은 타입이 맞아야만 받으므로
+            // 어느 칸이 무엇을 기대했는지 남긴다 (Armor를 Hat 칸에 놓는 실수가 가장 흔하다).
+            if (targetSlot is EquipmentSlotUI equipmentSlot)
+            {
+                Debug.Log($"{equipmentSlot.slotType} 칸에는 {draggedItem.data.displayName}" +
+                          $"(을)를 넣을 수 없습니다. 이 아이템은 {draggedItem.data.equipSlot} 칸용입니다.");
+            }
+
             EndDrag();
             return;
         }

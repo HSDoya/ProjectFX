@@ -74,6 +74,11 @@ public class PlayerQuickSlot : MonoBehaviour
 
     private void HandleQuickslotInput()
     {
+        // 창(인벤토리/제작/스탯)이 열려 있으면 퀵슬롯을 바꾸지 않는다. 퀵슬롯 HUD가 숨겨진 상태라
+        // 눌러도 보이지 않아 혼란스럽고, 제작창 레시피 목록을 스크롤할 때 장착 아이템까지 바뀌던
+        // 문제도 함께 사라진다. "열려 있는가"의 답은 MenuWindow가 소유한다.
+        if (MenuWindow.IsAnyOpen) return;
+
         // 숫자키도 스크롤과 같은 신규 Input System으로 읽는다. 예전엔 구식 Input.GetKeyDown과
         // Mouse.current를 같은 메서드에서 섞어 써서, 입력 처리 방식이 한 함수 안에 두 벌 있었다.
         var keyboard = Keyboard.current;

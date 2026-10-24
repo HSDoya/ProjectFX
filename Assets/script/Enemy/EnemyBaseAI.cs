@@ -406,10 +406,19 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
         }
     }
 
+    /// <summary>
+    /// 적이 죽을 때 경험치 보상값을 알린다. 싱글플레이라 가해자는 항상 플레이어이므로,
+    /// IDamageable.TakeDamage에 가해자 인자를 추가(구현 4곳 수정)하지 않고 알림만 보낸다.
+    /// </summary>
+    public static event System.Action<int> OnEnemyKilled;
+
     private void Kill()
     {
         if (isDead) return;
         isDead = true;
+
+        // 보상은 적 데이터(EnemyDataSO)가 소유한다. 여기서 수치를 들고 있으면 CSV와 두 벌이 된다.
+        OnEnemyKilled?.Invoke(stats != null ? stats.expReward : 0);
 
         StartCoroutine(DieSequenceCoroutine());
     }

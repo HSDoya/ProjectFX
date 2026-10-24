@@ -6,12 +6,16 @@ using System.Collections;
 public class PlayerMove : MonoBehaviour
 {
     [Header("Player Stats")]
-    public float maxHealth = 100;
+    // 스탯(VIT)이 최대치를 올리므로 기본값과 최종값을 나눈다. 최종값을 저장하면 스탯을 찍을 때마다
+    // 같은 수치가 두 곳에 생긴다. baseMaxHealth는 기본값이고, 최종값은 MaxHealth 프로퍼티다.
+    public float baseMaxHealth = 50f;
+    public float MaxHealth => baseMaxHealth + (playerStats != null ? playerStats.MaxHealthBonus : 0f);
     public float currentHealth;
     public bool isDead = false;
 
     public Vector2 inputVec;
-    public float speed = 5f;
+    public float baseSpeed = 5f;
+    public float Speed => baseSpeed * (playerStats != null ? playerStats.SpeedMultiplier : 1f);
     private Rigidbody2D rigid;
     private SpriteRenderer spriteRenderer;
     private Collider2D col;
@@ -68,7 +72,45 @@ public class PlayerMove : MonoBehaviour
     [Header("레벨 / 경험치")]
     public int level = 1;
     public float currentExp = 0f;
-    public float expToNextLevel = 100f;
+    [Tooltip("1레벨에서 2레벨이 되는 데 필요한 경험치")]
+    public float baseExpToNextLevel = 100f;
+    [Tooltip("레벨이 오를 때마다 필요 경험치에 곱해지는 배수")]
+    public float expGrowthPerLevel = 1.25f;
+    public int maxLevel = 99;
+
+    // 필요 경험치는 저장하지 않고 레벨에서 계산한다. 저장하면 레벨과 두 벌이 되어,
+    // 한쪽만 바뀌면 영원히 레벨업하지 않는 상태가 생길 수 있다.
+    public float ExpToNextLevel => baseExpToNextLevel * Mathf.Pow(expGrowthPerLevel, level - 1);
+
+    [Header("스탯")]
+    [Tooltip("스탯 포인트의 소유자. 비어 있으면 Awake에서 자동으로 붙인다.")]
+    [SerializeField] private PlayerStats playerStats;
+    [Tooltip("방어력 1점의 가치를 정하는 상수. 클수록 같은 방어력의 경감률이 낮아진다.")]
+    public float defenseSoftCap = 20f;
+
+    /// <summary>장비 def + DEF 스탯. 방어력 합산은 여기 한 곳에서만 한다.</summary>
+    public int TotalDefense
+    {
+        get
+        {
+            int fromEquipment = EquipmentManager.instance != null ? EquipmentManager.instance.GetTotalDefense() : 0;
+            int fromStats = playerStats != null ? playerStats.DefenseBonus : 0;
+            return fromEquipment + fromStats;
+        }
+    }
+
+    /// <summary>피해 경감 비율(0~1). def/(def+K)라서 아무리 올려도 1에 닿지 않는다 = 무적이 생기지 않는다.</summary>
+    public float DamageReduction
+    {
+        get
+        {
+            int def = TotalDefense;
+            if (def <= 0) return 0f;
+            return def / (def + Mathf.Max(1f, defenseSoftCap));
+        }
+    }
+
+    public float DamageReductionPercent => DamageReduction * 100f;
 
     [Header("설치 / 건설 설정")]
     public float furniturePlacementRange = 2.5f;
@@ -87,8 +129,9 @@ public class PlayerMove : MonoBehaviour
     // 캐릭터/장착 무기가 공통으로 참조하는 시점 기준(마우스 포인터). PlayerQuickSlot은 이 값을 읽기만 한다.
     public bool IsFacingRight { get; private set; } = true;
 
-    [SerializeField] private Inventory inventory;
-    [SerializeField] private CraftingUI craftingUI;
+    // 아이템·제작·스탯을 탭으로 묶은 창. 열림 상태와 현재 탭은 이 컴포넌트가 단일 소유자다.
+    // 비어 있으면 Start에서 씬에서 직접 찾는다.
+    [SerializeField] private MenuWindow menuWindow;
 
     // 퀵슬롯 선택/장착 아이템 상태는 PlayerQuickSlot이 단일 소유자로 관리한다.
     private PlayerQuickSlot playerQuickSlot;
@@ -114,7 +157,8 @@ public class PlayerMove : MonoBehaviour
     // [스태미너 시스템 추가] Shift 달리기 + 회피가 공유하는 스태미너
     // --------------------------------------------------------
     [Header("Stamina System")]
-    public float maxStamina = 100f;
+    public float baseMaxStamina = 100f;
+    public float MaxStamina => baseMaxStamina + (playerStats != null ? playerStats.MaxStaminaBonus : 0f);
     public float currentStamina;
     public float runSpeedMultiplier = 1.5f;       // 달리기 시 이동 속도 배율
     public float runStaminaDrainPerSecond = 15f;  // 달리는 동안 초당 소모량
@@ -148,15 +192,23 @@ public class PlayerMove : MonoBehaviour
         if (playerInput != null) runAction = playerInput.actions["Run"];
 
         EnsurePlacementValidator();
+        EnsurePlayerStats();
     }
 
     private void Start()
     {
         // 패널은 씬 오브젝트라서 Start 시점에는 깨어 있다. 인스펙터에 직접 넣으면 그쪽이 우선이다.
         if (buildingSiteUI == null) buildingSiteUI = FindFirstObjectByType<BuildingSiteUI>();
+        if (menuWindow == null) menuWindow = FindFirstObjectByType<MenuWindow>();
 
-        currentHealth = maxHealth;
-        currentStamina = maxStamina;
+        currentHealth = MaxHealth;
+        currentStamina = MaxStamina;
+
+        // 스탯을 찍어 최대치가 늘어난 만큼 현재치도 올려주기 위한 기준값.
+        lastMaxHealth = MaxHealth;
+        lastMaxStamina = MaxStamina;
+        if (playerStats != null) playerStats.OnStatsChanged += ApplyStatChange;
+        EnemyBaseAI.OnEnemyKilled += AddExp;
 
         if (playerQuickSlot != null)
         {
@@ -178,6 +230,9 @@ public class PlayerMove : MonoBehaviour
         {
             playerQuickSlot.OnEquippedChanged -= UpdateAttackRangeIndicator;
         }
+
+        if (playerStats != null) playerStats.OnStatsChanged -= ApplyStatChange;
+        EnemyBaseAI.OnEnemyKilled -= AddExp;
     }
 
     private void Update()
@@ -185,7 +240,10 @@ public class PlayerMove : MonoBehaviour
         UpdateTileHighlight();
         UpdateBuildingSiteUI();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame && !event_time && !isDodging && !isDead)
+        // 창이 열려 있으면 월드 클릭을 막는다. 예전엔 인벤토리를 열어둔 채 클릭해도
+        // 그대로 공격/설치가 나갔다 (UI를 뚫고 지나갔다).
+        bool menuOpen = menuWindow != null && menuWindow.IsOpen;
+        if (Mouse.current.leftButton.wasPressedThisFrame && !menuOpen && !event_time && !isDodging && !isDead)
         {
             OnMouseClick();
         }
@@ -218,17 +276,16 @@ public class PlayerMove : MonoBehaviour
 
         UpdateStamina();
 
-        // ESC로 인벤토리/제작창 닫기 (열려 있을 때만 호출 - 안 그러면 닫혀 있을 때 ESC로 오히려 열림)
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        // ESC로 창 닫기 (열려 있을 때만 - 안 그러면 닫혀 있을 때 ESC로 오히려 열린다)
+        if (Keyboard.current.escapeKey.wasPressedThisFrame && menuWindow != null)
         {
-            if (inventory != null && inventory.isInventoryOpen) inventory.ToggleUI();
-            if (craftingUI != null && craftingUI.IsOpen) craftingUI.Close();
+            menuWindow.Close();
         }
 
-        // E로 제작창 토글 (테스트용 키 바인딩 - Input Actions 에셋에 정식으로 옮겨도 됨)
-        if (Keyboard.current.eKey.wasPressedThisFrame && craftingUI != null)
+        // Tab으로 다음 탭. 제작창은 더 이상 E가 아니라 창 안의 탭이다.
+        if (Keyboard.current.tabKey.wasPressedThisFrame && menuWindow != null)
         {
-            craftingUI.ToggleUI();
+            menuWindow.NextTab();
         }
     }
 
@@ -294,7 +351,7 @@ public class PlayerMove : MonoBehaviour
             }
             else
             {
-                currentStamina = Mathf.Min(maxStamina, currentStamina + staminaRegenPerSecond * Time.deltaTime);
+                currentStamina = Mathf.Min(MaxStamina, currentStamina + staminaRegenPerSecond * Time.deltaTime);
             }
         }
     }
@@ -307,7 +364,7 @@ public class PlayerMove : MonoBehaviour
         {
             float speedModifier = (WeatherManager.Instance != null) ? WeatherManager.Instance.GetSpeedModifier() : 1.0f;
             float runModifier = isRunning ? runSpeedMultiplier : 1f;
-            rigid.linearVelocity = inputVec * (speed * speedModifier * runModifier);
+            rigid.linearVelocity = inputVec * (Speed * speedModifier * runModifier);
         }
         else
         {
@@ -339,7 +396,7 @@ public class PlayerMove : MonoBehaviour
             timer += Time.deltaTime;
 
             // 1. 회피 이동 (평소 속도 * 배수)
-            rigid.linearVelocity = dodgeDir * (speed * dodgeSpeedMultiplier);
+            rigid.linearVelocity = dodgeDir * (Speed * dodgeSpeedMultiplier);
 
             // 2. 시계방향 회전
             float angleStep = (targetAngle / dodgeDuration) * Time.deltaTime;
@@ -376,7 +433,8 @@ public class PlayerMove : MonoBehaviour
             if (!TryConsumeActionCost(attackStaminaCost, attackCooldown)) return;
             if (playerQuickSlot != null) playerQuickSlot.PlaySwing();
 
-            int damage = Mathf.Max(1, equipped.atk);
+            // 무기 공격력 + STR 보너스. 합산은 이 한 곳에서만 한다.
+            int damage = Mathf.Max(1, equipped.atk + (playerStats != null ? playerStats.AttackBonus : 0));
 
             // 피격 대상은 IDamageable 하나로 찾는다. 예전엔 나무/돌/몹마다 GetComponent를 따로 하고
             // "어떤 도구가 필요한가"도 여기서 판단했는데, 대상이 늘어날수록 분기만 길어졌다.
@@ -517,6 +575,60 @@ public class PlayerMove : MonoBehaviour
     // 판별기가 인스펙터에 연결돼 있지 않으면 런타임에 만들어 쓴다. 필요한 참조(지형/물 타일맵,
     // landtiles)는 PlayerMove가 이미 들고 있으므로, 씬 작업 없이도 설치 판정이 동작한다.
     // 인스펙터에서 직접 붙이면 그쪽 설정이 우선이다.
+    // 스탯 컴포넌트가 없으면 런타임에 붙인다. 씬 작업 없이도 스탯이 동작하게 한다
+    // (PlacementValidator와 같은 방침).
+    private void EnsurePlayerStats()
+    {
+        if (playerStats == null) playerStats = GetComponent<PlayerStats>();
+        if (playerStats == null) playerStats = gameObject.AddComponent<PlayerStats>();
+    }
+
+    private float lastMaxHealth;
+    private float lastMaxStamina;
+
+    // VIT/END를 찍으면 늘어난 최대치만큼 현재치도 함께 올려준다. 안 그러면 최대치만 늘고
+    // 체력바가 줄어든 것처럼 보여서 찍은 체감이 없다.
+    /// <summary>
+    /// 경험치를 더하고, 필요량을 넘으면 레벨을 올린다. 넘친 경험치는 다음 레벨로 이월되고,
+    /// 한 번에 여러 레벨이 오를 수도 있다(보스를 잡는 경우).
+    /// </summary>
+    public void AddExp(int amount)
+    {
+        if (amount <= 0 || isDead) return;
+
+        currentExp += amount;
+
+        int gainedLevels = 0;
+        while (level < maxLevel)
+        {
+            float need = ExpToNextLevel;
+            if (need <= 0f) break; // 설정이 잘못돼도 무한 루프에 빠지지 않게
+            if (currentExp < need) break;
+
+            currentExp -= need;
+            level++;
+            gainedLevels++;
+        }
+
+        if (level >= maxLevel) currentExp = 0f; // 최대 레벨에서는 경험치를 쌓지 않는다
+
+        if (gainedLevels > 0 && playerStats != null)
+        {
+            // 포인트 지급은 PlayerStats가 소유한다. 레벨당 지급량도 그쪽 설정이다.
+            playerStats.GrantLevelUpPoints(gainedLevels);
+            Debug.Log($"레벨 업! Lv.{level}  (스탯 +{playerStats.statPointsPerLevel * gainedLevels}, " +
+                      $"스킬 +{playerStats.skillPointsPerLevel * gainedLevels})");
+        }
+    }
+
+    private void ApplyStatChange()
+    {
+        currentHealth = Mathf.Min(currentHealth + Mathf.Max(0f, MaxHealth - lastMaxHealth), MaxHealth);
+        currentStamina = Mathf.Min(currentStamina + Mathf.Max(0f, MaxStamina - lastMaxStamina), MaxStamina);
+        lastMaxHealth = MaxHealth;
+        lastMaxStamina = MaxStamina;
+    }
+
     private void EnsurePlacementValidator()
     {
         if (placementValidator != null) return;
@@ -775,12 +887,11 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
+    // I키(Input Actions의 Inventory 액션). 예전엔 인벤토리만 토글했고 제작창은 E가 따로 열어서
+    // 둘이 동시에 열려 겹쳤다. 지금은 창 하나를 여닫고 그 안에서 탭으로 넘긴다.
     private void OnInventory()
     {
-        if (inventory != null)
-        {
-            inventory.ToggleUI();
-        }
+        if (menuWindow != null) menuWindow.Toggle();
     }
 
     // PlayerQuickSlot이 관리하는 장착 아이템이 바뀔 때마다 호출되어 사거리 표시 UI를 갱신
@@ -818,8 +929,9 @@ public class PlayerMove : MonoBehaviour
         if (isDead || event_time || isDodging || isHitInvulnerable) return;
 
         // 장비창(Armor/Hat/Shoes/Accessory)에 장착된 방어구 def 합계만큼 피해 경감
-        float defense = EquipmentManager.instance != null ? EquipmentManager.instance.GetTotalDefense() : 0f;
-        damage = Mathf.Max(damage - defense, 0f);
+        // 비율 경감. 예전엔 damage - defense 뺄셈이어서, 방어력이 적 공격력을 넘기는 순간
+        // 피해가 0이 되어 완전 무적이 됐다(흉갑 def 10만 껴도 슬라임 1·2형이 무해해졌다).
+        damage *= 1f - DamageReduction;
         currentHealth -= damage;
 
         if (hitFeedbackCoroutine != null)
@@ -901,7 +1013,7 @@ public class PlayerMove : MonoBehaviour
 
         yield return new WaitForSeconds(respawnDelay);
 
-        currentHealth = maxHealth;
+        currentHealth = MaxHealth;
         spriteRenderer.enabled = true;
         if (col != null) col.enabled = true;
         isDead = false;

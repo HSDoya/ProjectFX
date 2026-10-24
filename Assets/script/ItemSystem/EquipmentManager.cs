@@ -77,6 +77,12 @@ public class EquipmentManager : MonoBehaviour
     };
 
     /// <summary>
+    /// 장비창 UI에 칸을 몇 개 어떤 순서로 만들지. 목록은 위 ArmorSlots 하나뿐이고 여기서는
+    /// 읽기만 한다 - UI 쪽에 같은 목록을 또 적어두면 슬롯을 하나 추가했을 때 한쪽만 바뀐다.
+    /// </summary>
+    public static System.Collections.Generic.IReadOnlyList<EquipmentSlotType> OwnedSlots => ArmorSlots;
+
+    /// <summary>
     /// 이 슬롯을 장비창이 소유하는지. 무기와 도구(검/도끼/곡괭이/괭이/물뿌리개)는 퀵슬롯이
     /// 단일 소유자이고 공격·농사 모두 "손에 든 것"을 기준으로 동작한다. 그래서 장비창에는
     /// 꽂을 수 없게 막는다. 예전엔 Tool 슬롯에 괭이를 꽂을 수 있었는데, 그러면 인벤토리에서

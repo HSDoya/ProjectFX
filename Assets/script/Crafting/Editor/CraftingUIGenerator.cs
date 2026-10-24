@@ -12,15 +12,26 @@ public static class CraftingUIGenerator
     // 재료 한 줄 프리팹과 같은 폴더를 쓴다(경로를 두 곳에 적어두면 한쪽만 바뀌어 어긋난다).
     private const string PrefabFolder = EditorUIBuilder.IngredientRowPrefabFolder;
 
-    [MenuItem("Tools/제작 UI 테스트용 생성")]
+    // 결과물 아이콘 한 변. 아이콘을 담는 줄(ResultHeader)보다 작아야 한다.
+    private const float IconSize = 128f;
+
+    // 레시피 한 줄의 높이. LayoutElement와 프리팹 루트의 sizeDelta가 반드시 같은 값을 써야 한다.
+    // 부모(Content)의 childControlHeight가 켜져 있으면 LayoutElement를, 꺼져 있으면 sizeDelta를
+    // 읽기 때문에, 둘이 어긋나면 어느 쪽이 쓰였는지 화면만 보고는 알 수 없다.
+    private const float RecipeRowHeight = 56f;
+    // 프리팹을 단독으로 열었을 때 보기 좋으라고 넣는 값. 실제 폭은 목록이 매번 다시 잡는다.
+    private const float RecipeRowWidth = 396f;
+
+    // 레시피 목록 세로 스크롤바의 폭. 뷰포트를 이만큼 좁혀서 내용과 겹치지 않게 한다.
+    private const float ScrollbarWidth = 12f;
+
+    // 다시 실행하면 코드 기준으로 프리팹을 덮어쓴다. 손으로 꾸민 디자인이 있다면 날아가므로
+    // 평소에는 "게임 UI 전체 생성"을 쓰고, 제작창만 되살릴 때 이 메뉴를 쓴다.
+    [MenuItem("Tools/UI 다시 만들기/제작창만", false, 20)]
     public static void GenerateCraftingUI()
     {
-        if (!EditorUIBuilder.EnsureFolder(PrefabFolder)) return;
-
-        RecipeSlotUI recipeRowPrefab = BuildRecipeRowPrefab();
-        // 재료 한 줄은 건설 현장 패널과 공용이라 EditorUIBuilder가 만든다.
-        IngredientRowUI ingredientRowPrefab = EditorUIBuilder.BuildIngredientRowPrefab();
-        GameObject panelPrefab = BuildCraftingPanel(recipeRowPrefab, ingredientRowPrefab);
+        GameObject panelPrefab = BuildPanelPrefab();
+        if (panelPrefab == null) return;
 
         TryInstantiateIntoScene(panelPrefab);
 
@@ -31,17 +42,35 @@ public static class CraftingUIGenerator
                    "실제 아트 에셋으로 나중에 교체해서 쓰시면 됩니다.");
     }
 
+    /// <summary>
+    /// 제작 패널 프리팹을 코드에서 다시 만들어 돌려준다. 탭 창 생성(MenuWindowGenerator)도
+    /// 이 메서드를 쓴다 - 입구는 둘이지만 패널을 조립하는 코드는 하나뿐이어야 한다.
+    /// </summary>
+    public static GameObject BuildPanelPrefab()
+    {
+        if (!EditorUIBuilder.EnsureFolder(PrefabFolder)) return null;
+
+        RecipeSlotUI recipeRowPrefab = BuildRecipeRowPrefab();
+        // 재료 한 줄은 건설 현장 패널과 공용이라 EditorUIBuilder가 만든다.
+        IngredientRowUI ingredientRowPrefab = EditorUIBuilder.BuildIngredientRowPrefab();
+        return BuildCraftingPanel(recipeRowPrefab, ingredientRowPrefab);
+    }
+
     // ───────────────────────── 레시피 목록 행 프리팹 ─────────────────────────
 
     private static RecipeSlotUI BuildRecipeRowPrefab()
     {
         var root = new GameObject("RecipeSlotRow", typeof(RectTransform));
+        // 유니티가 새 RectTransform에 넣는 기본값은 100x100이다. 그대로 두면 부모가 높이를
+        // 제어하지 않을 때(childControlHeight=false) 아래 LayoutElement가 아니라 이 100이 쓰인다.
+        root.GetComponent<RectTransform>().sizeDelta = new Vector2(RecipeRowWidth, RecipeRowHeight);
+
         var bg = root.AddComponent<Image>();
         bg.color = Color.white;
 
         var layoutElement = root.AddComponent<LayoutElement>();
-        layoutElement.minHeight = 56;
-        layoutElement.preferredHeight = 56;
+        layoutElement.minHeight = RecipeRowHeight;
+        layoutElement.preferredHeight = RecipeRowHeight;
 
         var layout = root.AddComponent<HorizontalLayoutGroup>();
         layout.padding = new RectOffset(10, 10, 8, 8);
@@ -109,10 +138,16 @@ public static class CraftingUIGenerator
         var layout = header.gameObject.AddComponent<HorizontalLayoutGroup>();
         layout.padding = new RectOffset(22, 22, 10, 10);
         layout.childAlignment = TextAnchor.MiddleLeft;
+        // childControlWidth는 반드시 켜야 한다. 끄면(유니티 기본값) 레이아웃 그룹이 자식 폭을
+        // 건드리지 않아서, CreateChildRect가 만든 기본 sizeDelta.x = 0이 그대로 남는다.
+        // 폭 0짜리 TMP는 단어마다 줄을 바꾸므로 제목이 "Crafting / (Test)"처럼 쪼개졌다.
+        // (flexibleWidth도 제어하지 않는 축에는 적용되지 않아 무시된다.)
+        layout.childControlWidth = true;
+        layout.childForceExpandWidth = false; // 남는 폭은 flexibleWidth를 준 제목만 가져가게
         layout.childControlHeight = true;
         layout.childForceExpandHeight = true;
 
-        var title = EditorUIBuilder.CreateChildText("Title", header, "Crafting (Test)", 32, Color.white, TextAlignmentOptions.MidlineLeft);
+        var title = EditorUIBuilder.CreateChildText("Title", header, "Crafting", 32, Color.white, TextAlignmentOptions.MidlineLeft);
         title.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
 
         var closeButtonImage = EditorUIBuilder.CreateChildImage("CloseButton", header, new Color(0.35f, 0.35f, 0.35f), fixedWidth: 40);
@@ -170,9 +205,12 @@ public static class CraftingUIGenerator
         var scrollRect = scrollRt.gameObject.AddComponent<ScrollRect>();
         scrollRect.horizontal = false;
         scrollRect.vertical = true;
+        // 기본값(Elastic)은 목록 끝에서 튕긴다. 끝에서 멈추는 쪽이 "덜 만들어진 창"으로 안 보인다.
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
 
         var viewport = EditorUIBuilder.CreateChildRect("Viewport", scrollRt);
         EditorUIBuilder.StretchFull(viewport);
+        viewport.offsetMax = new Vector2(-ScrollbarWidth, 0f); // 오른쪽에 스크롤바 자리를 비운다
         // Mask는 그래픽 알파가 낮으면 스텐실이 안 잡혀 내용이 통째로 안 보이는 함정이 있어서,
         // 그래픽이 필요 없는 RectMask2D를 쓴다 (ScrollRect 뷰포트의 표준 방식이기도 함).
         viewport.gameObject.AddComponent<RectMask2D>();
@@ -182,20 +220,36 @@ public static class CraftingUIGenerator
         content.anchorMax = new Vector2(1, 1);
         content.pivot = new Vector2(0.5f, 1);
         content.anchoredPosition = Vector2.zero;
+        // sizeDelta를 반드시 적어야 한다. 가로가 늘어나는 앵커(0..1)에서 sizeDelta.x는 뷰포트
+        // 대비 "가산값"이라, 유니티 기본값 100이 남아 있으면 목록이 뷰포트보다 100 넓어진다.
+        // pivot.x가 0.5라 그 100이 좌우로 50씩 나뉘고, 행 전체가 왼쪽으로 50만큼 밀려
+        // 아이콘(여백10 + 44)이 RectMask2D에 잘려 5픽셀짜리 띠로만 보였다.
+        // 세로는 ContentSizeFitter가 매번 다시 잡아줘서 이 문제가 가로에서만 드러났다.
+        content.sizeDelta = Vector2.zero;
 
         var contentLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
         contentLayout.padding = new RectOffset(6, 6, 6, 6);
         contentLayout.spacing = 6;
-        contentLayout.childControlHeight = false;
+        // 반드시 true여야 한다. false면 HorizontalOrVerticalLayoutGroup.GetChildSizes가
+        // LayoutElement를 아예 보지 않고 child.sizeDelta.y를 쓴다. 행 프리팹 기본값 100이 채택되어
+        // 56으로 맞춰둔 LayoutElement.preferredHeight가 죽은 코드가 됐고, 668짜리 뷰포트에
+        // 10.7행이 아니라 6.25행만 들어가서 목록이 잘려 보였다.
+        contentLayout.childControlHeight = true;
         contentLayout.childControlWidth = true;
         contentLayout.childForceExpandWidth = true;
-        contentLayout.childForceExpandHeight = false;
+        contentLayout.childForceExpandHeight = false; // 행이 뷰포트를 채우려 늘어나지 않게
 
         var contentFitter = content.gameObject.AddComponent<ContentSizeFitter>();
         contentFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         scrollRect.viewport = viewport;
         scrollRect.content = content;
+
+        // 레시피가 뷰포트보다 길어지면 마지막 줄이 잘리는데, 스크롤바가 없으면 그게 "스크롤되는
+        // 목록"이 아니라 "깨진 UI"로 보인다. 레시피는 계속 늘어나므로 항상 띄워둔다.
+        // Permanent면 ScrollRect가 뷰포트 크기를 건드리지 않아서, 위에서 비워둔 폭이 그대로 유지된다.
+        scrollRect.verticalScrollbar = EditorUIBuilder.CreateVerticalScrollbar(scrollRt, ScrollbarWidth);
+        scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
 
         craftingUI.recipeListContent = content;
         craftingUI.recipeRowPrefab = recipeRowPrefab;
@@ -217,16 +271,31 @@ public static class CraftingUIGenerator
 
         // 결과물 아이콘 + 이름/수량
         var resultHeader = EditorUIBuilder.CreateChildRect("ResultHeader", right);
-        resultHeader.gameObject.AddComponent<LayoutElement>().preferredHeight = 100;
+        resultHeader.gameObject.AddComponent<LayoutElement>().preferredHeight = 140;
         var resultHeaderLayout = resultHeader.gameObject.AddComponent<HorizontalLayoutGroup>();
         resultHeaderLayout.spacing = 16;
         resultHeaderLayout.childAlignment = TextAnchor.MiddleLeft;
+        // Header와 같은 이유로 childControlWidth가 필요하다. 이게 꺼져 있어서 결과물 이름이
+        // 폭 0으로 줄바꿈되고("Sword / _wood") 아이콘 옆이 아니라 가운데 위로 떠 있었다.
+        resultHeaderLayout.childControlWidth = true;
+        // 끄지 않으면 아이콘(96 고정)까지 같이 늘어난다. 남는 폭은 이름/수량 칸만 가져간다.
+        resultHeaderLayout.childForceExpandWidth = false;
         resultHeaderLayout.childControlHeight = true;
         resultHeaderLayout.childForceExpandHeight = true;
 
-        var resultIcon = EditorUIBuilder.CreateChildImage("ResultIcon", resultHeader, Color.white, fixedWidth: 96);
+        // 결과물 미리보기. 오른쪽 패널이 900 가까이 넓어서 96은 너무 작아 보였다.
+        var resultIcon = EditorUIBuilder.CreateChildImage("ResultIcon", resultHeader, Color.white, fixedWidth: IconSize);
         resultIcon.preserveAspect = true;
-        resultIcon.gameObject.AddComponent<LayoutElement>().minWidth = 96;
+
+        // preferredWidth/Height를 반드시 적어야 한다. minWidth만 주고 preferred를 -1로 두면
+        // LayoutUtility가 음수를 건너뛰면서 우선순위 슬롯도 선점하지 못해, 우선순위가 낮은
+        // Image의 "스프라이트 원본 크기"가 대신 채택된다. 아이템 아이콘이 1024x1024(PPU 100)라
+        // 1000유닛이 넘는 폭을 요구해서 아이콘 하나가 패널을 통째로 밀어냈다.
+        var iconLayout = resultIcon.gameObject.AddComponent<LayoutElement>();
+        iconLayout.minWidth = IconSize;
+        iconLayout.preferredWidth = IconSize;
+        iconLayout.minHeight = IconSize;
+        iconLayout.preferredHeight = IconSize;
 
         var resultTexts = EditorUIBuilder.CreateChildRect("ResultTexts", resultHeader);
         resultTexts.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
@@ -263,10 +332,12 @@ public static class CraftingUIGenerator
         ingredientList.anchorMax = new Vector2(1, 1);
         ingredientList.pivot = new Vector2(0.5f, 1);
         ingredientList.anchoredPosition = Vector2.zero;
+        ingredientList.sizeDelta = Vector2.zero; // 레시피 목록과 같은 이유. 빼먹으면 줄이 왼쪽으로 50 밀린다
 
         var ingListLayout = ingredientList.gameObject.AddComponent<VerticalLayoutGroup>();
         ingListLayout.spacing = 6;
-        ingListLayout.childControlHeight = false;
+        // 레시피 목록과 같은 이유. false면 재료 줄이 LayoutElement의 42가 아니라 sizeDelta의 100이 된다.
+        ingListLayout.childControlHeight = true;
         ingListLayout.childControlWidth = true;
         ingListLayout.childForceExpandWidth = true;
         ingListLayout.childForceExpandHeight = false;
@@ -334,34 +405,13 @@ public static class CraftingUIGenerator
         // 건드리지 않는다 - 예전처럼 point anchor(0.5,0.5)+고정 sizeDelta로 덮어쓰면 화면 비율 대응이
         // 무효화되어 다시 화면 밖으로 잘려나갈 수 있다.
 
-        instance.SetActive(false); // 인벤토리와 동일하게 기본은 닫힌 상태로 시작
+        instance.SetActive(false); // 탭 창 안의 내용이므로 기본은 꺼진 상태로 시작
 
-        WireIntoPlayerMove(instance.GetComponent<CraftingUI>());
+        // 예전엔 여기서 PlayerMove.craftingUI를 채웠다. 지금은 제작창을 직접 열고 닫는 주체가
+        // PlayerMove가 아니라 MenuWindow라서 그 필드 자체가 없어졌다.
 
         EditorSceneManager.MarkSceneDirty(instance.scene);
         Debug.Log("[CraftingUIGenerator] CraftingPanel을 씬의 Canvas 아래에 배치했습니다 (기본 비활성 상태).");
-    }
-
-    // PlayerMove.craftingUI는 [SerializeField] private라 SerializedObject를 통해서만 채울 수 있다.
-    private static void WireIntoPlayerMove(CraftingUI craftingUI)
-    {
-        var playerMove = Object.FindFirstObjectByType<PlayerMove>();
-        if (playerMove == null)
-        {
-            Debug.LogWarning("[CraftingUIGenerator] 씬에서 PlayerMove를 찾지 못해 craftingUI 필드를 자동 연결하지 못했습니다. 수동으로 연결해주세요.");
-            return;
-        }
-
-        var so = new SerializedObject(playerMove);
-        var prop = so.FindProperty("craftingUI");
-        if (prop == null)
-        {
-            Debug.LogWarning("[CraftingUIGenerator] PlayerMove에 craftingUI 필드가 없습니다.");
-            return;
-        }
-
-        prop.objectReferenceValue = craftingUI;
-        so.ApplyModifiedProperties();
     }
 
     // GameObject/컴포넌트 생성 헬퍼(CreateChildRect 등)는 PlayerHUDGenerator 등 다른 에디터

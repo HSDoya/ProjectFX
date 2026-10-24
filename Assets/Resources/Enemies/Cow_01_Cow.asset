@@ -22,3 +22,4 @@ MonoBehaviour:
   attackDamage: 0
   attackCooldown: 0
   animType: BlendTree
+  expReward: 8

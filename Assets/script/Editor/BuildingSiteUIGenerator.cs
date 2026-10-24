@@ -18,7 +18,9 @@ public static class BuildingSiteUIGenerator
     private static readonly Color TitleColor = new Color(0.18f, 0.14f, 0.1f);
     private static readonly Color FooterColor = new Color(0.4f, 0.36f, 0.3f);
 
-    [MenuItem("Tools/건설 UI 테스트용 생성")]
+    // 다시 실행하면 코드 기준으로 프리팹을 덮어쓴다(손으로 꾸민 디자인이 있으면 날아간다).
+    // 평소에는 "게임 UI 전체 생성"을 쓰고, 건설 패널만 되살릴 때 이 메뉴를 쓴다.
+    [MenuItem("Tools/UI 다시 만들기/건설 현장 패널만", false, 22)]
     public static void GenerateBuildingSiteUI()
     {
         if (!EditorUIBuilder.EnsureFolder(PrefabFolder)) return;
@@ -86,7 +88,10 @@ public static class BuildingSiteUIGenerator
         var rowsLayout = rows.gameObject.AddComponent<VerticalLayoutGroup>();
         rowsLayout.spacing = 4;
         rowsLayout.childControlWidth = true;
-        rowsLayout.childControlHeight = false;  // 줄 프리팹의 LayoutElement 높이(42)를 그대로 쓴다
+        // false면 LayoutElement를 보지 않고 줄 프리팹 루트의 sizeDelta.y를 쓴다(원래 주석은 반대로 적혀
+        // 있었다). 그 기본값이 100이라 재료 줄이 42가 아니라 100으로 나오고 있었다. 지금은
+        // EditorUIBuilder가 프리팹 루트 sizeDelta도 42로 맞춰두므로 어느 쪽을 읽어도 42가 된다.
+        rowsLayout.childControlHeight = false;
         rowsLayout.childForceExpandWidth = true;
         rowsLayout.childForceExpandHeight = false;
 

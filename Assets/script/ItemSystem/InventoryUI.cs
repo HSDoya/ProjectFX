@@ -2,21 +2,24 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+// 탭 창의 Items 탭 내용. 인벤토리 칸과 창 안 퀵슬롯 줄만 담당한다.
+//
+// 화면 하단 HUD 퀵슬롯 바는 QuickSlotBarUI가 따로 담당한다. 예전엔 이 컴포넌트가 둘 다
+// 맡고 있었는데, 이 컴포넌트는 창 패널 위에 붙어 있어서 창이 닫히면 같이 꺼진다.
+// 그래서 창을 닫힌 상태로 시작하자 Awake가 실행되지 않아 HUD 퀵슬롯이 통째로 비었다.
+// 수명이 다른 UI는 다른 컴포넌트가 소유해야 한다.
 public class InventoryUI : MonoBehaviour
 {
     [Header("UI Grid Parents")]
     [SerializeField] public Transform itemGrid;      // 메인 인벤토리(14x5) 부모
     [SerializeField] public Transform quickSlotGrid; // 퀵슬롯(1x14) 부모 (없으면 비워도 됨)
-    [SerializeField] public Transform hudQuickSlotGrid;
 
 
     private List<InventorySlotUI> mainSlots = new();
     private List<InventorySlotUI> quickSlotsUI = new();
-    private List<InventorySlotUI> hudQuickSlotsUI = new();
 
-    // 구독해 둔 인벤토리. 이 컴포넌트는 인벤토리 창(BG) 위에 있어서 창이 닫히면 같이 꺼지는데,
-    // 항상 떠 있는 HUD 퀵슬롯도 여기서 갱신하므로 꺼져 있는 동안에도 구독을 유지해야 한다.
-    // (예전엔 OnDisable에서 구독을 끊어서, 창이 닫힌 평상시에는 퀵슬롯이 전혀 갱신되지 않았다.)
+    // 구독해 둔 인벤토리. Inventory.instance가 아직 비어 있는 순간에 OnEnable이 돌면 구독이
+    // 조용히 실패하므로, 직접 찾아 참조를 쥐고 그걸로 해제까지 한다.
     private Inventory subscribedInventory;
 
     void Awake()
@@ -37,20 +40,12 @@ public class InventoryUI : MonoBehaviour
         if (quickSlotGrid != null)
             quickSlotsUI.AddRange(quickSlotGrid.GetComponentsInChildren<InventorySlotUI>(true));
 
-        hudQuickSlotsUI.Clear();
-        if (hudQuickSlotGrid != null)
-            hudQuickSlotsUI.AddRange(hudQuickSlotGrid.GetComponentsInChildren<InventorySlotUI>(true));
 
 
         for (int i = 0; i < quickSlotsUI.Count; i++)
         {
             quickSlotsUI[i].slotIndex = i;
             quickSlotsUI[i].isQuickSlot = true; // ★ 퀵슬롯임!
-        }
-        for (int i = 0; i < hudQuickSlotsUI.Count; i++)
-        {
-            hudQuickSlotsUI[i].slotIndex = i;
-            hudQuickSlotsUI[i].isQuickSlot = true; // 퀵슬롯과 동일하게 취급
         }
 
         // Awake 시점엔 Inventory의 Awake가 아직 안 돌아 instance가 비어 있을 수 있어 직접 찾는다.
@@ -61,15 +56,26 @@ public class InventoryUI : MonoBehaviour
             subscribedInventory.onItemChangedCallback += UpdateUI;
         }
     }
-    void Start()
-    {
-        // Start는 모든 스크립트의 Awake가 끝난 뒤 실행되므로, 
-        // 이때는 Inventory.instance가 무조건 존재합니다.
-        UpdateUI();
-    }
+    // 창 내용이므로 보일 때만 구독한다. 숨어 있는 동안 갱신할 이유가 없다
+    // (항상 보이는 HUD 퀵슬롯은 QuickSlotBarUI가 따로 구독한다).
     void OnEnable()
     {
+        if (subscribedInventory == null)
+            subscribedInventory = Inventory.instance != null ? Inventory.instance : FindFirstObjectByType<Inventory>();
+
+        if (subscribedInventory != null)
+        {
+            subscribedInventory.onItemChangedCallback -= UpdateUI;
+            subscribedInventory.onItemChangedCallback += UpdateUI;
+        }
+
         UpdateUI();
+    }
+
+    void OnDisable()
+    {
+        if (subscribedInventory != null)
+            subscribedInventory.onItemChangedCallback -= UpdateUI;
     }
 
     void OnDestroy()
@@ -78,13 +84,6 @@ public class InventoryUI : MonoBehaviour
             subscribedInventory.onItemChangedCallback -= UpdateUI;
     }
 
-    // 쿨타임 오버레이처럼 특정 퀵슬롯 칸 위에 뭔가를 띄워야 할 때 쓴다.
-    // 슬롯 목록 수집은 이 클래스가 계속 소유하고(Awake에서 한 번), 밖에서는 조회만 하게 한다.
-    public RectTransform GetHudQuickSlotRect(int index)
-    {
-        if (index < 0 || index >= hudQuickSlotsUI.Count) return null;
-        return hudQuickSlotsUI[index] != null ? hudQuickSlotsUI[index].transform as RectTransform : null;
-    }
 
     public void UpdateUI()
     {
@@ -110,19 +109,6 @@ public class InventoryUI : MonoBehaviour
                     quickSlotsUI[i].BindItem(qItems[i]);
                 else
                     quickSlotsUI[i].BindItem(null);
-            }
-        }
-
-        // ★ 3. 새로 추가된 부분: HUD 퀵슬롯 갱신
-        var hqItems = Inventory.instance.quickSlots;
-        if (hqItems != null && hudQuickSlotsUI.Count > 0)
-        {
-            for (int i = 0; i < hudQuickSlotsUI.Count; i++)
-            {
-                if (i < hqItems.Length)
-                    hudQuickSlotsUI[i].BindItem(hqItems[i]);
-                else
-                    hudQuickSlotsUI[i].BindItem(null);
             }
         }
 
