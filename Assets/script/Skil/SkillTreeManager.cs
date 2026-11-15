@@ -86,7 +86,7 @@ public class SkillTreeManager : MonoBehaviour
     {
         if (skillDatabase == null)
         {
-            Debug.LogWarning("[SkillTreeManager] skillDatabase가 연결되지 않았습니다.");
+            GameLog.LogWarning("[SkillTreeManager] skillDatabase가 연결되지 않았습니다.");
             return;
         }
 
@@ -111,12 +111,12 @@ public class SkillTreeManager : MonoBehaviour
     {
         if (x < 0 || x >= gridWidth || y < 0 || y >= gridHeight)
         {
-            Debug.LogWarning($"[SkillTreeManager] 그리드 범위를 벗어난 좌표 ({x},{y}) - '{data?.displayName}'를 건너뜁니다.");
+            GameLog.LogWarning($"[SkillTreeManager] 그리드 범위를 벗어난 좌표 ({x},{y}) - '{data?.displayName}'를 건너뜁니다.");
             return;
         }
         if (skillGrid[x, y] != null)
         {
-            Debug.LogWarning($"[SkillTreeManager] 좌표 ({x},{y})에 이미 노드가 있습니다 - '{data?.displayName}'를 건너뜁니다.");
+            GameLog.LogWarning($"[SkillTreeManager] 좌표 ({x},{y})에 이미 노드가 있습니다 - '{data?.displayName}'를 건너뜁니다.");
             return;
         }
 
@@ -142,14 +142,14 @@ public class SkillTreeManager : MonoBehaviour
         var stats = Stats;
         if (stats == null)
         {
-            Debug.LogWarning("[SkillTree] PlayerStats를 찾을 수 없어 스킬을 해금할 수 없습니다.");
+            GameLog.LogWarning("[SkillTree] PlayerStats를 찾을 수 없어 스킬을 해금할 수 없습니다.");
             return;
         }
 
         // 조용히 아무것도 안 하면 "눌렀는데 왜 안 되지"가 된다. 이유를 남긴다.
         if (!stats.SpendSkillPoint())
         {
-            Debug.Log("[SkillTree] 스킬 포인트가 없습니다. 레벨을 올리면 레벨당 1점씩 받습니다.");
+            GameLog.Log("[SkillTree] 스킬 포인트가 없습니다. 레벨을 올리면 레벨당 1점씩 받습니다.");
             return;
         }
 
@@ -164,7 +164,7 @@ public class SkillTreeManager : MonoBehaviour
         node.SetState(NodeState.Unlocked);
 
         if (node.Data != null)
-            Debug.Log($"[SkillTree] '{node.Data.displayName}' 스킬 언락됨");
+            GameLog.Log($"[SkillTree] '{node.Data.displayName}' 스킬 언락됨");
 
         ActivateNeighbors(x, y);
     }

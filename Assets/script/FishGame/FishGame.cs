@@ -1,30 +1,30 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 /// <summary>
-/// ¹Ù(¸·´ë) ±â¹İ ³¬½Ã ¹Ì´Ï°ÔÀÓ - ÃÊ°£´Ü ¹öÀü
-/// - ºó GameObject¿¡ ÀÌ ½ºÅ©¸³Æ®¸¸ ºÙÀÌ¸é ½ÇÇà ½Ã UI¸¦ ÀÚµ¿ »ı¼ºÇÕ´Ï´Ù.
-/// - Space(¶Ç´Â ¸¶¿ì½º ¿ŞÂÊ)·Î ÆÇÁ¤, ¼º°ø ½Ã °ÔÀÌÁö(ChargeFill) Áõ°¡, 100%¸é ¼º°ø Ã³¸®.
+/// ë°”(ë§‰ëŒ€) ê¸°ë°˜ ë‚šì‹œ ë¯¸ë‹ˆê²Œì„ - ì´ˆê°„ë‹¨ ë²„ì „
+/// - ë¹ˆ GameObjectì— ì´ ìŠ¤í¬ë¦½íŠ¸ë§Œ ë¶™ì´ë©´ ì‹¤í–‰ ì‹œ UIë¥¼ ìë™ ìƒì„±í•©ë‹ˆë‹¤.
+/// - Space(ë˜ëŠ” ë§ˆìš°ìŠ¤ ì™¼ìª½)ë¡œ íŒì •, ì„±ê³µ ì‹œ ê²Œì´ì§€(ChargeFill) ì¦ê°€, 100%ë©´ ì„±ê³µ ì²˜ë¦¬.
 /// </summary>
 
 
 public class FishGame : MonoBehaviour
 {
     [Header("Layout")]
-    [SerializeField] private Vector2 barSize = new Vector2(480, 24); // Track Å©±â
+    [SerializeField] private Vector2 barSize = new Vector2(480, 24); // Track í¬ê¸°
     [SerializeField] private Vector2 markerSize = new Vector2(6, 36);
-    [SerializeField] private float uiScale = 1f;   // ÀüÃ¼ ½ºÄÉÀÏ
+    [SerializeField] private float uiScale = 1f;   // ì „ì²´ ìŠ¤ì¼€ì¼
 
     [Header("Motion")]
-    [SerializeField] private float moveSpeed = 1.8f;   // ¿Õº¹ ¼Óµµ(ÃÊ´ç bar ºñÀ²)
+    [SerializeField] private float moveSpeed = 1.8f;   // ì™•ë³µ ì†ë„(ì´ˆë‹¹ bar ë¹„ìœ¨)
     [SerializeField] private bool startFromLeft = true;
 
     [Header("Judge / Charge")]
-    [Tooltip("¼º°ø ±¸°£(0~1). 0=¿ŞÂÊ, 1=¿À¸¥ÂÊ")]
+    [Tooltip("ì„±ê³µ êµ¬ê°„(0~1). 0=ì™¼ìª½, 1=ì˜¤ë¥¸ìª½")]
     [Range(0, 1)] public float successMin = 0.45f;
     [Range(0, 1)] public float successMax = 0.55f;
-    [Tooltip("¼º°ø ½Ã Ã¤¿öÁö´Â ¾ç(0~1). 0.25 => 4¹ø ¼º°ø")]
+    [Tooltip("ì„±ê³µ ì‹œ ì±„ì›Œì§€ëŠ” ì–‘(0~1). 0.25 => 4ë²ˆ ì„±ê³µ")]
     [Range(0.05f, 1f)] public float chargePerHit = 0.25f;
 
     // --- runtime refs ---
@@ -32,8 +32,8 @@ public class FishGame : MonoBehaviour
     Image chargeFillImg;
     TextMeshProUGUI infoText;
 
-    float t;        // 0~1, ¸·´ë ³» ¸¶Ä¿ À§Ä¡
-    float dir = 1;  // +1 ¡æ ¿À¸¥ÂÊ, -1 ¡æ ¿ŞÂÊ
+    float t;        // 0~1, ë§‰ëŒ€ ë‚´ ë§ˆì»¤ ìœ„ì¹˜
+    float dir = 1;  // +1 â†’ ì˜¤ë¥¸ìª½, -1 â†’ ì™¼ìª½
     bool running = true;
 
     void Awake()
@@ -47,14 +47,14 @@ public class FishGame : MonoBehaviour
     {
         if (!running) return;
 
-        // ÁÂ¿ì ¿Õº¹
+        // ì¢Œìš° ì™•ë³µ
         t += dir * moveSpeed * Time.unscaledDeltaTime;
         if (t <= 0f) { t = 0f; dir = 1f; }
         if (t >= 1f) { t = 1f; dir = -1f; }
 
         UpdateMarker();
 
-        // Space or Click ¡æ ÆÇÁ¤
+        // Space or Click â†’ íŒì •
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
             Judge();
     }
@@ -70,7 +70,7 @@ public class FishGame : MonoBehaviour
             {
                 infoText.text = "SUCCESS!";
                 running = false;
-                Debug.Log("[BarFishing] ¼º°ø!");
+                GameLog.Log("[BarFishing] ì„±ê³µ!");
             }
         }
         else
@@ -99,7 +99,7 @@ public class FishGame : MonoBehaviour
     // ----------------- UI AUTO BUILD -----------------
     void BuildMinimalUI()
     {
-        // ºÎ¸ğ Äµ¹ö½º(¾øÀ¸¸é ÀÚµ¿ »ı¼º)
+        // ë¶€ëª¨ ìº”ë²„ìŠ¤(ì—†ìœ¼ë©´ ìë™ ìƒì„±)
         Canvas c = FindFirstObjectByType<Canvas>();
         if (c == null)
         {
@@ -112,7 +112,7 @@ public class FishGame : MonoBehaviour
         }
         canvasRT = c.GetComponent<RectTransform>();
 
-        // ÄÁÅ×ÀÌ³Ê
+        // ì»¨í…Œì´ë„ˆ
         GameObject panel = NewUI("FishingPanel", canvasRT, null);
         RectTransform panelRT = panel.GetComponent<RectTransform>();
         panelRT.sizeDelta = new Vector2(barSize.x + 200, 180);
@@ -142,7 +142,7 @@ public class FishGame : MonoBehaviour
         markerRT.sizeDelta = markerSize;
         markerRT.anchoredPosition = Vector2.zero;
 
-        // HitZone ½Ã°¢È­(±âº» »ç°¢Çü ÇÑ Àå)
+        // HitZone ì‹œê°í™”(ê¸°ë³¸ ì‚¬ê°í˜• í•œ ì¥)
         GameObject hz = NewUI("HitZone", trackRT, new Color(0, 0, 0, 0.7f));
         var hzRT = hz.GetComponent<RectTransform>();
         float width = barSize.x;
@@ -151,7 +151,7 @@ public class FishGame : MonoBehaviour
         hzRT.sizeDelta = new Vector2(Mathf.Max(6f, xMax - xMin), barSize.y + 8f);
         hzRT.anchoredPosition = new Vector2((xMin + xMax) * 0.5f, 0f);
 
-        // ¾È³»/°á°ú ÅØ½ºÆ®
+        // ì•ˆë‚´/ê²°ê³¼ í…ìŠ¤íŠ¸
         GameObject txt = new GameObject("InfoText", typeof(RectTransform), typeof(TextMeshProUGUI));
         txt.transform.SetParent(panelRT, false);
         infoText = txt.GetComponent<TextMeshProUGUI>();

@@ -89,7 +89,7 @@ public class BuildingSiteUI : MonoBehaviour
         if (rowPrefab == null || rowContainer == null)
         {
             // 제너레이터를 아직 돌리지 않은 상태. 제목/문구만이라도 뜨게 하고 조용히 넘어간다.
-            Debug.LogWarning("[BuildingSiteUI] 재료 줄 프리팹이나 부모가 비어 있습니다. Tools/건설 UI 테스트용 생성을 실행하세요.");
+            GameLog.LogWarning("[BuildingSiteUI] 재료 줄 프리팹이나 부모가 비어 있습니다. Tools/건설 UI 테스트용 생성을 실행하세요.");
             return;
         }
 

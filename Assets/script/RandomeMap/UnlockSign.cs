@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class UnlockSign : MonoBehaviour
 {
@@ -6,7 +6,7 @@ public class UnlockSign : MonoBehaviour
     private Vector2Int chunkCoord;
     private int cost;
 
-    // ¸Å´ÏÀú°¡ Ç¥ÁöÆÇÀ» ¼ÒÈ¯ÇÒ ¶§ Á¤º¸¸¦ ÁÖÀÔÇØÁÖ´Â ÇÔ¼ö
+    // ë§¤ë‹ˆì €ê°€ í‘œì§€íŒì„ ì†Œí™˜í•  ë•Œ ì •ë³´ë¥¼ ì£¼ì…í•´ì£¼ëŠ” í•¨ìˆ˜
     public void Setup(MapUnlockManager mgr, Vector2Int coord, int unlockCost)
     {
         manager = mgr;
@@ -14,16 +14,16 @@ public class UnlockSign : MonoBehaviour
         cost = unlockCost;
     }
 
-    // ÀÓ½Ã Å×½ºÆ®¿ë: Ç¥ÁöÆÇÀ» ¸¶¿ì½º·Î Å¬¸¯ÇÏ¸é ÇØ±İµÇµµ·Ï ¼³Á¤
+    // ì„ì‹œ í…ŒìŠ¤íŠ¸ìš©: í‘œì§€íŒì„ ë§ˆìš°ìŠ¤ë¡œ í´ë¦­í•˜ë©´ í•´ê¸ˆë˜ë„ë¡ ì„¤ì •
     void OnMouseDown()
     {
-        // ½ÇÁ¦ °ÔÀÓ¿¡¼­´Â "µ·ÀÌ ÃæºĞÇÑÁö" °Ë»çÇÏ´Â ·ÎÁ÷ÀÌ ÇÊ¿äÇÕ´Ï´Ù.
-        Debug.Log($"{chunkCoord} ±¸¿ª ÇØ±İ ½Ãµµ! (ºñ¿ë: {cost})");
+        // ì‹¤ì œ ê²Œì„ì—ì„œëŠ” "ëˆì´ ì¶©ë¶„í•œì§€" ê²€ì‚¬í•˜ëŠ” ë¡œì§ì´ í•„ìš”í•©ë‹ˆë‹¤.
+        GameLog.Log($"{chunkCoord} êµ¬ì—­ í•´ê¸ˆ ì‹œë„! (ë¹„ìš©: {cost})");
 
-        // ¸Å´ÏÀú¿¡°Ô ÇØ±İ ¿äÃ»
+        // ë§¤ë‹ˆì €ì—ê²Œ í•´ê¸ˆ ìš”ì²­
         manager.UnlockChunk(chunkCoord);
 
-        // ¶¥ÀÌ ¿­·ÈÀ¸´Ï Ç¥ÁöÆÇ ÆÄ±«
+        // ë•…ì´ ì—´ë ¸ìœ¼ë‹ˆ í‘œì§€íŒ íŒŒê´´
         Destroy(gameObject);
     }
 }

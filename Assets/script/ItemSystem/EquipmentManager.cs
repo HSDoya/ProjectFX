@@ -15,7 +15,7 @@ public class EquipmentManager : MonoBehaviour
     {
         if (instance != null)
         {
-            Debug.LogWarning("More than one EquipmentManager found!");
+            GameLog.LogWarning("More than one EquipmentManager found!");
             Destroy(gameObject);
             return;
         }

@@ -31,7 +31,7 @@ public class StoneHealth : MonoBehaviour, IDamageable
         if (isDestroyed) return;
 
         hp -= damage;
-        Debug.Log($"돌 타격! 데미지: {damage}, 남은 HP: {hp}");
+        GameLog.Log($"돌 타격! 데미지: {damage}, 남은 HP: {hp}");
 
         if (spriteRenderer != null)
         {

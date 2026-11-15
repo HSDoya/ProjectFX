@@ -437,7 +437,7 @@ public class EnemyBaseAI : MonoBehaviour, IDamageable
         if (!isInitialized || isDead) return;
 
         currentHealth -= damageAmount;
-        Debug.Log($"{gameObject.name} 피격 발생! 데미지: {damageAmount}, 남은 HP: {currentHealth}");
+        GameLog.Log($"{gameObject.name} 피격 발생! 데미지: {damageAmount}, 남은 HP: {currentHealth}");
 
         // ★ 피격 시 진행 중이던 공격 동작 및 대기 중인 트리거 즉시 캔슬
         CancelAttackState();

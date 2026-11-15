@@ -13,7 +13,7 @@ public class ItemDataManager : MonoBehaviour
         // 중복 인스턴스는 여기서 끝낸다. 예전엔 Destroy 후에도 아래 Initialize까지 실행됐다.
         if (instance != null)
         {
-            Debug.LogWarning("More than one ItemDataManager found!");
+            GameLog.LogWarning("More than one ItemDataManager found!");
             Destroy(gameObject);
             return;
         }

@@ -1,11 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 public class WeatherManager : MonoBehaviour
 {
     public static WeatherManager Instance;
 
-    // ³¯¾¾ Á¾·ù È®Àå (¿¹½Ã)
+    // ë‚ ì”¨ ì¢…ë¥˜ í™•ì¥ (ì˜ˆì‹œ)
     public enum WeatherType { Sunny, Rainy, Cloudy, Winter, Storm }
     public WeatherType currentWeather;
 
@@ -25,21 +25,21 @@ public class WeatherManager : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(10f);
-            // ÀüÃ¼ ³¯¾¾ °³¼ö Áß¿¡¼­ ·£´ı ¼±ÅÃ
+            // ì „ì²´ ë‚ ì”¨ ê°œìˆ˜ ì¤‘ì—ì„œ ëœë¤ ì„ íƒ
             currentWeather = (WeatherType)Random.Range(0, System.Enum.GetValues(typeof(WeatherType)).Length);
-            Debug.Log($"ÇöÀç ³¯¾¾: {currentWeather}");
+            GameLog.Log($"í˜„ì¬ ë‚ ì”¨: {currentWeather}");
         }
     }
 
-    // ³¯¾¾¿¡ µû¸¥ ÀÌµ¿ ¼Óµµ ¹èÀ² ¹İÈ¯ ÇÔ¼ö
+    // ë‚ ì”¨ì— ë”°ë¥¸ ì´ë™ ì†ë„ ë°°ìœ¨ ë°˜í™˜ í•¨ìˆ˜
     public float GetSpeedModifier()
     {
         switch (currentWeather)
         {
-            case WeatherType.Winter: return 0.7f;  // °Ü¿ï: 30% °¨¼Ò
-            case WeatherType.Rainy: return 0.85f; // ºñ: 15% °¨¼Ò
-            case WeatherType.Sunny: return 1.2f;  // ¸¼À½: 20% Áõ°¡
-            default: return 1.0f;                  // ±âº»
+            case WeatherType.Winter: return 0.7f;  // ê²¨ìš¸: 30% ê°ì†Œ
+            case WeatherType.Rainy: return 0.85f; // ë¹„: 15% ê°ì†Œ
+            case WeatherType.Sunny: return 1.2f;  // ë§‘ìŒ: 20% ì¦ê°€
+            default: return 1.0f;                  // ê¸°ë³¸
         }
     }
 }

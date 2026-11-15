@@ -39,13 +39,13 @@ public class FieldItem : MonoBehaviour
             if (Inventory.instance.AddItem(item))
             {
                 // ★ 변경: item.quantity 대신 기억해둔 originalQuantity를 출력
-                Debug.Log($"{item.data.displayName} {originalQuantity}개 획득!");
+                GameLog.Log($"{item.data.displayName} {originalQuantity}개 획득!");
                 Destroy(gameObject); // 필드에서 아이템 삭제
             }
             else
             {
                 // 인벤토리가 꽉 차서 못 먹었을 때는 일부만 먹었을 수도 있으니 남은 개수 표시
-                Debug.Log($"인벤토리가 가득 차서 {item.data.displayName}을(를) {item.quantity}개 남겼습니다.");
+                GameLog.Log($"인벤토리가 가득 차서 {item.data.displayName}을(를) {item.quantity}개 남겼습니다.");
             }
         }
     }

@@ -11,7 +11,7 @@ public class Tile_Fishing : MonoBehaviour
     void Start()
     {
         testUI.SetActive(false);
-        Debug.Log("디버그 체크");
+        GameLog.Log("디버그 체크");
     }
 
     public void AdvanceStage()
@@ -27,7 +27,7 @@ public class Tile_Fishing : MonoBehaviour
         if (isFishing) return; // 이미 낚시 진행 중이면 중복 시작 방지 (물고기 중복 지급 방지)
 
         isFishing = true;
-        Debug.Log("낚시중...");
+        GameLog.Log("낚시중...");
         StartCoroutine(FishingProcess());
     }
 
@@ -51,18 +51,18 @@ public class Tile_Fishing : MonoBehaviour
 
         if (added)
         {
-            Debug.Log($"{fishItem.displayName} 아이템이 인벤토리에 추가되었습니다.");
+            GameLog.Log($"{fishItem.displayName} 아이템이 인벤토리에 추가되었습니다.");
         }
         else
         {
-            Debug.Log("인벤토리에 공간이 부족합니다.");
+            GameLog.Log("인벤토리에 공간이 부족합니다.");
         }
     }
     public void yesButton()
     {
         testUI.SetActive(false);
         playermove_manger.event_time = true;
-        Debug.Log(playermove_manger.event_time);
+        GameLog.Log(playermove_manger.event_time);
         Fishing();
     }
 

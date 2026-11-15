@@ -162,12 +162,12 @@ public class BuildingSite : MonoBehaviour
 
         if (any)
         {
-            Debug.Log($"[{buildingName}] {ProgressText()}");
+            GameLog.Log($"[{buildingName}] {ProgressText()}");
             if (IsSatisfied()) Complete();
         }
         else if (!IsSatisfied())
         {
-            Debug.Log($"[{buildingName}] 넣을 재료가 없습니다. {ProgressText()}");
+            GameLog.Log($"[{buildingName}] 넣을 재료가 없습니다. {ProgressText()}");
         }
 
         return any;
@@ -218,7 +218,7 @@ public class BuildingSite : MonoBehaviour
             ApplyFootprint();
         }
 
-        Debug.Log($"[{buildingName}] 완공되었습니다!");
+        GameLog.Log($"[{buildingName}] 완공되었습니다!");
     }
 
     private void ApplyConstructionLook()
@@ -250,7 +250,7 @@ public class BuildingSite : MonoBehaviour
             // 전부 들어갈 수 있을 때만 넣는다 - AddItem은 일부만 넣고 false를 반환할 수 있다.
             if (!Inventory.instance.CanAcceptItem(data, give))
             {
-                Debug.Log($"[{buildingName}] 인벤토리가 가득 차서 {data.displayName} {give}개를 환급하지 못했습니다.");
+                GameLog.Log($"[{buildingName}] 인벤토리가 가득 차서 {data.displayName} {give}개를 환급하지 못했습니다.");
                 continue;
             }
 

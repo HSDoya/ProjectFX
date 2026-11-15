@@ -15,7 +15,7 @@ public class Inventory : MonoBehaviour
     {
         if (instance != null)
         {
-            Debug.LogWarning("More than one instance of Inventory found!");
+            GameLog.LogWarning("More than one instance of Inventory found!");
             Destroy(gameObject);
             return;
         }
@@ -65,6 +65,8 @@ public class Inventory : MonoBehaviour
             var wateringCan = ItemDataManager.instance.GetItemDataByID("WateringCan");
             // 농사 테스트용 씨앗 데이터 불러오기 추가
             var potatoSeed = ItemDataManager.instance.GetItemDataByID("Potato_Seed");
+            // 움집 건설 테스트용 재료. 설계도 제작에 나무판자 1, 완공에 나무판자 10 + 조약돌 4가 든다.
+            var cutRock = ItemDataManager.instance.GetItemDataByID("CutRock");
 
             if (wood != null) AddItem(new Item(wood, 99));
             if (armor != null) AddItem(new Item(armor, 1));
@@ -76,8 +78,10 @@ public class Inventory : MonoBehaviour
             if (wateringCan != null) AddItem(new Item(wateringCan, 1));
             // 감자씨앗 테스트 지급 추가
             if (potatoSeed != null) AddItem(new Item(potatoSeed, 10));
+            // 움집 재료 테스트 지급 추가 (나무판자는 위에서 이미 99개 지급된다)
+            if (cutRock != null) AddItem(new Item(cutRock, 99));
 
-            Debug.Log("아이템지급완료");
+            GameLog.Log("아이템지급완료");
         }
    
     }
@@ -98,7 +102,7 @@ public class Inventory : MonoBehaviour
         if (TryAddToArray(items, newItem)) return true;
         if (TryAddToArray(quickSlots, newItem)) return true;
 
-        Debug.Log($"인벤토리가 가득 차서 {newItem.data.displayName} {newItem.quantity}개를 획득하지 못했습니다.");
+        GameLog.Log($"인벤토리가 가득 차서 {newItem.data.displayName} {newItem.quantity}개를 획득하지 못했습니다.");
         onItemChangedCallback?.Invoke(); // 일부는 들어갔을 수 있으니 UI 새로고침
         return false;
     }

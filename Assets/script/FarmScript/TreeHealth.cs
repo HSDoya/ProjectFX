@@ -31,7 +31,7 @@ public class TreeHealth : MonoBehaviour, IDamageable
         if (isDestroyed) return;
 
         hp -= damage;
-        Debug.Log($"나무 타격! 데미지: {damage}, 남은 HP: {hp}");
+        GameLog.Log($"나무 타격! 데미지: {damage}, 남은 HP: {hp}");
 
         if (spriteRenderer != null)
         {

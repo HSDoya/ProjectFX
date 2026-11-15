@@ -34,13 +34,13 @@ public class landtiles : MonoBehaviour
         // 이미 갈았거나(빈 땅) 작물이 심겨 있으면 무시
         if (farmTiles.ContainsKey(tilePosition))
         {
-            Debug.Log("이미 농사를 짓고 있는 땅이거나 갈아진 땅입니다.");
+            GameLog.Log("이미 농사를 짓고 있는 땅이거나 갈아진 땅입니다.");
             return;
         }
 
         farmTiles[tilePosition] = new FarmTileState { crop = null, stageIndex = 0 };
         farmTilemap.SetTile(tilePosition, farmableTile);
-        Debug.Log("땅을 갈았습니다.");
+        GameLog.Log("땅을 갈았습니다.");
     }
 
     // seedItem으로 어떤 작물을 심을지 CropDatabase에서 조회한다. 심기에 성공하면 true를 반환하며,
@@ -50,7 +50,7 @@ public class landtiles : MonoBehaviour
         if (seedItem == null) return false;
         if (!farmTiles.TryGetValue(tilePosition, out var state) || state.crop != null)
         {
-            Debug.Log("갈아진 빈 땅에만 씨앗을 심을 수 있습니다.");
+            GameLog.Log("갈아진 빈 땅에만 씨앗을 심을 수 있습니다.");
             return false;
         }
         if (cropDatabase == null) return false;
@@ -58,7 +58,7 @@ public class landtiles : MonoBehaviour
         CropData crop = cropDatabase.GetCropBySeedID(seedItem.itemID);
         if (crop == null || crop.growStages == null || crop.growStages.Length == 0)
         {
-            Debug.LogWarning($"[landtiles] '{seedItem.itemID}'에 대응하는 CropData가 없습니다.");
+            GameLog.LogWarning($"[landtiles] '{seedItem.itemID}'에 대응하는 CropData가 없습니다.");
             return false;
         }
 
@@ -66,7 +66,7 @@ public class landtiles : MonoBehaviour
         state.stageIndex = 0;
         state.isGrowing = false; // 수확 후 같은 칸을 재사용하는 경우를 대비해 깨끗한 상태로 초기화
         cropTilemap.SetTile(tilePosition, crop.growStages[0]);
-        Debug.Log($"{crop.cropID} 씨앗을 심었습니다.");
+        GameLog.Log($"{crop.cropID} 씨앗을 심었습니다.");
         return true;
     }
 
@@ -79,12 +79,12 @@ public class landtiles : MonoBehaviour
             && state.stageIndex == 0 && !state.isGrowing)
         {
             state.isGrowing = true;
-            Debug.Log("물을 주었습니다! 작물이 자라기 시작합니다.");
+            GameLog.Log("물을 주었습니다! 작물이 자라기 시작합니다.");
             StartCoroutine(GrowCrop(tilePosition));
         }
         else
         {
-            Debug.Log("여기엔 물을 줄 수 없거나 심어진 씨앗이 없습니다.");
+            GameLog.Log("여기엔 물을 줄 수 없거나 심어진 씨앗이 없습니다.");
         }
     }
 
@@ -104,7 +104,7 @@ public class landtiles : MonoBehaviour
             cropTilemap.SetTile(tilePosition, state.crop.growStages[state.stageIndex]);
 
             if (state.stageIndex == state.crop.growStages.Length - 1)
-                Debug.Log($"{state.crop.cropID}이(가) 완전히 자랐습니다! 수확이 가능합니다.");
+                GameLog.Log($"{state.crop.cropID}이(가) 완전히 자랐습니다! 수확이 가능합니다.");
         }
 
         if (farmTiles.TryGetValue(tilePosition, out var finished) && finished.crop != null)
@@ -129,7 +129,7 @@ public class landtiles : MonoBehaviour
         {
             Inventory.instance.AddItem(new Item(crop.harvestItemData, crop.harvestYield));
         }
-        Debug.Log($"{crop.cropID}을(를) 수확했습니다!");
+        GameLog.Log($"{crop.cropID}을(를) 수확했습니다!");
 
         // 수확 후 작물 그림만 지움 (밑의 갈아진 땅은 farmTilemap에 그대로 남아있음)
         state.crop = null;

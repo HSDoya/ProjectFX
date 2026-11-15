@@ -178,7 +178,7 @@ public class MenuWindow : MonoBehaviour
         // Build Settings에 등록되지 않은 씬을 로드하면 런타임 에러가 난다. 미등록이면 안내만 하고 넘어간다.
         if (!Application.CanStreamedLevelBeLoaded(sceneName))
         {
-            Debug.LogWarning($"[MenuWindow] '{sceneName}' 씬이 Build Settings에 등록되지 않아 전환할 수 없습니다. " +
+            GameLog.LogWarning($"[MenuWindow] '{sceneName}' 씬이 Build Settings에 등록되지 않아 전환할 수 없습니다. " +
                              "File > Build Profiles(또는 Build Settings)에서 추가하세요.");
             return;
         }

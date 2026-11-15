@@ -178,6 +178,30 @@ public class PlayerMove : MonoBehaviour
     // isRunKeyHeld가 true로 눌러붙어 Shift를 떼도 계속 달리는 버그가 생길 수 있어 제거했다.)
     private InputAction runAction;
 
+    // Camera.main은 호출할 때마다 MainCamera 태그를 단 오브젝트를 씬에서 찾는다.
+    // 마우스 좌표는 프레임마다 읽으므로 한 번 찾은 카메라를 들고 있는다.
+    // 씬이 바뀌어 캐시가 날아가면(파괴된 카메라는 null로 평가된다) 그때 다시 찾는다.
+    private Camera cachedMainCam;
+    private Camera MainCam
+    {
+        get
+        {
+            if (cachedMainCam == null) cachedMainCam = Camera.main;
+            return cachedMainCam;
+        }
+    }
+
+    /// <summary>마우스 포인터의 월드 좌표(z=0). 네 군데에서 같은 식을 쓰고 있어 한곳으로 모았다.</summary>
+    private Vector3 MouseWorldPoint()
+    {
+        var cam = MainCam;
+        if (cam == null) return Vector3.zero;
+
+        Vector3 p = cam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        p.z = 0f;
+        return p;
+    }
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -296,7 +320,7 @@ public class PlayerMove : MonoBehaviour
         anim.SetFloat("Speed", inputVec.magnitude);
 
         // 시점은 이동 방향이 아니라 마우스 포인터 기준 (제자리에서도 마우스를 보고 즉시 돌아본다)
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 mouseWorldPos = MouseWorldPoint();
         IsFacingRight = mouseWorldPos.x >= transform.position.x;
         spriteRenderer.flipX = !IsFacingRight;
     }
@@ -318,7 +342,7 @@ public class PlayerMove : MonoBehaviour
         if (isDodging || event_time || isDead || dodgeCooldownTimer > 0f) return;
         if (currentStamina < dodgeStaminaCost)
         {
-            Debug.Log("스태미너가 부족해 회피할 수 없습니다.");
+            GameLog.Log("스태미너가 부족해 회피할 수 없습니다.");
             return;
         }
 
@@ -417,8 +441,7 @@ public class PlayerMove : MonoBehaviour
 
     private void OnMouseClick()
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        mouseWorldPos.z = 0;
+        Vector3 mouseWorldPos = MouseWorldPoint();
 
         ItemData equipped = playerQuickSlot != null ? playerQuickSlot.currentEquippedItemData : null;
 
@@ -449,7 +472,7 @@ public class PlayerMove : MonoBehaviour
                 string requiredTool = target.RequiredToolType;
                 if (!string.IsNullOrEmpty(requiredTool) && equipped.type != requiredTool)
                 {
-                    Debug.Log($"{hit.name}을(를) 다루려면 '{requiredTool}' 도구가 필요합니다.");
+                    GameLog.Log($"{hit.name}을(를) 다루려면 '{requiredTool}' 도구가 필요합니다.");
                     continue; // 뒤에 있는 다른 대상은 계속 확인한다
                 }
 
@@ -478,7 +501,7 @@ public class PlayerMove : MonoBehaviour
 
         if (currentStamina < staminaCost)
         {
-            Debug.Log("스태미너가 부족해 행동할 수 없습니다.");
+            GameLog.Log("스태미너가 부족해 행동할 수 없습니다.");
             return false;
         }
 
@@ -494,8 +517,7 @@ public class PlayerMove : MonoBehaviour
     // 어느 방향에서 접근하든 판정 거리가 일관된다(모서리 기준이면 접근 방향에 따라 들쭉날쭉해짐).
     private bool TryGetTargetedTile(out Vector3Int tilePos)
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        mouseWorldPos.z = 0;
+        Vector3 mouseWorldPos = MouseWorldPoint();
 
         tilePos = farmTilemap.WorldToCell(mouseWorldPos);
         tilePos.z = 0;
@@ -616,7 +638,7 @@ public class PlayerMove : MonoBehaviour
         {
             // 포인트 지급은 PlayerStats가 소유한다. 레벨당 지급량도 그쪽 설정이다.
             playerStats.GrantLevelUpPoints(gainedLevels);
-            Debug.Log($"레벨 업! Lv.{level}  (스탯 +{playerStats.statPointsPerLevel * gainedLevels}, " +
+            GameLog.Log($"레벨 업! Lv.{level}  (스탯 +{playerStats.statPointsPerLevel * gainedLevels}, " +
                       $"스킬 +{playerStats.skillPointsPerLevel * gainedLevels})");
         }
     }
@@ -691,7 +713,7 @@ public class PlayerMove : MonoBehaviour
 
     private Vector2 GetMouseWorldPosition()
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 mouseWorldPos = MouseWorldPoint();
         return new Vector2(mouseWorldPos.x, mouseWorldPos.y);
     }
 
@@ -750,7 +772,7 @@ public class PlayerMove : MonoBehaviour
 
         if (!check.canPlace)
         {
-            if (!string.IsNullOrEmpty(check.reason)) Debug.Log(check.reason);
+            if (!string.IsNullOrEmpty(check.reason)) GameLog.Log(check.reason);
             return;
         }
         if (Inventory.instance == null || playerQuickSlot == null) return;
@@ -829,7 +851,7 @@ public class PlayerMove : MonoBehaviour
             site.RefundDeposited();
             if (site.HasDeposited)
             {
-                Debug.Log("인벤토리 공간이 부족해 재료를 다 돌려받지 못했습니다. 비운 뒤 다시 회수하세요.");
+                GameLog.Log("인벤토리 공간이 부족해 재료를 다 돌려받지 못했습니다. 비운 뒤 다시 회수하세요.");
                 return false;
             }
         }

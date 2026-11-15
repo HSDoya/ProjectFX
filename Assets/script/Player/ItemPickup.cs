@@ -46,14 +46,14 @@ public class ItemPickup : MonoBehaviour
 
         if (inv.AddItem(item))
         {
-            Debug.Log($"{data.displayName} {originalQuantity}개 획득!");
+            GameLog.Log($"{data.displayName} {originalQuantity}개 획득!");
             Destroy(gameObject);
             return;
         }
 
         // 전부 넣었을 때만 없앤다. 예전엔 일부만 들어가도 Destroy해서 남은 수량이 그대로 증발했다.
         amount = item.quantity; // 못 넣은 만큼만 남겨두고, 자리를 비운 뒤 다시 주울 수 있게 한다
-        Debug.Log($"인벤토리가 가득 차서 {data.displayName}을(를) {item.quantity}개 남겼습니다.");
+        GameLog.Log($"인벤토리가 가득 차서 {data.displayName}을(를) {item.quantity}개 남겼습니다.");
     }
 
     // 에디터에서 편하게 셋업하려고 공개 Getter 제공(선택)

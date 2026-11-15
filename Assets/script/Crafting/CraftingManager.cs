@@ -27,7 +27,7 @@ public class CraftingManager : MonoBehaviour
     {
         if (instance != null)
         {
-            Debug.LogWarning("More than one CraftingManager found!");
+            GameLog.LogWarning("More than one CraftingManager found!");
             Destroy(gameObject);
             return;
         }
@@ -91,7 +91,7 @@ public class CraftingManager : MonoBehaviour
         // 대기 시간 동안 재료를 다른 데 써버렸을 수 있으니 지급 직전에 다시 확인
         if (!CanCraft(recipe))
         {
-            Debug.Log("제작 중 재료가 부족해져서 제작이 취소되었습니다.");
+            GameLog.Log("제작 중 재료가 부족해져서 제작이 취소되었습니다.");
             ResetCraftingState();
             yield break;
         }
@@ -101,7 +101,7 @@ public class CraftingManager : MonoBehaviour
         //   AddItem부터 호출하면 결과물 일부는 받았는데 재료는 안 깎인 공짜 제작이 된다.
         if (!Inventory.instance.CanAcceptItem(recipe.resultItem, recipe.resultAmount))
         {
-            Debug.Log("인벤토리가 가득 차서 제작할 수 없습니다.");
+            GameLog.Log("인벤토리가 가득 차서 제작할 수 없습니다.");
             ResetCraftingState();
             yield break;
         }
@@ -116,7 +116,7 @@ public class CraftingManager : MonoBehaviour
             Inventory.instance.TryConsumeItems(ingredient.item.itemID, ingredient.amount);
         }
 
-        Debug.Log($"{recipe.resultItem.displayName} 제작 완료!");
+        GameLog.Log($"{recipe.resultItem.displayName} 제작 완료!");
         ResetCraftingState();
     }
 

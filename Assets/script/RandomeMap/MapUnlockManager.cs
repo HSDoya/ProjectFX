@@ -46,7 +46,7 @@ public class MapUnlockManager : MonoBehaviour
 
         if (!isFree)
         {
-            Debug.Log($" {coord} 구역을 {baseUnlockCost} 골드에 개방했습니다!");
+            GameLog.Log($" {coord} 구역을 {baseUnlockCost} 골드에 개방했습니다!");
         }
 
         chunkStates[coord] = ChunkState.Unlocked;

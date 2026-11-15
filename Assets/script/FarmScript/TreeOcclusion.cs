@@ -1,19 +1,19 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class TreeOcclusion : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ¼û¾úÀ» ¶§ ³ª¹«ÀÇ Åõ¸íµµ (0~1)")]
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ìˆ¨ì—ˆì„ ë•Œ ë‚˜ë¬´ì˜ íˆ¬ëª…ë„ (0~1)")]
     public float transparencyAlpha = 0.5f;
 
-    [Tooltip("¼û¾úÀ» ¶§ ÇÃ·¹ÀÌ¾î »ö»ó (¾îµÎ¿î È¸»ö)")]
+    [Tooltip("ìˆ¨ì—ˆì„ ë•Œ í”Œë ˆì´ì–´ ìƒ‰ìƒ (ì–´ë‘ìš´ íšŒìƒ‰)")]
     public Color hiddenPlayerColor = new Color(0.4f, 0.4f, 0.4f, 1f);
 
-    [Tooltip("¾Æ¿ô¶óÀÎ È¿°ú°¡ ÀÖ´Â ÇÃ·¹ÀÌ¾î ¸ÓÆ¼¸®¾ó")]
-    public Material outlineMaterial; // À§¿¡¼­ ¸¸µç Mat_PlayerOutline ¿¬°á
+    [Tooltip("ì•„ì›ƒë¼ì¸ íš¨ê³¼ê°€ ìˆëŠ” í”Œë ˆì´ì–´ ë¨¸í‹°ë¦¬ì–¼")]
+    public Material outlineMaterial; // ìœ„ì—ì„œ ë§Œë“  Mat_PlayerOutline ì—°ê²°
 
     private SpriteRenderer treeRenderer;
-    private Material defaultPlayerMaterial; // ¿ø·¡ ÇÃ·¹ÀÌ¾î ¸ÓÆ¼¸®¾ó ÀúÀå¿ë
+    private Material defaultPlayerMaterial; // ì›ë˜ í”Œë ˆì´ì–´ ë¨¸í‹°ë¦¬ì–¼ ì €ì¥ìš©
 
     private void Awake()
     {
@@ -22,10 +22,10 @@ public class TreeOcclusion : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Player ÅÂ±×¸¦ °¡Áø ¹°Ã¼°¡ µé¾î¿Ô´ÂÁö È®ÀÎ
+        // Player íƒœê·¸ë¥¼ ê°€ì§„ ë¬¼ì²´ê°€ ë“¤ì–´ì™”ëŠ”ì§€ í™•ì¸
         if (collision.CompareTag("Player"))
         {
-            // 1. ³ª¹« ¹İÅõ¸íÇÏ°Ô º¯°æ
+            // 1. ë‚˜ë¬´ ë°˜íˆ¬ëª…í•˜ê²Œ ë³€ê²½
             if (treeRenderer != null)
             {
                 Color color = treeRenderer.color;
@@ -33,14 +33,14 @@ public class TreeOcclusion : MonoBehaviour
                 treeRenderer.color = color;
             }
 
-            // 2. ÇÃ·¹ÀÌ¾î ½Ã°¢ È¿°ú º¯°æ
+            // 2. í”Œë ˆì´ì–´ ì‹œê° íš¨ê³¼ ë³€ê²½
             SpriteRenderer playerSR = collision.GetComponent<SpriteRenderer>();
             if (playerSR != null)
             {
-                // ¿ø·¡ ¸ÓÆ¼¸®¾ó ¹é¾÷
+                // ì›ë˜ ë¨¸í‹°ë¦¬ì–¼ ë°±ì—…
                 defaultPlayerMaterial = playerSR.material;
 
-                // »ö»ó ¾îµÓ°Ô & ¾Æ¿ô¶óÀÎ ¸ÓÆ¼¸®¾ó Àû¿ë
+                // ìƒ‰ìƒ ì–´ë‘¡ê²Œ & ì•„ì›ƒë¼ì¸ ë¨¸í‹°ë¦¬ì–¼ ì ìš©
                 playerSR.color = hiddenPlayerColor;
                 playerSR.material = outlineMaterial;
             }
@@ -51,7 +51,7 @@ public class TreeOcclusion : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            // 1. ³ª¹« Åõ¸íµµ ¿ø»óº¹±¸
+            // 1. ë‚˜ë¬´ íˆ¬ëª…ë„ ì›ìƒë³µêµ¬
             if (treeRenderer != null)
             {
                 Color color = treeRenderer.color;
@@ -59,13 +59,13 @@ public class TreeOcclusion : MonoBehaviour
                 treeRenderer.color = color;
             }
 
-            // 2. ÇÃ·¹ÀÌ¾î ½Ã°¢ È¿°ú ¿ø»óº¹±¸
+            // 2. í”Œë ˆì´ì–´ ì‹œê° íš¨ê³¼ ì›ìƒë³µêµ¬
             SpriteRenderer playerSR = collision.GetComponent<SpriteRenderer>();
             if (playerSR != null)
             {
-                playerSR.color = Color.white; // ¿ø·¡ »ö(Èò»ö)
+                playerSR.color = Color.white; // ì›ë˜ ìƒ‰(í°ìƒ‰)
 
-                // ¸ÓÆ¼¸®¾óÀÌ ÀÖ´Ù¸é ¿ø·¡´ë·Î º¹±¸
+                // ë¨¸í‹°ë¦¬ì–¼ì´ ìˆë‹¤ë©´ ì›ë˜ëŒ€ë¡œ ë³µêµ¬
                 if (defaultPlayerMaterial != null)
                 {
                     playerSR.material = defaultPlayerMaterial;

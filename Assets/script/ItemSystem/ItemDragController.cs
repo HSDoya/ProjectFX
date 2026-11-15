@@ -93,7 +93,7 @@ public class ItemDragController : MonoBehaviour
             // 어느 칸이 무엇을 기대했는지 남긴다 (Armor를 Hat 칸에 놓는 실수가 가장 흔하다).
             if (targetSlot is EquipmentSlotUI equipmentSlot)
             {
-                Debug.Log($"{equipmentSlot.slotType} 칸에는 {draggedItem.data.displayName}" +
+                GameLog.Log($"{equipmentSlot.slotType} 칸에는 {draggedItem.data.displayName}" +
                           $"(을)를 넣을 수 없습니다. 이 아이템은 {draggedItem.data.equipSlot} 칸용입니다.");
             }
 
@@ -190,7 +190,7 @@ public class ItemDragController : MonoBehaviour
                 if (!ok)
                 {
                     // 인벤 꽉 참 -> 장착 취소(원복)
-                    Debug.Log("인벤토리가 꽉 차서 장비를 교체할 수 없습니다.");
+                    GameLog.Log("인벤토리가 꽉 차서 장비를 교체할 수 없습니다.");
                     EquipmentManager.instance.Equip(eqDst.slotType, replaced); // 다시 원래 장비 장착
                     Inventory.instance.AddItem(taken); // 빼낸 아이템 다시 인벤으로
                 }
@@ -209,7 +209,7 @@ public class ItemDragController : MonoBehaviour
         // 기획에 따라 장비<->인벤아이템 스왑을 허용할 수도 있지만, 복잡하므로 여기선 빈칸일 때만.
         if (invDst.CurrentItem != null)
         {
-            Debug.Log("장비 해제는 빈 슬롯으로만 가능합니다.");
+            GameLog.Log("장비 해제는 빈 슬롯으로만 가능합니다.");
             // (필요하면 여기서 Swap 로직을 구현할 수도 있습니다)
             return;
         }
