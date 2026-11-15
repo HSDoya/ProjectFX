@@ -29,6 +29,9 @@ public class StatPanelUI : MonoBehaviour
     [Tooltip("스탯이 실제로 무엇을 바꾸는지 보여주는 요약")]
     public TextMeshProUGUI derivedText;
 
+    [Tooltip("찍은 스탯을 전부 되돌리는 버튼. 없으면 기능만 생략된다.")]
+    public Button resetButton;
+
     [Header("색")]
     public Color plusEnabledColor = new Color(0.3f, 0.55f, 0.32f);
     public Color plusDisabledColor = new Color(0.3f, 0.3f, 0.3f);
@@ -45,6 +48,8 @@ public class StatPanelUI : MonoBehaviour
             var captured = row.stat; // 람다가 루프 변수를 잡으면 전부 마지막 값이 된다
             row.plusButton.onClick.AddListener(() => OnPlusClicked(captured));
         }
+
+        if (resetButton != null) resetButton.onClick.AddListener(OnResetClicked);
     }
 
     private void OnEnable()
@@ -78,14 +83,23 @@ public class StatPanelUI : MonoBehaviour
         Resolve();
         if (stats == null) return;
 
-        stats.Spend(stat); // 남은 포인트가 없으면 아무것도 하지 않는다. 갱신은 OnStatsChanged가 처리한다.
+        stats.Spend(stat); // 남은 포인트가 없거나 상한이면 아무것도 하지 않는다. 갱신은 OnStatsChanged가 처리한다.
+    }
+
+    private void OnResetClicked()
+    {
+        Resolve();
+        if (stats == null) return;
+
+        int refunded = stats.ResetStats();
+        if (refunded > 0) GameLog.Log($"[Stats] 스탯 초기화 - {refunded}포인트를 돌려받았다.");
     }
 
     private void Refresh()
     {
         Resolve();
 
-        bool canSpend = stats != null && stats.availableStatPoints > 0;
+        bool hasPoints = stats != null && stats.availableStatPoints > 0;
 
         foreach (var row in rows)
         {
@@ -93,20 +107,31 @@ public class StatPanelUI : MonoBehaviour
 
             if (row.nameText != null) row.nameText.text = row.stat.ToString();
 
-            if (row.valueText != null)
-            {
-                int value = stats != null ? stats.Value(row.stat) : PlayerStats.BaseValue;
-                int spent = stats != null ? stats.Allocated(row.stat) : 0;
-                // 찍은 포인트가 있으면 "10 (+3)" 형태로 기본값과 투자분을 구분해서 보여준다.
-                row.valueText.text = spent > 0 ? $"{value}  (+{spent})" : value.ToString();
-            }
+            if (row.valueText != null) row.valueText.text = BuildValueText(row.stat);
 
             if (row.plusButton != null)
             {
+                // 상한에 닿은 줄은 포인트가 남아 있어도 끈다. 눌러도 거절당하는 버튼을 켜두면
+                // "눌렀는데 왜 안 오르지"가 된다.
+                bool canSpend = stats != null && stats.CanSpend(row.stat);
                 row.plusButton.interactable = canSpend;
                 if (row.plusButton.targetGraphic != null)
                     row.plusButton.targetGraphic.color = canSpend ? plusEnabledColor : plusDisabledColor;
             }
+        }
+
+        if (resetButton != null)
+        {
+            // 되돌릴 게 있을 때만 켠다.
+            bool anySpent = false;
+            if (stats != null)
+            {
+                foreach (var row in rows)
+                {
+                    if (row != null && stats.Allocated(row.stat) > 0) { anySpent = true; break; }
+                }
+            }
+            resetButton.interactable = anySpent;
         }
 
         if (statPointsText != null)
@@ -116,6 +141,29 @@ public class StatPanelUI : MonoBehaviour
             skillPointsText.text = stats != null ? $"Skill points : {stats.availableSkillPoints}" : "Skill points : -";
 
         if (derivedText != null) derivedText.text = BuildDerivedText();
+    }
+
+    // 한 줄의 수치 표시. 기본값/투자분/스킬 보너스를 구분해서 보여준다.
+    //   아무것도 없음 : "10"
+    //   투자만        : "13  (+3)"
+    //   스킬만        : "12  (+2 skill)"
+    //   둘 다         : "15  (+3, +2 skill)"
+    //   상한 도달     : "100  (+90)  MAX"
+    private string BuildValueText(StatType stat)
+    {
+        if (stats == null) return PlayerStats.BaseValue.ToString();
+
+        int value = stats.Value(stat);
+        int spent = stats.Allocated(stat);
+        int fromSkill = stats.SkillBonus(stat);
+
+        var parts = new List<string>();
+        if (spent > 0) parts.Add($"+{spent}");
+        if (fromSkill > 0) parts.Add($"+{fromSkill} skill");
+
+        string text = parts.Count > 0 ? $"{value}  ({string.Join(", ", parts)})" : value.ToString();
+        if (stats.AtCap(stat)) text += "  MAX";
+        return text;
     }
 
     // 스탯이 실제로 바꾼 값을 그대로 읽어서 보여준다. 여기서 다시 계산하면 공식이 두 벌이 된다.

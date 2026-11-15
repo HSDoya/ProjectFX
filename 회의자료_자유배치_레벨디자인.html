@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자유 배치와 레벨 디자인</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* 레이아웃: 단일 컬럼 결정 브리프. 번호는 실제 순서를 뜻하므로 장식이 아니다. */
+:root{
+  --bg:#f7f7f4; --surface:#ffffff; --surface-2:#f1f2ed;
+  --fg:#1d211e; --muted:#646d66; --line:#e0e3dd; --line-strong:#c9cec5;
+  --accent:#4a7c59; --accent-soft:#e7efe8; --accent-ink:#2f5239;
+  --warn:#a8542a; --warn-soft:#f8ece4;
+  --display:'Gowun Batang', 'Nanum Myeongjo', Georgia, serif;
+  --body:'IBM Plex Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#131614; --surface:#1b1f1c; --surface-2:#20251f;
+    --fg:#e4e8e3; --muted:#9aa49c; --line:#2b312c; --line-strong:#3c443d;
+    --accent:#7fb98d; --accent-soft:#1d2c21; --accent-ink:#a9d6b3;
+    --warn:#d98b5f; --warn-soft:#2e2019;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131614; --surface:#1b1f1c; --surface-2:#20251f;
+  --fg:#e4e8e3; --muted:#9aa49c; --line:#2b312c; --line-strong:#3c443d;
+  --accent:#7fb98d; --accent-soft:#1d2c21; --accent-ink:#a9d6b3;
+  --warn:#d98b5f; --warn-soft:#2e2019;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--body); font-size:16px; line-height:1.75;
+  font-feature-settings:"tnum" 0;
+}
+.wrap{
+  max-width:52rem; margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:3.5rem 5rem;
+}
+
+/* ── 머리말 ───────────────────────────── */
+.eyebrow{
+  font-size:.78rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; margin:0 0 .9rem;
+}
+h1{
+  font-family:var(--display); font-weight:700;
+  font-size:clamp(2rem, 5.5vw, 2.9rem); line-height:1.25;
+  margin:0 0 1rem; text-wrap:balance; letter-spacing:-.01em;
+}
+.meta{color:var(--muted); font-size:.9rem; margin:0 0 2.5rem}
+
+.decision{
+  border:1px solid var(--line); border-left:3px solid var(--accent);
+  background:var(--surface); border-radius:0 6px 6px 0;
+  padding:1.1rem 1.3rem; margin:0 0 1.75rem;
+}
+.decision h2{
+  font-family:var(--body); font-size:.78rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--accent-ink);
+  margin:0 0 .6rem;
+}
+.decision ol{margin:0; padding-left:1.2rem}
+.decision li{margin:.2rem 0}
+
+.thesis{
+  font-family:var(--display); font-size:clamp(1.15rem,2.8vw,1.4rem);
+  line-height:1.6; margin:0 0 3rem; padding:0 0 0 1.1rem;
+  border-left:3px solid var(--line-strong); color:var(--fg); text-wrap:balance;
+}
+
+/* ── 섹션 ─────────────────────────────── */
+section{margin:0 0 3.25rem}
+h2.sec{
+  font-family:var(--display); font-weight:700;
+  font-size:clamp(1.3rem,3.4vw,1.6rem); line-height:1.35;
+  margin:0 0 1rem; text-wrap:balance;
+  display:flex; gap:.7rem; align-items:baseline;
+}
+h2.sec .n{
+  font-family:var(--body); font-size:.82rem; font-weight:700;
+  color:var(--accent); letter-spacing:.06em;
+  font-variant-numeric:tabular-nums; flex:none; padding-top:.25rem;
+}
+h3{
+  font-family:var(--body); font-size:1.02rem; font-weight:700;
+  margin:2rem 0 .65rem; color:var(--fg);
+}
+h4{font-family:var(--body); font-size:.95rem; font-weight:600; margin:1.25rem 0 .4rem}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1rem; padding-left:1.35rem}
+li{margin:.3rem 0}
+strong{font-weight:700}
+em{font-style:normal; color:var(--accent-ink); font-weight:600}
+hr{border:0; border-top:1px solid var(--line); margin:2.5rem 0}
+
+/* ── 표 ───────────────────────────────── */
+.tablewrap{overflow-x:auto; margin:0 0 1.25rem; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; min-width:30rem; font-size:.92rem}
+th,td{
+  text-align:left; vertical-align:top; padding:.68rem .8rem;
+  border-bottom:1px solid var(--line);
+}
+thead th{
+  font-size:.78rem; font-weight:700; letter-spacing:.04em;
+  color:var(--muted); border-bottom:1px solid var(--line-strong);
+  white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600; white-space:nowrap}
+table.wide td:first-child{white-space:normal}
+
+/* ── 원칙 강조 ────────────────────────── */
+.rule{
+  background:var(--accent-soft); border-radius:6px;
+  padding:1rem 1.25rem; margin:1.5rem 0;
+  font-family:var(--display); font-size:1.1rem; line-height:1.55;
+  color:var(--accent-ink); text-wrap:balance;
+}
+
+/* ── 루프 ─────────────────────────────── */
+.loop{
+  border:1px solid var(--line); border-radius:8px;
+  background:var(--surface); padding:1.25rem; margin:1.25rem 0;
+}
+.loop ol{list-style:none; margin:0; padding:0; counter-reset:step}
+.loop li{
+  counter-increment:step; position:relative;
+  padding:.45rem 0 .45rem 2.4rem; margin:0; font-size:.95rem;
+}
+.loop li::before{
+  content:counter(step); position:absolute; left:0; top:.5rem;
+  width:1.55rem; height:1.55rem; border-radius:50%;
+  background:var(--accent-soft); color:var(--accent-ink);
+  font-size:.78rem; font-weight:700; font-family:var(--body);
+  display:flex; align-items:center; justify-content:center;
+  font-variant-numeric:tabular-nums;
+}
+.loop li:not(:last-child)::after{
+  content:""; position:absolute; left:.75rem; top:2.1rem; bottom:-.05rem;
+  width:1px; background:var(--line-strong);
+}
+.loop .back{
+  margin:.75rem 0 0; padding-left:2.4rem;
+  font-size:.86rem; color:var(--accent-ink); font-weight:600;
+}
+
+/* ── 갈림길 카드 ──────────────────────── */
+.fork{display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.25rem 0}
+@media (max-width:640px){.fork{grid-template-columns:1fr}}
+.fork article{
+  border:1px solid var(--line); border-radius:8px;
+  background:var(--surface); padding:1.1rem 1.2rem;
+  display:flex; flex-direction:column; gap:.55rem;
+}
+.fork article.heavy{border-color:var(--warn); background:var(--warn-soft)}
+.fork h4{margin:0; font-size:.97rem; font-weight:700}
+.fork dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:.3rem .7rem; font-size:.88rem}
+.fork dt{color:var(--muted); font-weight:600; white-space:nowrap}
+.fork dd{margin:0}
+
+.callout{
+  border-left:3px solid var(--warn); background:var(--warn-soft);
+  padding:.95rem 1.2rem; border-radius:0 6px 6px 0; margin:1.25rem 0;
+  font-size:.95rem;
+}
+.callout p:last-child{margin-bottom:0}
+
+/* ── 개발 단계 ────────────────────────── */
+.stage{
+  border:1px solid var(--line); border-radius:8px; background:var(--surface);
+  padding:1.1rem 1.25rem; margin:0 0 .85rem;
+}
+.stage.main{border-color:var(--accent); border-width:1px 1px 1px 3px}
+.stage h4{
+  margin:0 0 .5rem; font-size:.97rem; font-weight:700;
+  display:flex; gap:.6rem; align-items:baseline; flex-wrap:wrap;
+}
+.stage h4 .tag{
+  font-size:.7rem; font-weight:700; letter-spacing:.06em;
+  background:var(--accent-soft); color:var(--accent-ink);
+  padding:.15rem .5rem; border-radius:3px; white-space:nowrap;
+}
+.stage ul{margin:0 0 .75rem; font-size:.93rem}
+.check{
+  margin:0; padding:.55rem .85rem; border-radius:5px;
+  background:var(--surface-2); font-size:.88rem; color:var(--muted);
+}
+.check b{color:var(--fg); font-weight:600}
+
+/* ── 체크리스트 ───────────────────────── */
+ol.decide{list-style:none; counter-reset:d; padding:0; margin:1rem 0 0}
+ol.decide li{
+  counter-increment:d; position:relative;
+  padding:.75rem 0 .75rem 2.6rem; border-bottom:1px solid var(--line);
+}
+ol.decide li:last-child{border-bottom:0}
+ol.decide li::before{
+  content:counter(d); position:absolute; left:0; top:.8rem;
+  width:1.7rem; height:1.7rem; border-radius:4px;
+  border:1px solid var(--line-strong); color:var(--muted);
+  font-size:.8rem; font-weight:700; font-family:var(--body);
+  display:flex; align-items:center; justify-content:center;
+  font-variant-numeric:tabular-nums;
+}
+ol.decide .sub{display:block; color:var(--muted); font-size:.88rem; margin-top:.1rem}
+
+footer{
+  margin-top:4rem; padding-top:1.5rem; border-top:1px solid var(--line);
+  color:var(--muted); font-size:.86rem;
+}
+
+/* ── 인쇄 ─────────────────────────────── */
+@media print{
+  :root{
+    --bg:#fff; --surface:#fff; --surface-2:#f4f4f1;
+    --fg:#000; --muted:#555; --line:#ccc; --line-strong:#999;
+    --accent:#2f5239; --accent-soft:#eef3ee; --accent-ink:#2f5239;
+    --warn:#8a4420; --warn-soft:#f7efe9;
+  }
+  body{font-size:10.5pt; line-height:1.6}
+  .wrap{max-width:none; padding:0}
+  section{margin-bottom:1.6rem; break-inside:avoid-page}
+  h2.sec{break-after:avoid}
+  h3,h4{break-after:avoid}
+  .stage,.fork article,.loop,.rule,.callout,.decision{break-inside:avoid}
+  .tablewrap{overflow:visible}
+  table{min-width:0; font-size:9.5pt}
+  tr{break-inside:avoid}
+  footer{break-before:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow">개발 회의 — 방향 확정 이후</p>
+<h1>자유 배치와 레벨 디자인</h1>
+<p class="meta">2026-10-25 · 건물 위치를 플레이어가 정하기로 한 결정에 따른 정리</p>
+
+<div class="decision">
+  <h2>확정된 방향</h2>
+  <ol>
+    <li>플레이어 자유</li>
+    <li>건물 위치를 플레이어가 지정</li>
+    <li>따라서 <strong>안전지대를 미리 생성하지 않는다</strong></li>
+  </ol>
+</div>
+
+<p class="thesis">자유 배치를 택한 순간, 재미를 만드는 책임이 시스템에서 <strong>지형</strong>으로 넘어갔습니다. 지형이 밋밋하면 자유는 그냥 막막함이 됩니다.</p>
+
+<!-- 1 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">01</span>레벨 디자인의 역할이 뒤집힙니다</h2>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th></th><th>안전지대를 만들 때</th><th>안전지대를 안 만들 때 (확정)</th></tr></thead>
+      <tbody>
+        <tr><td>레벨 디자인이 하는 일</td><td>안전한 곳과 위험한 곳을 <strong>배치</strong>한다</td><td>“여기 지으면 좋겠다”고 판단할 <strong>근거를 심는다</strong></td></tr>
+        <tr><td>플레이어가 하는 일</td><td>주어진 곳에 산다</td><td><strong>안전을 직접 만든다</strong></td></tr>
+        <tr><td>지형의 역할</td><td>무대</td><td><strong>의사결정 재료</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="rule">좋은 자리가 하나뿐이면 그건 자유가 아니라 퍼즐입니다.</p>
+
+  <p>명백한 최적해가 있으면 플레이어는 자유를 느끼는 게 아니라 정답을 찾습니다. 그리고 두 번째 플레이에서 똑같은 자리에 짓습니다. 자유 배치가 성립하려면 <strong>서로 다른 장단점을 가진 자리가 여럿</strong> 있어야 합니다.</p>
+
+  <p>그래서 레벨 디자인의 실제 작업은 <em>트레이드오프를 지형으로 만드는 일</em>이 됩니다. 아래 표가 곧 작업 목록입니다.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>자리</th><th>얻는 것</th><th>잃는 것</th></tr></thead>
+      <tbody>
+        <tr><td>해안</td><td>배·이동 유리, 시야 트임</td><td>사방에서 접근 가능</td></tr>
+        <tr><td>강 사이 좁은 목</td><td>한쪽만 막으면 됨</td><td>확장할 공간이 좁다</td></tr>
+        <tr><td>언덕 위</td><td>시야, 방어 유리</td><td>자원까지 왕복이 멀다</td></tr>
+        <tr><td>숲 한가운데</td><td>나무가 바로 옆</td><td>시야 없음, 확장하려면 벌목부터</td></tr>
+        <tr><td>자원 밀집지</td><td>채집 효율 최고</td><td>적도 몰린다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 2 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">02</span>이 결정이 자동으로 끌고 오는 조건 두 개</h2>
+
+  <h3>조건 A — 위협 설계가 필수가 됩니다</h3>
+  <p>안전지대를 안 만든다는 건 <strong>안전은 플레이어가 만든다</strong>는 뜻입니다. 그런데 위험이 없으면 “안전지대 불필요”는 그냥 <strong>안전이라는 개념이 없음</strong>이 됩니다. 집을 지을 이유가 창고밖에 안 남습니다.</p>
+
+  <p>위협은 상시·주기·환경 세 종류인데, 이 결정과 가장 잘 맞는 건 <em>주기 위협(밤·습격)</em>입니다.</p>
+
+  <div class="loop">
+    <ol>
+      <li>밤이 온다</li>
+      <li>베이스로 돌아간다 — 베이스가 “내 자리”가 된다</li>
+      <li>허술하면 당한다</li>
+      <li>플레이어가 스스로 방어를 짓는다 — <strong>안전지대를 플레이어가 만든다</strong></li>
+      <li>어디에 지었는지가 밤에 결과로 돌아온다 — <strong>위치 선택이 검증된다</strong></li>
+    </ol>
+    <p class="back">↻ 다음 밤에 다시 — 매 주기마다 자리 선택이 재평가됩니다</p>
+  </div>
+
+  <p>이 루프가 “안전지대를 안 만든다”는 결정을 <strong>실제로 작동하게 만드는 메커니즘</strong>입니다. 상시 위협(돌아다니는 적)만 있으면 쉬는 시간이 없어 피곤하기만 하고, 환경 위협(추위)만 있으면 긴장이 생기지 않습니다.</p>
+
+  <h3>조건 B — 베이스 표식은 여전히 필요합니다</h3>
+  <p>위치는 자유여도, 시스템이 “여기가 네 베이스”를 알아야 하는 순간이 옵니다. 죽으면 어디서 부활하나 · 습격이 어디를 노리나 · 보관함이 어디 있나.</p>
+
+  <div class="callout">
+    <p><strong>“안전지대를 미리 생성하지 않는다”와 “베이스를 모른다”는 다릅니다.</strong></p>
+    <p>해법은 <strong>짓는 물건 중 하나가 표식 역할</strong>을 하는 것입니다(침대·화덕·깃발). 위치는 자유, 역할은 명시. 자유 배치 게임들이 전부 쓰는 방식입니다.</p>
+  </div>
+</section>
+
+<!-- 3 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">03</span>먼저 갈라야 할 갈림길</h2>
+
+  <p>“안전지대 생성 필요 없음”이 둘 중 어느 쪽인지에 따라 작업량이 크게 달라집니다.</p>
+
+  <div class="fork">
+    <article>
+      <h4>안 1 — 동적 안전지대</h4>
+      <p style="margin:0;font-size:.92rem">플레이어가 지은 것 <strong>주변 일정 범위</strong>가 안전해진다.</p>
+      <dl>
+        <dt>짓는 보상</dt><dd>즉각적 — “지었더니 안전해졌다”</dd>
+        <dt>필요한 것</dt><dd>범위 판정</dd>
+        <dt>작업량</dt><dd>작음</dd>
+        <dt>재미 깊이</dt><dd>얕음</dd>
+      </dl>
+    </article>
+    <article class="heavy">
+      <h4>안 2 — 안전지대 자체가 없음</h4>
+      <p style="margin:0;font-size:.92rem">안전 개념 없음. <strong>울타리·벽으로 물리적으로</strong> 막아야 한다.</p>
+      <dl>
+        <dt>짓는 보상</dt><dd>지연됨 — “잘 둘러쌌더니 안 뚫렸다”</dd>
+        <dt>필요한 것</dt><dd>적 길찾기 + 장애물 판정 + 파괴</dd>
+        <dt>작업량</dt><dd>큼</dd>
+        <dt>재미 깊이</dt><dd>깊음 — 배치가 곧 설계가 된다</dd>
+      </dl>
+    </article>
+  </div>
+
+  <div class="callout">
+    <p>안 2가 훨씬 재미있지만, 적이 벽을 제대로 인식하고 돌아가거나 부수는 로직이 있어야 성립합니다. 그게 없으면 플레이어가 공들여 지은 울타리를 적이 그냥 통과해서 <strong>짓는 의미가 없는 게임</strong>이 됩니다.</p>
+    <p>이걸 먼저 정하지 않으면 레벨 디자인도 방향을 못 잡습니다. 안 2면 <strong>좁은 목·절벽·막다른 지형이 전부 전략 자원</strong>이 되고, 안 1이면 그런 지형이 아무 의미가 없습니다.</p>
+  </div>
+</section>
+
+<!-- 4 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">04</span>이 결정에 맞춘 개발 순서</h2>
+
+  <div class="stage">
+    <h4>1단계 — 짓는 행위 자체가 재미있는가</h4>
+    <ul>
+      <li>건물 여러 종 자유 배치, 겹침·지형 제약 규칙</li>
+      <li>철거와 이동 — <strong>선택이 아니라 필수</strong> (06번 항목)</li>
+    </ul>
+    <p class="check"><b>검증</b> — 지형을 보고 “여기 짓고 싶다”는 생각이 드는가?</p>
+  </div>
+
+  <div class="stage">
+    <h4>2단계 — 위치 선택에 결과가 따르는가</h4>
+    <ul>
+      <li>밤 또는 습격 주기</li>
+      <li>베이스 표식 = 부활 지점</li>
+      <li>방어 요소 (울타리·문)</li>
+    </ul>
+    <p class="check"><b>검증</b> — 자리를 잘못 골라 고생하는 일이 생기는가? 그게 억울하지 않고 <b>“다음엔 저기”</b>가 되는가?</p>
+  </div>
+
+  <div class="stage main">
+    <h4>3단계 — 자리마다 다르게 느껴지는가 <span class="tag">본무대</span></h4>
+    <ul>
+      <li>지형 다양화 (해안·언덕·숲·강·개활지)</li>
+      <li>자원 분포 편차</li>
+      <li>적 분포 편차</li>
+    </ul>
+    <p class="check"><b>검증</b> — 두 번째 플레이에서 <b>다른 자리</b>를 고르는가?</p>
+  </div>
+
+  <div class="stage">
+    <h4>4단계 — 섬 밖으로</h4>
+    <ul>
+      <li>섬 간 이동, 섬별 특성</li>
+    </ul>
+  </div>
+
+  <p style="margin-top:1rem">1·2단계는 3단계를 검증할 수 있게 만드는 준비입니다. <strong>3단계가 이 방향의 본체이고, 가장 큰 비용입니다.</strong></p>
+</section>
+
+<!-- 5 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">05</span>레벨 디자인에서 구체적으로 정할 것</h2>
+
+  <h3>a. 지형 요소 목록 — 플레이어가 읽을 신호</h3>
+  <p>지금 땅·물 2종뿐입니다. 자유 배치는 <strong>읽을 게 있어야</strong> 성립하므로 여기가 가장 큰 작업 덩어리입니다.</p>
+  <ul>
+    <li>고도 (언덕·평지) — <strong>2D 탑다운에서 표현 방법을 정해야 하는 큰 결정</strong></li>
+    <li>수계 (강·호수·해안선 모양)</li>
+    <li>식생 밀도 (숲·빈터)</li>
+    <li>자원 노드 분포</li>
+    <li>적 스폰 구역</li>
+  </ul>
+
+  <h3>b. 신호의 가독성 — 짓기 <em>전에</em> 알 수 있어야 합니다</h3>
+  <p>짓고 나서야 알면 자유가 아니라 함정이 됩니다.</p>
+  <ul>
+    <li>적이 많은 곳 → 둥지·뼈·어두운 색조로 보이게</li>
+    <li>자원이 많은 곳 → 멀리서도 보이게</li>
+    <li>좁은 목·막다른 곳 → 지형 실루엣으로 읽히게</li>
+  </ul>
+
+  <h3>c. 섬 하나에 “성격이 다른 자리”를 몇 개 둘 것인가</h3>
+  <p><strong>제안: 3~5개.</strong> 적으면 선택이 없고, 많으면 섬 하나가 다 커버해버려 다른 섬에 갈 이유가 사라집니다. 이 숫자가 곧 <strong>섬 크기 결정</strong>과 직결됩니다 — 섬이 작으면 자리가 1~2개밖에 안 나옵니다.</p>
+
+  <h3>d. 생성 방식 — 완전 랜덤의 위험</h3>
+  <p>랜덤 생성이면 <strong>좋은 자리가 하나도 없는 섬</strong>이 나올 수 있습니다. 생성 후 보정하거나, “반드시 N개의 특징적 자리를 포함”하는 규칙 기반으로 가야 합니다.</p>
+</section>
+
+<!-- 6 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">06</span>이 방향의 리스크</h2>
+
+  <div class="tablewrap">
+    <table class="wide">
+      <thead><tr><th>리스크</th><th>대응</th></tr></thead>
+      <tbody>
+        <tr><td>초반 공백 — 자유 배치는 “뭘 해야 하지”를 안 알려줌</td><td>첫 10분을 채울 유도를 따로 설계 (첫 밤까지 집 짓기 같은 강제 목표)</td></tr>
+        <tr><td>잘못 고른 자리의 처벌</td><td><strong>철거·이사를 필수 기능으로.</strong> 없으면 자유가 아니라 함정이 된다</td></tr>
+        <tr><td>지형 작업량 — 이 방향의 최대 비용</td><td>들어올 타일·지형 에셋 일정을 3단계에 맞춰 잡기</td></tr>
+        <tr><td>쉬는 시간이 없음</td><td>위협에 리듬을 줄 것 (낮 = 안전, 밤 = 위험). 상시 위협만 있으면 피곤하기만 하다</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7 ───────────────────────────────── -->
+<section>
+  <h2 class="sec"><span class="n">07</span>회의에서 이어서 정할 것</h2>
+  <ol class="decide">
+    <li><strong>안전지대 갈림길</strong><span class="sub">동적 안전 범위인가, 물리적 방어(벽·길찾기)인가 — 03번 항목. 이게 레벨 디자인 방향을 결정합니다</span></li>
+    <li><strong>위협의 리듬</strong><span class="sub">밤이 있는가? 습격 주기가 있는가?</span></li>
+    <li><strong>베이스 표식을 무엇으로 할 것인가</strong><span class="sub">침대 · 화덕 · 깃발</span></li>
+    <li><strong>고도를 표현할 것인가</strong><span class="sub">2D 탑다운에서 가장 큰 기술·아트 결정</span></li>
+    <li><strong>섬 하나에 성격이 다른 자리 몇 개</strong><span class="sub">섬 크기와 함께 결정</span></li>
+  </ol>
+</section>
+
+<footer>
+  다음 작업의 무게중심은 건물 기능이 아니라 <strong>지형 다양화</strong>입니다.
+</footer>
+
+</div>
+</body>
+</html>

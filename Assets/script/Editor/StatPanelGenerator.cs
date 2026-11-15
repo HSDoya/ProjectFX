@@ -19,6 +19,7 @@ public static class StatPanelGenerator
     private static readonly Color ValueColor = Color.white;
     private static readonly Color SubColor = new Color(0.62f, 0.62f, 0.6f);
     private static readonly Color PlusColor = new Color(0.3f, 0.55f, 0.32f);
+    private static readonly Color ResetColor = new Color(0.46f, 0.3f, 0.3f);
 
     [MenuItem("Tools/UI 다시 만들기/스탯 탭만", false, 23)]
     public static void FillStatTab()
@@ -117,12 +118,45 @@ public static class StatPanelGenerator
         derived.gameObject.AddComponent<LayoutElement>().preferredHeight = 30;
         ui.derivedText = derived;
 
-        var hint = EditorUIBuilder.CreateChildText("Hint", panel,
+        // 푸터: 안내문(왼쪽) + 스탯 초기화 버튼(오른쪽)
+        var footer = EditorUIBuilder.CreateChildRect("Footer", panel);
+        footer.gameObject.AddComponent<LayoutElement>().preferredHeight = 32;
+        var footerLayout = footer.gameObject.AddComponent<HorizontalLayoutGroup>();
+        footerLayout.spacing = 16;
+        footerLayout.childAlignment = TextAnchor.MiddleLeft;
+        footerLayout.childControlWidth = true;
+        footerLayout.childControlHeight = true;
+        footerLayout.childForceExpandWidth = false;
+        footerLayout.childForceExpandHeight = true;
+
+        var hint = EditorUIBuilder.CreateChildText("Hint", footer,
             "Level up grants 3 stat points and 1 skill point.", 15, new Color(0.45f, 0.45f, 0.45f),
             TextAlignmentOptions.MidlineLeft);
-        hint.gameObject.AddComponent<LayoutElement>().preferredHeight = 24;
+        hint.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
+
+        ui.resetButton = BuildResetButton(footer);
 
         return panel.gameObject;
+    }
+
+    // 찍은 스탯을 전부 되돌리는 버튼. 되돌릴 게 없으면 StatPanelUI가 알아서 꺼둔다.
+    private static Button BuildResetButton(RectTransform parent)
+    {
+        var image = EditorUIBuilder.CreateChildImage("ResetButton", parent, ResetColor, fixedWidth: 120);
+
+        var layoutElement = image.gameObject.AddComponent<LayoutElement>();
+        layoutElement.preferredWidth = 120;
+        layoutElement.flexibleWidth = 0;
+
+        var button = image.gameObject.AddComponent<Button>();
+        button.targetGraphic = image;
+
+        var label = EditorUIBuilder.CreateChildText("Label", image.transform, "Reset stats", 15,
+                                                     Color.white, TextAlignmentOptions.Center);
+        EditorUIBuilder.StretchFull(label.rectTransform);
+        label.raycastTarget = false;
+
+        return button;
     }
 
     private static StatPanelUI.Row MakeRow(RectTransform parent, StatType stat)

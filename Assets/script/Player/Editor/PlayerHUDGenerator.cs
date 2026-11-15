@@ -12,6 +12,7 @@ public static class PlayerHUDGenerator
     private const string PrefabFolder = "Assets/script/Player/Prefabs";
 
     private static readonly Color LevelColor = new Color(1f, 0.804f, 0.235f);      // #FFCD3C
+    private static readonly Color LevelUpColor = new Color(1f, 0.925f, 0.455f);    // #FFEC74
     private static readonly Color HpLabelColor = new Color(1f, 0.702f, 0.671f);    // #FFB3AB
     private static readonly Color HpFillColor = new Color(0.937f, 0.325f, 0.314f); // #EF5350
     private static readonly Color StaLabelColor = new Color(0.718f, 0.910f, 0.643f); // #B7E8A4
@@ -96,7 +97,37 @@ public static class PlayerHUDGenerator
 
         hud.expFill = BuildStatRow(root, "ExpRow", "EXP", ExpLabelColor, ExpFillColor, 10, showValue: false, out _);
 
+        BuildLevelUpToast(root, hud);
+
         return EditorUIBuilder.SaveAndDestroy(root.gameObject, $"{PrefabFolder}/PlayerHUD.prefab");
+    }
+
+    // 레벨업 순간에만 잠깐 뜨는 알림.
+    //
+    // 루트에는 VerticalLayoutGroup + ContentSizeFitter가 걸려 있다. 그냥 자식으로 넣으면
+    // 떴다 사라질 때마다 HUD 전체 높이가 출렁이므로, LayoutElement.ignoreLayout으로
+    // 레이아웃 계산에서 빼고 패널 오른쪽에 절대 위치로 띄운다.
+    private static void BuildLevelUpToast(RectTransform root, PlayerHUD hud)
+    {
+        var text = EditorUIBuilder.CreateChildText("LevelUpText", root, "LEVEL UP!", 20,
+            LevelUpColor, TextAlignmentOptions.MidlineLeft);
+        text.fontStyle = FontStyles.Bold;
+        text.raycastTarget = false;
+
+        text.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
+
+        var rt = text.rectTransform;
+        rt.anchorMin = new Vector2(1, 1);
+        rt.anchorMax = new Vector2(1, 1);
+        rt.pivot = new Vector2(0, 1);
+        rt.sizeDelta = new Vector2(280, 30);
+        rt.anchoredPosition = new Vector2(12, -12); // 패널 오른쪽 바깥, 위쪽 정렬
+
+        AddTextShadow(text);
+
+        // 평소에는 꺼둔다. 켜는 것은 PlayerHUD가 레벨업 이벤트를 받았을 때만.
+        text.gameObject.SetActive(false);
+        hud.levelUpText = text;
     }
 
     // 라벨 + 바(Track/Fill) + (선택)수치 텍스트로 이루어진 한 줄을 만들고, 채움 정도를 나타내는

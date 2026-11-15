@@ -68,7 +68,8 @@ public class PlayerMove : MonoBehaviour
 
     // 레벨/경험치의 소유자. 체력·스태미너와 같은 자리에 둬서 PlayerHUD는 읽기만 하게 한다
     // (예전엔 PlayerHUD가 이 값들을 자기 필드로 들고 있어서, 경험치 시스템을 붙이는 순간
-    //  같은 수치를 두 곳이 갖는 상태가 됐다). 아직 경험치를 주는 코드는 없다.
+    //  같은 수치를 두 곳이 갖는 상태가 됐다).
+    // 경험치는 EnemyBaseAI.OnEnemyKilled -> AddExp 경로로 들어온다.
     [Header("레벨 / 경험치")]
     public int level = 1;
     public float currentExp = 0f;
@@ -81,6 +82,14 @@ public class PlayerMove : MonoBehaviour
     // 필요 경험치는 저장하지 않고 레벨에서 계산한다. 저장하면 레벨과 두 벌이 되어,
     // 한쪽만 바뀌면 영원히 레벨업하지 않는 상태가 생길 수 있다.
     public float ExpToNextLevel => baseExpToNextLevel * Mathf.Pow(expGrowthPerLevel, level - 1);
+
+    /// <summary>
+    /// 레벨이 올랐을 때. (새 레벨, 이번에 오른 레벨 수)
+    ///
+    /// HUD 연출이 이걸 듣는다. 예전엔 로그 한 줄이 전부였는데, 그 로그는 릴리즈 빌드에서
+    /// 제거되므로(GameLog) 플레이어가 레벨업을 알 방법이 아예 없었다.
+    /// </summary>
+    public event System.Action<int, int> OnLevelUp;
 
     [Header("스탯")]
     [Tooltip("스탯 포인트의 소유자. 비어 있으면 Awake에서 자동으로 붙인다.")]
@@ -634,13 +643,18 @@ public class PlayerMove : MonoBehaviour
 
         if (level >= maxLevel) currentExp = 0f; // 최대 레벨에서는 경험치를 쌓지 않는다
 
-        if (gainedLevels > 0 && playerStats != null)
+        if (gainedLevels <= 0) return;
+
+        if (playerStats != null)
         {
             // 포인트 지급은 PlayerStats가 소유한다. 레벨당 지급량도 그쪽 설정이다.
             playerStats.GrantLevelUpPoints(gainedLevels);
             GameLog.Log($"레벨 업! Lv.{level}  (스탯 +{playerStats.statPointsPerLevel * gainedLevels}, " +
                       $"스킬 +{playerStats.skillPointsPerLevel * gainedLevels})");
         }
+
+        // 포인트 지급 여부와 무관하게 연출은 띄운다. 레벨이 올랐다는 사실 자체가 알림 대상이다.
+        OnLevelUp?.Invoke(level, gainedLevels);
     }
 
     private void ApplyStatChange()

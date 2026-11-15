@@ -24,6 +24,12 @@ public class SkillTreeManager : MonoBehaviour
     private SkillNode[,] skillGrid;
     private bool generated;
 
+    // 해금한 스킬들이 주는 스탯 보너스의 합계. 해금 상태의 소유자가 여기이므로 합계도 여기서 센다.
+    // PlayerStats는 이 값을 통보받아 계산에만 쓴다(SetSkillBonuses).
+    private int[] grantedBonus;
+
+    private static readonly int StatCount = System.Enum.GetValues(typeof(StatType)).Length;
+
     // 포인트는 PlayerStats가 소유한다. 여기서 따로 들고 있지 않는다.
     private PlayerStats Stats => PlayerStats.Instance;
 
@@ -34,6 +40,8 @@ public class SkillTreeManager : MonoBehaviour
     // 패널이 꺼진 채로 시작하므로 Start가 아니라 처음 열릴 때 만든다.
     private void OnEnable()
     {
+        if (grantedBonus == null) grantedBonus = new int[StatCount];
+
         if (!generated)
         {
             generated = true;
@@ -48,6 +56,10 @@ public class SkillTreeManager : MonoBehaviour
             subscribed.OnStatsChanged -= RefreshPoints;
             subscribed.OnStatsChanged += RefreshPoints;
         }
+
+        // 해금 효과를 다시 통보한다. PlayerStats가 트리보다 늦게 깨어났어도 여기서 따라잡는다.
+        // 더하기가 아니라 덮어쓰기라서 패널을 몇 번 여닫아도 결과가 같다.
+        PushSkillBonuses();
 
         RefreshPoints();
     }
@@ -164,9 +176,37 @@ public class SkillTreeManager : MonoBehaviour
         node.SetState(NodeState.Unlocked);
 
         if (node.Data != null)
-            GameLog.Log($"[SkillTree] '{node.Data.displayName}' 스킬 언락됨");
+        {
+            ApplyBonus(node.Data);
+
+            string effect = node.Data.HasBonus
+                ? $"  ({node.Data.bonusStat} +{node.Data.bonusAmount})"
+                : string.Empty;
+            GameLog.Log($"[SkillTree] '{node.Data.displayName}' 스킬 언락됨{effect}");
+        }
 
         ActivateNeighbors(x, y);
+    }
+
+    // 해금된 스킬 하나의 보너스를 합계에 더하고 PlayerStats에 통보한다.
+    private void ApplyBonus(SkillData data)
+    {
+        if (data == null || !data.HasBonus) return;
+
+        if (grantedBonus == null) grantedBonus = new int[StatCount];
+
+        int i = (int)data.bonusStat;
+        if (i < 0 || i >= grantedBonus.Length) return;
+
+        grantedBonus[i] += data.bonusAmount;
+        PushSkillBonuses();
+    }
+
+    // 합계를 통째로 넘긴다. PlayerStats 쪽이 덮어쓰기라 중복 호출이 안전하다.
+    private void PushSkillBonuses()
+    {
+        var stats = Stats;
+        if (stats != null) stats.SetSkillBonuses(grantedBonus);
     }
 
     // 상하좌우 인접 노드 활성화 로직
