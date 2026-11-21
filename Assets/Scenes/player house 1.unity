@@ -14829,6 +14829,7 @@ GameObject:
   - component: {fileID: 1365982339}
   - component: {fileID: 1365982340}
   - component: {fileID: 1365982341}
+  - component: {fileID: 1365982342}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -14976,6 +14977,36 @@ MonoBehaviour:
   maxCheckInterval: 10
   maxSpawnPerBatch: 3
   spawnImmediatelyOnStart: 1
+--- !u!114 &1365982342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365982336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 544855a6eba26114a89cea18e70ae4d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  warpPoints:
+  - pointID: 
+    pointTransform: {fileID: 0}
+    targetSceneName: 
+    targetPointID: 
+    triggerRadius: 0
+    warpOnStep: 0
+  floorTilemap: {fileID: 0}
+  blockedTilemap: {fileID: 0}
+  playerTransform: {fileID: 0}
+  interactRange: 2.2
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  doorSafeRadius: 1.2
+  previewRenderer: {fileID: 0}
+  validColor: {r: 0.2, g: 1, b: 0.2, a: 0.55}
+  invalidColor: {r: 1, g: 0.2, b: 0.2, a: 0.55}
 --- !u!1001 &1370723920
 PrefabInstance:
   m_ObjectHideFlags: 0
