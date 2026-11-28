@@ -20,10 +20,9 @@ public class UnlockSign : MonoBehaviour
         // 실제 게임에서는 "돈이 충분한지" 검사하는 로직이 필요합니다.
         GameLog.Log($"{chunkCoord} 구역 해금 시도! (비용: {cost})");
 
-        // 매니저에게 해금 요청
+        // 매니저에게 해금 요청. 표지판 파괴도 매니저가 맡는다.
+        // (여기서 스스로 파괴하면, 세이브를 불러와 코드로 개방할 때는 클릭이 없으니
+        //  이미 열린 땅 위에 표지판이 남는다.)
         manager.UnlockChunk(chunkCoord);
-
-        // 땅이 열렸으니 표지판 파괴
-        Destroy(gameObject);
     }
 }

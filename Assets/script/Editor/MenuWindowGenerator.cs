@@ -82,6 +82,7 @@ public static class MenuWindowGenerator
         window.tabs.Add(MakeTab(tabBar, "Craft", BuildCraftingPanel(content)));
         window.tabs.Add(MakeTab(tabBar, "Stats", StatPanelGenerator.Build(content)));
         window.tabs.Add(MakeTab(tabBar, "Skills", SkillTreePanelGenerator.Build(content)));
+        window.tabs.Add(MakeTab(tabBar, "Save", SaveLoadPanelGenerator.Build(content)));
 
         GameObject quickSlotBar = InventoryPanelGenerator.BuildQuickSlotBar(canvas.transform);
         // 창이 열리면 바 전체가 아니라 자식 BG만 숨긴다. 루트를 끄면 QuickSlotBarUI까지 멈춘다.
@@ -134,6 +135,7 @@ public static class MenuWindowGenerator
         DestroyAll<MenuWindow>();      // 창을 먼저 지우면 그 안의 탭 내용도 같이 사라진다
         DestroyAll<InventoryUI>();
         DestroyAll<StatPanelUI>();
+        DestroyAll<SaveLoadPanelUI>();
         DestroyAll<QuickSlotBarUI>();
         DestroyAll<ItemDragController>();
 
@@ -278,7 +280,9 @@ public static class MenuWindowGenerator
         return ui;
     }
 
-    private static MenuWindow.Tab MakeTab(RectTransform tabBar, string label, GameObject panel, string sceneToLoad = null)
+    // public인 이유: SaveLoadPanelGenerator가 탭을 하나 덧붙일 때 같은 모양의 버튼을 만들어야 한다.
+    // 탭 버튼 스타일과 색을 이 클래스가 소유하므로, 복사해 가는 대신 이 함수를 빌려 쓴다.
+    public static MenuWindow.Tab MakeTab(RectTransform tabBar, string label, GameObject panel, string sceneToLoad = null)
     {
         var buttonImage = EditorUIBuilder.CreateChildImage("Tab_" + label, tabBar, InactiveTab, fixedWidth: 0);
         buttonImage.gameObject.AddComponent<LayoutElement>().preferredWidth = 130;

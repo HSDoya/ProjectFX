@@ -657,6 +657,24 @@ public class PlayerMove : MonoBehaviour
         OnLevelUp?.Invoke(level, gainedLevels);
     }
 
+    /// <summary>
+    /// 세이브에서 읽은 현재 체력/스태미너를 되돌린다.
+    ///
+    /// <b>스탯을 먼저 반영한 뒤에</b> 불러야 한다. 최대치가 스탯에서 계산되므로,
+    /// 순서가 바뀌면 ApplyStatChange가 "최대치가 늘었다"고 보고 현재치를 한 번 더 올린다.
+    /// </summary>
+    public void RestoreVitals(float health, float stamina)
+    {
+        // 증감 판정의 기준점을 지금 최대치로 맞춰둔다. 이게 저장 시점 값으로 남아 있으면
+        // 다음 스탯 변경 때 그 차이만큼 체력이 공짜로 붙는다.
+        lastMaxHealth = MaxHealth;
+        lastMaxStamina = MaxStamina;
+
+        // 체력 0으로 저장된 파일을 그대로 읽으면 죽은 채로 시작한다. 최소 1은 보장한다.
+        currentHealth = Mathf.Clamp(health, 1f, MaxHealth);
+        currentStamina = Mathf.Clamp(stamina, 0f, MaxStamina);
+    }
+
     private void ApplyStatChange()
     {
         currentHealth = Mathf.Min(currentHealth + Mathf.Max(0f, MaxHealth - lastMaxHealth), MaxHealth);

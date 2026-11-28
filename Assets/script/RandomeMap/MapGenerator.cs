@@ -33,9 +33,73 @@ public class MapGenerator : MonoBehaviour
     public bool useRandomSeed = true;
     public int seed;
 
+    [Header("개발용")]
+    [Tooltip("켜면 세이브의 생성 설정을 무시하고 현재 인스펙터 값으로 지형을 만든다. " +
+             "생성 파라미터를 조정하는 동안에만 켠다. 시드는 그대로 적용된다.")]
+    public bool ignoreSavedWorldSettings;
+
+    /// <summary>
+    /// 생성 규칙 버전. 지형이나 오브젝트 배치 방식을 바꿀 때마다 올린다.
+    ///
+    /// 세이브 포맷 버전과는 다른 것이다. 포맷이 그대로여도 생성 규칙이 바뀌면
+    /// 같은 시드가 다른 세계를 만든다. 그 사실을 불러올 때 알려주기 위한 번호다.
+    ///
+    ///   1: 나무/돌을 전역 UnityEngine.Random으로 뿌리던 시절 (배치 재현 불가)
+    ///   2: 청크별 System.Random으로 뿌린다 (시드로 배치 재현)
+    /// </summary>
+    public const int GenVersion = 2;
+
     private float offsetX;
     private float offsetY;
     private HashSet<Vector2Int> generatedChunks = new HashSet<Vector2Int>();
+
+    // ───────────────────────── 저장 / 불러오기 ─────────────────────────
+
+    public void CaptureSettings(WorldGenSave w)
+    {
+        w.genVersion = GenVersion;
+        w.hasSeed = true;
+        w.seed = seed;
+
+        w.hasSettings = true;
+        w.chunkSize = chunkSize;
+        w.noiseScale = noiseScale;
+        w.waterThreshold = waterThreshold;
+        w.startIslandRadius = startIslandRadius;
+        w.unlockedIslandRadius = unlockedIslandRadius;
+        w.shapeWobbleAmount = shapeWobbleAmount;
+        w.islandEdgePenalty = islandEdgePenalty;
+    }
+
+    /// <summary>
+    /// 시드만 되돌린다. 설정과 분리된 이유: ignoreSavedWorldSettings를 켜고 파라미터를
+    /// 조정하는 중에도 시드는 적용되어야 한다. 시드까지 무시하면 아예 다른 세계가 된다.
+    /// </summary>
+    public void ApplySeed(WorldGenSave w, List<string> changes)
+    {
+        if (w == null || !w.hasSeed) return;
+
+        if (seed != w.seed) changes?.Add($"seed {seed} → {w.seed}");
+
+        // 다음 InitMap이 시드를 새로 뽑지 않도록 끈다.
+        useRandomSeed = false;
+        seed = w.seed;
+    }
+
+    public void ApplySettings(WorldGenSave w, List<string> changes)
+    {
+        if (w == null || !w.hasSettings) return;
+
+        // chunkSize는 좌표 체계의 기준이다. 0이 들어오면 세계가 만들어지지 않는다.
+        if (w.chunkSize > 0) SaveDiff.Set(ref chunkSize, w.chunkSize, "chunkSize", changes);
+
+        SaveDiff.Set(ref noiseScale, w.noiseScale, "noiseScale", changes);
+        SaveDiff.Set(ref waterThreshold, w.waterThreshold, "waterThreshold", changes);
+        SaveDiff.Set(ref startIslandRadius, w.startIslandRadius, "startIslandRadius", changes);
+        SaveDiff.Set(ref unlockedIslandRadius, w.unlockedIslandRadius, "unlockedIslandRadius", changes);
+        SaveDiff.Set(ref shapeWobbleAmount, w.shapeWobbleAmount, "shapeWobbleAmount", changes);
+        SaveDiff.Set(ref islandEdgePenalty, w.islandEdgePenalty, "islandEdgePenalty", changes);
+    }
 
     public void InitMap()
     {
@@ -129,7 +193,7 @@ public class MapGenerator : MonoBehaviour
 
         if (objectSpawner != null)
         {
-            objectSpawner.SpawnObjectsInChunk(chunkCoord, chunkSize);
+            objectSpawner.SpawnObjectsInChunk(chunkCoord, chunkSize, seed);
         }
     }
 }

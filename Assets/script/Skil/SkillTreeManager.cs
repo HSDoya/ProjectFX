@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -28,6 +29,11 @@ public class SkillTreeManager : MonoBehaviour
     // PlayerStats는 이 값을 통보받아 계산에만 쓴다(SetSkillBonuses).
     private int[] grantedBonus;
 
+    // 세이브에서 읽었지만 아직 트리가 만들어지지 않아 적용하지 못한 해금 목록.
+    // 트리는 패널을 처음 열 때 생성되므로, 한 번도 열지 않은 상태에서 불러오면 여기 담아뒀다가
+    // 생성 직후에 적용한다.
+    private string[] pendingUnlocks;
+
     private static readonly int StatCount = System.Enum.GetValues(typeof(StatType)).Length;
 
     // 포인트는 PlayerStats가 소유한다. 여기서 따로 들고 있지 않는다.
@@ -48,6 +54,9 @@ public class SkillTreeManager : MonoBehaviour
             skillGrid = new SkillNode[gridWidth, gridHeight];
             GenerateGrid();
             FitContainer();
+
+            // 트리가 생기기 전에 불러온 세이브가 있으면 지금 반영한다.
+            if (pendingUnlocks != null) ApplyUnlocked(pendingUnlocks);
         }
 
         subscribed = Stats;
@@ -186,6 +195,89 @@ public class SkillTreeManager : MonoBehaviour
         }
 
         ActivateNeighbors(x, y);
+    }
+
+    // ───────────────────────── 저장 / 불러오기 ─────────────────────────
+
+    /// <summary>해금된 스킬의 skillID 목록. 좌표가 아니라 ID로 내보내므로 트리 배치를 바꿔도 안전하다.</summary>
+    public string[] CaptureUnlocked()
+    {
+        // 트리를 한 번도 열지 않았다면 불러온 목록을 그대로 다시 내보낸다.
+        // 안 그러면 "불러오기 -> 트리 안 열고 저장"에서 해금이 전부 날아간다.
+        if (skillGrid == null) return pendingUnlocks ?? new string[0];
+
+        var list = new List<string>();
+        foreach (var node in skillGrid)
+        {
+            if (node == null || node.State != NodeState.Unlocked) continue;
+            if (node.Data == null || string.IsNullOrEmpty(node.Data.skillID)) continue;
+            list.Add(node.Data.skillID);
+        }
+        return list.ToArray();
+    }
+
+    /// <summary>세이브에서 읽은 해금 목록을 반영한다. 트리가 아직 없으면 생성될 때까지 들고 있는다.</summary>
+    public void LoadUnlocked(string[] skillIDs)
+    {
+        pendingUnlocks = skillIDs ?? new string[0];
+        if (generated) ApplyUnlocked(pendingUnlocks);
+    }
+
+    /// <summary>
+    /// 전부 잠근 뒤 기본 해금 + 저장된 해금을 다시 쌓는다.
+    ///
+    /// 더하기만 하면 불러올 때마다 보너스가 누적되므로, 합계도 0부터 다시 센다.
+    /// </summary>
+    private void ApplyUnlocked(string[] skillIDs)
+    {
+        if (skillGrid == null) return;
+
+        foreach (var node in skillGrid)
+            if (node != null) node.SetState(NodeState.Locked);
+
+        grantedBonus = new int[StatCount];
+
+        // 기본 해금은 세이브 내용과 무관하게 항상 열려 있어야 한다.
+        if (skillDatabase != null)
+        {
+            foreach (var skill in skillDatabase.allSkills)
+                if (skill != null && skill.unlockedByDefault)
+                    UnlockNodeData(skill.gridX, skill.gridY);
+        }
+
+        if (skillIDs != null)
+        {
+            // 같은 ID가 두 번 들어 있으면 보너스가 두 번 더해진다. 한 번만 처리한다.
+            var seen = new HashSet<string>();
+            foreach (var id in skillIDs)
+            {
+                if (string.IsNullOrEmpty(id) || !seen.Add(id)) continue;
+
+                SkillNode node = FindNodeById(id);
+                if (node == null)
+                {
+                    GameLog.LogWarning($"[SkillTree] 알 수 없는 스킬 ID '{id}' - 건너뜁니다.");
+                    continue;
+                }
+                if (node.State == NodeState.Unlocked) continue; // 기본 해금과 겹치는 경우
+
+                UnlockNodeData(node.X, node.Y);
+            }
+        }
+
+        PushSkillBonuses();
+        RefreshPoints();
+    }
+
+    private SkillNode FindNodeById(string skillID)
+    {
+        if (skillGrid == null || string.IsNullOrEmpty(skillID)) return null;
+
+        foreach (var node in skillGrid)
+            if (node != null && node.Data != null && node.Data.skillID == skillID)
+                return node;
+
+        return null;
     }
 
     // 해금된 스킬 하나의 보너스를 합계에 더하고 PlayerStats에 통보한다.

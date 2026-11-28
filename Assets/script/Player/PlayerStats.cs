@@ -206,6 +206,36 @@ public class PlayerStats : MonoBehaviour
         if (changed) OnStatsChanged?.Invoke();
     }
 
+    // ───────────────────────── 저장 / 불러오기 ─────────────────────────
+
+    /// <summary>찍은 포인트의 복사본. 내부 배열을 그대로 넘기면 바깥에서 고칠 수 있다.</summary>
+    public int[] CaptureAllocated()
+    {
+        if (allocated == null) return new int[StatCount];
+
+        var copy = new int[allocated.Length];
+        Array.Copy(allocated, copy, allocated.Length);
+        return copy;
+    }
+
+    /// <summary>
+    /// 세이브에서 읽은 값으로 되돌린다.
+    ///
+    /// 스킬 보너스(skillBonus)는 건드리지 않는다. 그건 해금된 스킬에서 다시 계산되는 값이라
+    /// 저장 대상이 아니고, SkillTreeManager가 SetSkillBonuses로 따로 통보한다.
+    /// 저장 당시보다 StatType이 늘었더라도 Resize가 길이를 맞춰준다.
+    /// </summary>
+    public void LoadFrom(int[] allocatedValues, int statPoints, int skillPoints)
+    {
+        // 넘겨받은 배열을 그대로 들고 있으면 바깥에서 바꿀 때 같이 바뀐다. 복사해서 쓴다.
+        allocated = Resize(allocatedValues == null ? null : (int[])allocatedValues.Clone());
+
+        availableStatPoints = Mathf.Max(0, statPoints);
+        availableSkillPoints = Mathf.Max(0, skillPoints);
+
+        OnStatsChanged?.Invoke();
+    }
+
     /// <summary>테스트용. 인스펙터에서 남은 포인트를 직접 바꿨을 때 UI를 갱신시킨다.</summary>
     public void NotifyChanged() => OnStatsChanged?.Invoke();
 

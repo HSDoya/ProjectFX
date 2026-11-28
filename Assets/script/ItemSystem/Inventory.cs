@@ -49,6 +49,28 @@ public class Inventory : MonoBehaviour
         onItemChangedCallback?.Invoke();
     }
 
+    /// <summary>
+    /// 세이브에서 읽은 내용으로 인벤토리를 통째로 교체한다.
+    ///
+    /// 칸 수가 저장 당시와 달라도(인벤토리를 넓혔다면) 들어갈 수 있는 만큼만 채우고
+    /// 나머지는 빈 칸으로 둔다. 배열을 갈아끼우므로 UI 갱신까지 여기서 책임진다.
+    /// </summary>
+    public void ReplaceAll(Item[] newItems, Item[] newQuickSlots)
+    {
+        items = Fit(newItems, INVENTORY_SIZE);
+        quickSlots = Fit(newQuickSlots, QUICK_SLOT_SIZE);
+        RefreshUI();
+    }
+
+    private static Item[] Fit(Item[] source, int size)
+    {
+        var result = new Item[size];
+        if (source == null) return result;
+
+        Array.Copy(source, result, Mathf.Min(source.Length, size));
+        return result;
+    }
+
     private void Start()
     {
         // --- 테스트 아이템 지급 (테스트 후 삭제하세요) ---
